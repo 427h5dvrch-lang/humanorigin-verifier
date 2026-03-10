@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>HumanOrigin Verifier</title>
+  <style>
+    body{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Arial,sans-serif;margin:0;background:#0b1220;color:#e8eefc}
+    .wrap{max-width:960px;margin:0 auto;padding:24px}
+    .card{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:16px;padding:18px;margin:12px 0}
+    .drop{border:2px dashed rgba(255,255,255,0.25);border-radius:16px;padding:22px;text-align:center}
+    .muted{color:rgba(232,238,252,0.7)}
+    .ok{color:#22c55e;font-weight:900}
+    .bad{color:#ef4444;font-weight:900}
+    .warn{color:#f59e0b;font-weight:900}
+    pre{white-space:pre-wrap;word-break:break-word;background:rgba(0,0,0,0.25);padding:12px;border-radius:12px}
+    input,button{border-radius:12px}
+    button{background:#2563eb;color:#fff;border:0;padding:10px 14px;font-weight:800;cursor:pointer}
+    input{width:100%;padding:10px;border:1px solid rgba(255,255,255,0.18);background:rgba(0,0,0,0.25);color:#e8eefc}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    @media (max-width:860px){.grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <h1 style="margin:0 0 6px 0;">HumanOrigin — Verifier</h1>
+  <div class="muted">1) Déposez <b>.ho.json</b>  2) (optionnel) Déposez le <b>document certifié</b> pour vérifier le hash.</div>
+
+  <div class="grid">
+    <div class="card drop" id="dropHo">
+      <div style="font-size:16px;font-weight:900;margin-bottom:8px;">⬇️ Déposez le fichier .ho.json</div>
+      <div class="muted">ou sélectionnez</div>
+      <div style="margin-top:10px;"><input type="file" id="fileHo" accept=".json,application/json" /></div>
+    </div>
+
+    <div class="card drop" id="dropDoc">
+      <div style="font-size:16px;font-weight:900;margin-bottom:8px;">⬇️ Déposez le document certifié (PDF, image, doc…)</div>
+      <div class="muted">optionnel : vérifie <code>document.sha256</code></div>
+      <div style="margin-top:10px;"><input type="file" id="fileDoc" /></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="muted" style="margin-bottom:8px;">Optionnel — Forcer une clé publique</div>
+    <input id="overridePubKey" placeholder="Base64 pubkey (optionnel)" />
+  </div>
+
+  <div class="card" id="result" style="display:none;"></div>
+  <div class="card" id="details" style="display:none;"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/tweetnacl@1.0.3/nacl.min.js"></script>
+<script>
+  const $ = (id) => document.getElementById(id);
+
+  function b64ToU8(b64) {
+    b64 = (b64 || "").replace(/\\s+/g, "");
+    const bin = atob(b64);
+    const u8 = new Uint8Array(bin.length);
+    for (let i=0;i<bin.length;i++) u8[i] = bin.charCodeAt(i);
+    return u8;
+  }
+  function u8ToHex(u8) {
+    return [...u8].map(b => b.toString(16).padStart(2,"0")).join("");
+  }
+  async function sha256BytesFromString(str) {
+    const buf = new TextEncoder().encode(str);
+    const digest = await crypto.subtle.digest("SHA-256", buf);
+    return new Uint8Array(digest);
+  }
+  async function sha256BytesFromFile(file) {
+    const ab = await file.arrayBuffer();
+    const digest = await crypto.subtle.digest("SHA-256", ab);
+    return new Uint8Array(digest);
+  }
+
+  function canonicalize(value) {
+    if (value === null || typeof value !== "object") return value;
+    if (Array.isArray(value)) return value.map(canonicalize);
+    const keys = Object.keys(value).sort();
+    const out = {};
+    for (const k of keys) out[k] = canonicalize(value[k]);
+    return out;
+  }
+  function stripForSigning(doc) {
+    const copy = JSON.parse(JSON.stringify(doc));
+    if (copy.signing) {
+      delete copy.signing.signature;
+      delete copy.signing.payload_to_sign;
+    }
+    return copy;
+  }
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+  }
+
+  let lastHo = null;
+  let lastDocHex = null;
+
+  async function verifyHoJson(text) {
+    const doc = JSON.parse(text);
+    const signing = doc.signing || {};
+
+    const sigB64 = signing.signature || "";
+    const embeddedPubB64 = signing.pubkey || signing.public_key || "";
+    const override = $("overridePubKey").value.trim();
+    const pubB64 = override || embeddedPubB64;
+
+    if (!sigB64) throw new Error("Champ signing.signature manquant");
+    if (!pubB64) throw new Error("Aucune pubkey (signing.pubkey manquante + override vide)");
+
+    const stripped = stripForSigning(doc);
+    const canonStr = JSON.stringify(canonicalize(stripped));
+
+    // IMPORTANT: on vérifie la signature sur les 32 bytes du SHA-256 du canonical JSON
+    const digestBytes = await sha256BytesFromString(canonStr);
+    const digestHex = u8ToHex(digestBytes);
+
+    const payloadToSign = (signing.payload_to_sign || "").toLowerCase();
+    const payloadMatch = payloadToSign ? (payloadToSign === digestHex.toLowerCase()) : null;
+
+    const sig = b64ToU8(sigB64);
+    const pub = b64ToU8(pubB64);
+
+    const ok = nacl.sign.detached.verify(digestBytes, sig, pub);
+    return { ok, doc, digestHex, payloadMatch, pubUsedB64: pubB64 };
+  }
+
+  function renderAll() {
+    if (!lastHo) return;
+
+    $("result").style.display = "block";
+    $("details").style.display = "block";
+
+    const { ok, doc, digestHex, payloadMatch, pubUsedB64 } = lastHo;
+
+    let docCheckHtml = `<span class="muted">Document: non fourni</span>`;
+    if (lastDocHex && doc.document?.sha256) {
+      const expected = String(doc.document.sha256 || "").toLowerCase();
+      const got = String(lastDocHex || "").toLowerCase();
+      const match = expected && got && expected === got;
+      docCheckHtml = match
+        ? `<span class="ok">Document hash: MATCH ✅</span>`
+        : `<span class="bad">Document hash: NO MATCH ❌</span>
+           <div class="muted" style="margin-top:6px;">expected: <b>${escapeHtml(expected)}</b><br>got: <b>${escapeHtml(got)}</b></div>`;
+    }
+
+    let payloadHtml = "";
+    if (payloadMatch === true) payloadHtml = `<span class="ok">payload_to_sign: OK ✅</span>`;
+    else if (payloadMatch === false) payloadHtml = `<span class="warn">payload_to_sign: différent (non bloquant) ⚠️</span>`;
+
+    $("result").innerHTML = `
+      <div style="font-size:18px;font-weight:950;">
+        Signature :
+        <span class="${ok ? "ok" : "bad"}">${ok ? "VALID ✅" : "INVALID ❌"}</span>
+      </div>
+      <div style="margin-top:10px;">${docCheckHtml}</div>
+      <div style="margin-top:10px;">${payloadHtml}</div>
+      <div class="muted" style="margin-top:10px;">
+        digest (sha256 hex du canonical): <b>${escapeHtml(digestHex)}</b>
+      </div>
+    `;
+
+    const ho = doc.ho || {};
+    const subj = doc.subject || {};
+    const score = doc.score || {};
+    const m = doc.evidence?.sessions?.[0]?.metrics || {};
+
+    $("details").innerHTML = `
+      <div style="display:flex;gap:18px;flex-wrap:wrap;">
+        <div style="flex:1;min-width:260px;">
+          <div style="font-weight:950;margin-bottom:6px;">Résumé</div>
+          <div class="muted">HO v: <b>${escapeHtml(ho.version || "?")}</b></div>
+          <div class="muted">Cert ID: <b>${escapeHtml(ho.certificate_id || "?")}</b></div>
+          <div class="muted">App: <b>${escapeHtml((ho.app && ho.app.name) || "?")}</b> ${(ho.app && ho.app.version) ? ("v"+escapeHtml(ho.app.version)) : ""}</div>
+          <div class="muted">Titre: <b>${escapeHtml(subj.title || "?")}</b></div>
+          <div class="muted">Verdict: <b>${escapeHtml(score.verdict || "?")}</b></div>
+        </div>
+        <div style="flex:1;min-width:260px;">
+          <div style="font-weight:950;margin-bottom:6px;">Metrics (aperçu)</div>
+          <div class="muted">active_seconds: <b>${escapeHtml(m.active_seconds ?? "?")}</b></div>
+          <div class="muted">keystrokes: <b>${escapeHtml(m.keystrokes ?? "?")}</b></div>
+          <div class="muted">mouse_moves: <b>${escapeHtml(m.mouse_moves ?? "?")}</b></div>
+          <div class="muted">pastes: <b>${escapeHtml(m.pastes ?? "?")}</b></div>
+        </div>
+      </div>
+
+      <div style="margin-top:14px;font-weight:950;">Clé publique utilisée</div>
+      <pre>${escapeHtml(pubUsedB64)}</pre>
+
+      <div style="margin-top:14px;font-weight:950;">Document attendu (sha256)</div>
+      <pre>${escapeHtml(doc.document?.sha256 || "—")}</pre>
+    `;
+  }
+
+  async function handleHoText(text) {
+    try {
+      lastHo = await verifyHoJson(text);
+      renderAll();
+    } catch (e) {
+      $("result").style.display = "block";
+      $("details").style.display = "none";
+      $("result").innerHTML = `<div style="font-size:18px;font-weight:950;">Erreur: <span class="bad">${escapeHtml(e.message || String(e))}</span></div>`;
+    }
+  }
+
+  async function handleDocFile(file) {
+    const digestBytes = await sha256BytesFromFile(file);
+    lastDocHex = u8ToHex(digestBytes);
+    renderAll();
+  }
+
+  const dropHo = $("dropHo");
+  dropHo.addEventListener("dragover", (e)=>{ e.preventDefault(); dropHo.style.opacity="0.85"; });
+  dropHo.addEventListener("dragleave", ()=>{ dropHo.style.opacity="1"; });
+  dropHo.addEventListener("drop", async (e)=>{
+    e.preventDefault(); dropHo.style.opacity="1";
+    const f = e.dataTransfer.files?.[0];
+    if (!f) return;
+    handleHoText(await f.text());
+  });
+  $("fileHo").addEventListener("change", async (e)=>{
+    const f = e.target.files?.[0];
+    if (!f) return;
+    handleHoText(await f.text());
+  });
+
+  const dropDoc = $("dropDoc");
+  dropDoc.addEventListener("dragover", (e)=>{ e.preventDefault(); dropDoc.style.opacity="0.85"; });
+  dropDoc.addEventListener("dragleave", ()=>{ dropDoc.style.opacity="1"; });
+  dropDoc.addEventListener("drop", async (e)=>{
+    e.preventDefault(); dropDoc.style.opacity="1";
+    const f = e.dataTransfer.files?.[0];
+    if (!f) return;
+    handleDocFile(f);
+  });
+  $("fileDoc").addEventListener("change", async (e)=>{
+    const f = e.target.files?.[0];
+    if (!f) return;
+    handleDocFile(f);
+  });
+</script>
+</body>
+</html>
