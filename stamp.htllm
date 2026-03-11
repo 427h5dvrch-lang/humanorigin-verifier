@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>HumanOrigin — Stamp</title>
+  <style>
+    body{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Arial,sans-serif;margin:0;background:#0b1220;color:#e8eefc}
+    .wrap{max-width:900px;margin:0 auto;padding:24px}
+    .card{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:16px;padding:18px;margin:12px 0}
+    .drop{border:2px dashed rgba(255,255,255,0.25);border-radius:16px;padding:22px;text-align:center}
+    .muted{color:rgba(232,238,252,0.7)}
+    button{background:#2563eb;color:#fff;border:0;border-radius:12px;padding:10px 14px;font-weight:800;cursor:pointer}
+    .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+    input{width:100%;padding:10px;border-radius:12px;border:1px solid rgba(255,255,255,0.18);background:rgba(0,0,0,0.25);color:#e8eefc}
+    .preview{background:rgba(0,0,0,0.25);border-radius:16px;padding:14px;overflow:auto}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <h1 style="margin:0 0 6px 0;">HumanOrigin — Stamp</h1>
+  <div class="muted">Déposez un <b>.ho.json</b> et téléchargez une estampille <b>SVG</b> (collable sur PDF/Docs/Web).</div>
+
+  <div class="card drop" id="drop">
+    <div style="font-size:16px;font-weight:900;margin-bottom:8px;">⬇️ Déposez le fichier .ho.json</div>
+    <div class="muted">ou sélectionnez</div>
+    <div style="margin-top:10px;"><input type="file" id="file" accept=".json,application/json" /></div>
+  </div>
+
+  <div class="card">
+    <div class="muted" style="margin-bottom:8px;">URL du verifier (QR)</div>
+    <input id="verifierUrl" value="https://427h5dvrch-lang.github.io/humanorigin-verifier/" />
+  </div>
+
+  <div class="card">
+    <div class="row">
+      <button id="btnSvg" disabled>Télécharger stamp.svg</button>
+      <span class="muted" id="status">Aucun fichier chargé.</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="font-weight:900;margin-bottom:8px;">Aperçu SVG</div>
+    <div class="preview" id="preview"></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<script>
+  const $ = (id) => document.getElementById(id);
+
+  function esc(s){return String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));}
+  function shortId(uuid){ return (uuid || "HO").replace(/[^a-zA-Z0-9]/g,"").slice(0,10).toUpperCase(); }
+
+  function downloadText(filename, text) {
+    const blob = new Blob([text], { type: "image/svg+xml;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url), 300);
+  }
+
+  async function makeStampSvg(doc) {
+    const verifierUrl = $("verifierUrl").value.trim() || "https://427h5dvrch-lang.github.io/humanorigin-verifier/";
+    const certId = doc?.ho?.certificate_id || "";
+    const issued = doc?.ho?.issued_at || "";
+    const verdict = doc?.score?.verdict || "—";
+    const docHash = doc?.document?.sha256 || "";
+
+    const label = verdict === "COHERENT" ? "COHÉRENT" : (verdict === "INCOMPLETE" ? "INCOMPLET" : verdict);
+    const idShort = shortId(certId);
+    const hashShort = docHash ? (docHash.slice(0,8) + "…" + docHash.slice(-6)) : "—";
+
+    const qrSvg = await QRCode.toString(verifierUrl, { type: "svg", margin: 0, width: 120 });
+
+    // On récupère juste le <svg>…</svg> du QR
+    const qrInner = qrSvg.replace(/^.*?<svg[^>]*>/s, "").replace(/<\/svg>\s*$/s, "");
+
+    // Stamp rectangle (clean + imprimable)
+    const stamp =
+`<svg xmlns="http://www.w3.org/2000/svg" width="520" height="180" viewBox="0 0 520 180">
+  <defs>
+    <style>
+      .bg{fill:#ffffff;fill-opacity:0.98}
+      .border{fill:none;stroke:#0b1220;stroke-width:3}
+      .h{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Arial,sans-serif;font-weight:900;fill:#0b1220}
+      .t{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;fill:#0b1220}
+      .m{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Arial,sans-serif;font-weight:700;fill:#0b1220}
+      .mut{fill:#334155}
+    </style>
+  </defs>
+
+  <rect x="8" y="8" width="504" height="164" rx="18" class="bg"/>
+  <rect x="8" y="8" width="504" height="164" rx="18" class="border"/>
+
+  <text x="26" y="48" class="h" font-size="26">HumanOrigin</text>
+  <text x="26" y="76" class="m" font-size="14">Process Certificate</text>
+
+  <text x="26" y="110" class="m" font-size="16">Verdict: <tspan class="h" font-size="16">${esc(label)}</tspan></text>
+  <text x="26" y="132" class="t">ID: ${esc(idShort)}</text>
+  <text x="26" y="152" class="t">Doc hash: ${esc(hashShort)}</text>
+
+  <text x="300" y="152" class="t mut">Verifier: ${esc(verifierUrl.replace(/^https?:\/\//,""))}</text>
+
+  <g transform="translate(380,28)">
+    <rect x="-6" y="-6" width="132" height="132" rx="12" fill="#fff" stroke="#0b1220" stroke-width="2"/>
+    <svg x="0" y="0" width="120" height="120" viewBox="0 0 120 120">
+      ${qrInner}
+    </svg>
+  </g>
+</svg>`;
+
+    return stamp;
+  }
+
+  let lastStampSvg = null;
+
+  async function handleHoJsonText(text) {
+    try {
+      const doc = JSON.parse(text);
+      lastStampSvg = await makeStampSvg(doc);
+      $("preview").innerHTML = lastStampSvg;
+      $("btnSvg").disabled = false;
+      $("status").textContent = "Stamp prêt ✅";
+    } catch (e) {
+      $("btnSvg").disabled = true;
+      $("preview").innerHTML = "";
+      $("status").textContent = "Erreur: " + (e?.message || e);
+    }
+  }
+
+  $("btnSvg").onclick = () => {
+    if (!lastStampSvg) return;
+    downloadText("humanorigin-stamp.svg", lastStampSvg);
+  };
+
+  const drop = $("drop");
+  drop.addEventListener("dragover", (e)=>{ e.preventDefault(); drop.style.opacity="0.85"; });
+  drop.addEventListener("dragleave", ()=>{ drop.style.opacity="1"; });
+  drop.addEventListener("drop", async (e)=>{
+    e.preventDefault(); drop.style.opacity="1";
+    const f = e.dataTransfer.files?.[0];
+    if (!f) return;
+    handleHoJsonText(await f.text());
+  });
+  $("file").addEventListener("change", async (e)=>{
+    const f = e.target.files?.[0];
+    if (!f) return;
+    handleHoJsonText(await f.text());
+  });
+</script>
+</body>
+</html>
