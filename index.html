@@ -91,129 +91,31 @@
     [data-lang="fr"]{display:none}
     @media (max-width:860px){.grid{grid-template-columns:1fr}.record-grid{grid-template-columns:1fr}}
   
-.meaning-grid{
-  display:grid;
-  grid-template-columns:repeat(3,minmax(0,1fr));
-  gap:20px;
-  margin-top:24px;
-}
-.meaning-card{
-  background:rgba(255,255,255,0.72);
-  border:1px solid rgba(15,23,42,0.08);
-  border-radius:20px;
-  padding:22px;
-  box-shadow:0 10px 30px rgba(15,23,42,0.06);
-}
-.meaning-card h3{
-  margin:0 0 12px 0;
-}
-.section-intro{
-  max-width:860px;
-  margin:0 0 8px 0;
-}
-.how-it-works-block{
-  margin-top:28px;
-  padding:24px;
-  border-radius:20px;
-  background:rgba(248,250,252,0.85);
-  border:1px solid rgba(15,23,42,0.08);
-}
-.steps-list{
-  margin:14px 0 0 20px;
-  padding:0;
-}
-.steps-list li{
-  margin:10px 0;
-}
-@media (max-width: 980px){
-  .meaning-grid{
-    grid-template-columns:1fr;
-  }
-}
-
-
-.meaning-grid{
-  display:grid;
-  grid-template-columns:repeat(3,minmax(0,1fr));
-  gap:18px;
-  margin-top:20px;
-}
-.meaning-subcard{
-  background:rgba(255,255,255,0.72);
-  border:1px solid rgba(15,23,42,0.08);
-  border-radius:18px;
-  padding:20px;
-  box-shadow:0 10px 30px rgba(15,23,42,0.06);
-}
-.meaning-subcard h3{
-  margin:0 0 10px 0;
-}
-.section-kicker{
-  font-size:12px;
-  font-weight:700;
-  text-transform:uppercase;
-  letter-spacing:.08em;
-  opacity:.7;
-  margin-bottom:8px;
-}
-.section-intro{
-  max-width:860px;
-}
-.how-it-works-block{
-  margin-top:24px;
-  padding:22px;
-  border-radius:18px;
-  background:rgba(248,250,252,0.9);
-  border:1px solid rgba(15,23,42,0.08);
-}
-.steps-list{
-  margin:12px 0 0 20px;
-  padding:0;
-}
-.steps-list li{
-  margin:10px 0;
-}
-@media (max-width: 980px){
-  .meaning-grid{
-    grid-template-columns:1fr;
-  }
-}
-
-
-.meaning-subcard h3{
-  margin:0 0 10px 0;
-  color:#0f172a !important;
-}
-.meaning-subcard p{
-  color:#334155 !important;
-}
-.how-it-works-block h3{
-  color:#0f172a !important;
-}
-.how-it-works-block,
-.how-it-works-block li{
-  color:#334155 !important;
-}
-.section-kicker{
-  color:#475569 !important;
-}
-.section-intro{
-  color:#475569 !important;
-}
-
+.meaning-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-top:20px;}
+.meaning-subcard{background:rgba(255,255,255,0.72);border:1px solid rgba(15,23,42,0.08);border-radius:18px;padding:20px;box-shadow:0 10px 30px rgba(15,23,42,0.06);}
+.meaning-subcard h3{margin:0 0 10px 0;color:#0f172a !important;}
+.meaning-subcard p{color:#334155 !important;}
+.section-kicker{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;opacity:.7;margin-bottom:8px;color:#475569 !important;}
+.section-intro{max-width:860px;color:#475569 !important;}
+.how-it-works-block{margin-top:24px;padding:22px;border-radius:18px;background:rgba(248,250,252,0.9);border:1px solid rgba(15,23,42,0.08);color:#334155 !important;}
+.how-it-works-block h3{color:#0f172a !important;}
+.steps-list{margin:12px 0 0 20px;padding:0;}
+.steps-list li{margin:10px 0;}
+@media (max-width:980px){.meaning-grid{grid-template-columns:1fr;}}
 </style>
 </head>
 <body>
 <div class="wrap">
   <div class="langbar">
-    <button class="langbtn active" id="langEnBtn" type="button" onclick="document.documentElement.lang='en';document.querySelectorAll('[data-lang]').forEach(el=>el.style.display=(el.getAttribute('data-lang')==='en'?'':'none'));document.querySelectorAll('[data-lang-inline]').forEach(el=>el.style.display=(el.getAttribute('data-lang-inline')==='en'?'':'none'));document.getElementById('langEnBtn')&&document.getElementById('langEnBtn').classList.add('active');document.getElementById('langFrBtn')&&document.getElementById('langFrBtn').classList.remove('active');" >EN</button>
-    <button class="langbtn" id="langFrBtn" type="button" onclick="document.documentElement.lang='fr';document.querySelectorAll('[data-lang]').forEach(el=>el.style.display=(el.getAttribute('data-lang')==='fr'?'':'none'));document.querySelectorAll('[data-lang-inline]').forEach(el=>el.style.display=(el.getAttribute('data-lang-inline')==='fr'?'':'none'));document.getElementById('langFrBtn')&&document.getElementById('langFrBtn').classList.add('active');document.getElementById('langEnBtn')&&document.getElementById('langEnBtn').classList.remove('active');" >FR</button>
+    <button class="langbtn active" id="langEnBtn" type="button">EN</button>
+    <button class="langbtn" id="langFrBtn" type="button">FR</button>
   </div>
 
   <div id="recordHero" class="hero-record" style="display:none;"></div>
 
-  <div class="card meaning-card" id="recordMeaning">
-  <div data-lang="en">
+  
+<div class="card meaning-card" id="recordMeaning">
+  <div class="lang-panel lang-en">
     <div class="section-kicker">Public meaning</div>
     <h2 class="section-title">What this record means</h2>
     <p class="section-intro">
@@ -250,7 +152,7 @@
     </div>
   </div>
 
-  <div data-lang="fr">
+  <div class="lang-panel lang-fr" style="display:none;">
     <div class="section-kicker">Signification publique</div>
     <h2 class="section-title">Ce que ce registre signifie</h2>
     <p class="section-intro">
@@ -288,98 +190,61 @@
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/tweetnacl@1.0.3/nacl.min.js">
-
-
-document.addEventListener("DOMContentLoaded", () => {
-  renderRecordHero();
-
-  document.documentElement.lang = 'en';
-
-  document.querySelectorAll('#recordHero [data-lang], #recordMeaning [data-lang]').forEach((el) => {
-    el.style.display = (el.getAttribute('data-lang') === 'en') ? '' : 'none';
-  });
-
-  document.querySelectorAll('[data-lang-inline]').forEach((el) => {
-    el.style.display = (el.getAttribute('data-lang-inline') === 'en') ? '' : 'none';
-  });
-
-  const enBtn = document.getElementById('langEnBtn');
-  const frBtn = document.getElementById('langFrBtn');
-  if (enBtn) enBtn.classList.add('active');
-  if (frBtn) frBtn.classList.remove('active');
-});
-
-</script>
+<script src="https://cdn.jsdelivr.net/npm/tweetnacl@1.0.3/nacl.min.js"></script>
 <script>
   const $ = (id) => document.getElementById(id);
   const search = new URLSearchParams(window.location.search);
   const recordId = (search.get("id") || "").trim();
   let currentLang = "en";
 
-  
+  function setLanguage(lang) {
+    currentLang = (lang === "fr") ? "fr" : "en";
+    document.documentElement.lang = currentLang;
 
-function applyLang(lang) {
-  currentLang = (lang === "fr") ? "fr" : "en";
-  document.documentElement.lang = currentLang;
+    document.querySelectorAll(".lang-panel.lang-en").forEach(el => {
+      el.style.display = currentLang === "en" ? "" : "none";
+    });
+    document.querySelectorAll(".lang-panel.lang-fr").forEach(el => {
+      el.style.display = currentLang === "fr" ? "" : "none";
+    });
 
-  document.querySelectorAll("[data-lang]").forEach((el) => {
-    el.style.display = (el.getAttribute("data-lang") === currentLang) ? "" : "none";
+    const enBtn = document.getElementById("langEnBtn");
+    const frBtn = document.getElementById("langFrBtn");
+    if (enBtn) enBtn.classList.toggle("active", currentLang === "en");
+    if (frBtn) frBtn.classList.toggle("active", currentLang === "fr");
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const enBtn = document.getElementById("langEnBtn");
+    const frBtn = document.getElementById("langFrBtn");
+
+    if (enBtn) enBtn.onclick = () => setLanguage("en");
+    if (frBtn) frBtn.onclick = () => setLanguage("fr");
+
+    renderRecordHero();
+    setLanguage("en");
   });
 
-  document.querySelectorAll("[data-lang-inline]").forEach((el) => {
-    el.style.display = (el.getAttribute("data-lang-inline") === currentLang) ? "" : "none";
-  });
 
-  const enBtn = $("langEnBtn");
-  const frBtn = $("langFrBtn");
 
-  if (enBtn) enBtn.classList.toggle("active", currentLang === "en");
-  if (frBtn) frBtn.classList.toggle("active", currentLang === "fr");
-}
-
-window.setLanguage = applyLang;
-);
-
-  document.querySelectorAll("[data-lang-inline]").forEach((el) => {
-    el.style.display = el.getAttribute("data-lang-inline") === currentLang ? "" : "none";
-  });
-
-  const enBtn = $("langEnBtn");
-  const frBtn = $("langFrBtn");
-  if (enBtn) enBtn.classList.toggle("active", currentLang === "en");
-  if (frBtn) frBtn.classList.toggle("active", currentLang === "fr");
-});
+  function applyLang(lang) {
+    currentLang = lang === "fr" ? "fr" : "en";
+    document.documentElement.lang = currentLang;
+    document.querySelectorAll("[data-lang]").forEach((el) => {
+      el.style.display = el.getAttribute("data-lang") === currentLang ? "" : "none";
+    });
     const enBtn = $("langEnBtn");
     const frBtn = $("langFrBtn");
     if (enBtn) enBtn.classList.toggle("active", currentLang === "en");
     if (frBtn) frBtn.classList.toggle("active", currentLang === "fr");
   }
 
-  
-
-
-function wireLangButtons() {
-  return;
-};
+  function wireLangButtons() {
+    const enBtn = $("langEnBtn");
+    const frBtn = $("langFrBtn");
+    if (enBtn) enBtn.addEventListener("click", () => applyLang("en"));
+    if (frBtn) frBtn.addEventListener("click", () => applyLang("fr"));
   }
-
-  if (frBtn) {
-    frBtn.onclick = (e) => {
-      e.preventDefault();
-      applyLang("fr");
-    };
-  }
-};
-  }
-
-  if (frBtn) {
-    frBtn.onclick = (e) => {
-      e.preventDefault();
-      applyLang("fr");
-    };
-  }
-}
 
   function renderRecordHero() {
     if (!recordId) return;
@@ -388,7 +253,7 @@ function wireLangButtons() {
 
     el.style.display = "block";
     el.innerHTML = `
-      <div data-lang="en">
+      <div class="lang-panel lang-en">
         <h2>HumanOrigin Record</h2>
         <p>
           This record indicates that a HumanOrigin proof exists for a specific document. HumanOrigin certifies the existence of a measured human production process linked to that document. It does not certify the truth, accuracy, or legitimacy of the document’s contents.
@@ -404,7 +269,7 @@ function wireLangButtons() {
         </div>
       </div>
 
-      <div data-lang="fr">
+      <div class="lang-panel lang-fr" style="display:none;">
         <h2>Registre HumanOrigin</h2>
         <p>
           Cet enregistrement indique qu’une preuve HumanOrigin existe pour un document précis. HumanOrigin certifie l’existence d’un processus humain mesuré lié à ce document. Il ne certifie ni la vérité, ni l’exactitude, ni la légitimité du contenu du document.
@@ -420,7 +285,7 @@ function wireLangButtons() {
         </div>
       </div>
     `;
-    applyLang(currentLang);
+    setLanguage(currentLang);
   }
 
   function b64ToU8(b64) {
@@ -663,8 +528,6 @@ function wireLangButtons() {
   }
 
   renderRecordHero();
-
-  
 
   tryLoadPublicRecord();
 
