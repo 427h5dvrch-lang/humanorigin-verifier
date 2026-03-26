@@ -288,19 +288,38 @@
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/tweetnacl@1.0.3/nacl.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tweetnacl@1.0.3/nacl.min.js">
+document.addEventListener("DOMContentLoaded", () => {
+  wireLangButtons();
+  renderRecordHero();
+  applyLang("en");
+});
+
+</script>
 <script>
   const $ = (id) => document.getElementById(id);
   const search = new URLSearchParams(window.location.search);
   const recordId = (search.get("id") || "").trim();
   let currentLang = "en";
 
-  function applyLang(lang) {
-    currentLang = lang === "fr" ? "fr" : "en";
-    document.documentElement.lang = currentLang;
-    document.querySelectorAll("[data-lang]").forEach((el) => {
-      el.style.display = el.getAttribute("data-lang") === currentLang ? "" : "none";
-    });
+  
+function applyLang(lang) {
+  currentLang = lang === "fr" ? "fr" : "en";
+  document.documentElement.lang = currentLang;
+
+  document.querySelectorAll("[data-lang]").forEach((el) => {
+    el.style.display = el.getAttribute("data-lang") === currentLang ? "" : "none";
+  });
+
+  document.querySelectorAll("[data-lang-inline]").forEach((el) => {
+    el.style.display = el.getAttribute("data-lang-inline") === currentLang ? "" : "none";
+  });
+
+  const enBtn = $("langEnBtn");
+  const frBtn = $("langFrBtn");
+  if (enBtn) enBtn.classList.toggle("active", currentLang === "en");
+  if (frBtn) frBtn.classList.toggle("active", currentLang === "fr");
+});
     const enBtn = $("langEnBtn");
     const frBtn = $("langFrBtn");
     if (enBtn) enBtn.classList.toggle("active", currentLang === "en");
@@ -308,6 +327,7 @@
   }
 
   
+
 function wireLangButtons() {
   const enBtn = $("langEnBtn");
   const frBtn = $("langFrBtn");
@@ -315,8 +335,17 @@ function wireLangButtons() {
   if (enBtn) {
     enBtn.onclick = (e) => {
       e.preventDefault();
-
+      applyLang("en");
     };
+  }
+
+  if (frBtn) {
+    frBtn.onclick = (e) => {
+      e.preventDefault();
+      applyLang("fr");
+    };
+  }
+};
   }
 
   if (frBtn) {
@@ -612,13 +641,7 @@ function wireLangButtons() {
 
   
 
-  document.addEventListener("DOMContentLoaded", () => {
-
-    renderRecordHero();
-
-  });
-
-tryLoadPublicRecord();
+  tryLoadPublicRecord();
 
   const dropHo = $("dropHo");
   dropHo.addEventListener("dragover", (e)=>{ e.preventDefault(); dropHo.style.opacity="0.85"; });
