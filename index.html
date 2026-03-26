@@ -615,6 +615,62 @@
   }
 }
 
+
+/* ===== HumanOrigin Registry Final Pass ===== */
+
+.registry-statement{
+  margin: 18px 0 0 0;
+  padding: 18px 20px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(248,250,252,0.94) 100%);
+  border: 1px solid rgba(15,23,42,0.08);
+  box-shadow: 0 10px 28px rgba(15,23,42,0.05);
+}
+
+.registry-statement-kicker{
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: #64748b;
+  margin-bottom: 8px;
+}
+
+.registry-statement p{
+  margin: 0;
+  color: #334155;
+  line-height: 1.7;
+  font-size: 15px;
+}
+
+.record-hero .hero-meta{
+  margin-top: 16px;
+}
+
+.record-hero .pill{
+  min-height: 42px;
+  padding: 0 15px;
+}
+
+.record-hero .cta-row{
+  margin-top: 16px;
+}
+
+.registry-emphasis{
+  color: #0f172a;
+  font-weight: 800;
+}
+
+@media (max-width: 760px){
+  .registry-statement{
+    padding: 16px 16px;
+    border-radius: 16px;
+  }
+  .registry-statement p{
+    font-size: 14px;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -634,7 +690,7 @@
     <div class="section-kicker">Public meaning</div>
     <h2 class="section-title">What this record means</h2>
     <p class="section-intro">
-      This page explains what a HumanOrigin record proves, what it does not prove, and how public verification works.
+      This page explains what a HumanOrigin registry record proves, what it does not prove, and how public verification works.
     </p>
 
     <div class="meaning-grid">
@@ -671,7 +727,7 @@
     <div class="section-kicker">Signification publique</div>
     <h2 class="section-title">Ce que ce registre signifie</h2>
     <p class="section-intro">
-      Cette page explique ce qu’une preuve HumanOrigin établit, ce qu’elle n’établit pas, et comment fonctionne la vérification publique.
+      Cette page explique ce qu’un enregistrement du registre HumanOrigin établit, ce qu’il n’établit pas, et comment fonctionne la vérification publique.
     </p>
 
     <div class="meaning-grid">
@@ -755,32 +811,62 @@
       <div class="lang-panel lang-en">
         <h2>HumanOrigin Record</h2>
         <p>
-          This record indicates that a HumanOrigin proof exists for a specific document. HumanOrigin certifies the existence of a measured human production process linked to that document. It does not certify the truth, accuracy, or legitimacy of the document’s contents.
+          <span class="registry-emphasis">This is a public HumanOrigin registry entry.</span>
+          It indicates that a signed proof record exists for a measured human production process linked to a specific document fingerprint.
         </p>
+
         <div class="hero-meta">
           <div class="pill">Record ID:&nbsp;<span class="record-id">${escapeHtml(recordId)}</span></div>
-          <div class="pill">Registry status:&nbsp;Recorded proof available</div>
-          <div class="pill">Proof format:&nbsp;Signed portable record (.ho.json)</div>
+          <div class="pill">Status:&nbsp;Recorded proof available</div>
+          <div class="pill">Proof:&nbsp;Signed portable record (.ho.json)</div>
+          <div class="pill">Binding:&nbsp;Document fingerprint (SHA-256)</div>
+          <div class="pill">Verification:&nbsp;Publicly verifiable</div>
         </div>
+
         <div class="cta-row">
           <a class="btn-secondary" href="#recordMeaning">What this record means</a>
           <a class="btn-secondary" href="#technicalVerification">Technical verification</a>
+          <a class="btn-secondary" href="#registryGuidance">How to read this registry entry</a>
+        </div>
+
+        <div class="registry-statement">
+          <div class="registry-statement-kicker">Official statement</div>
+          <p>
+            This HumanOrigin record certifies that a cryptographically signed proof of a measured human production process exists and is bound to a specific document fingerprint.
+            HumanOrigin does not certify the truth, accuracy, legality, or institutional validity of the document content.
+            It certifies the existence of a verifiable human production record.
+          </p>
         </div>
       </div>
 
       <div class="lang-panel lang-fr" style="display:none;">
         <h2>Registre HumanOrigin</h2>
         <p>
-          Cet enregistrement indique qu’une preuve HumanOrigin existe pour un document précis. HumanOrigin certifie l’existence d’un processus humain mesuré lié à ce document. Il ne certifie ni la vérité, ni l’exactitude, ni la légitimité du contenu du document.
+          <span class="registry-emphasis">Ceci est une entrée publique du registre HumanOrigin.</span>
+          Elle indique qu’un enregistrement de preuve signé existe pour un processus de production humain mesuré, lié à l’empreinte d’un document précis.
         </p>
+
         <div class="hero-meta">
           <div class="pill">Record ID:&nbsp;<span class="record-id">${escapeHtml(recordId)}</span></div>
-          <div class="pill">Statut du registre:&nbsp;Preuve enregistrée disponible</div>
-          <div class="pill">Format de preuve:&nbsp;Enregistrement portable signé (.ho.json)</div>
+          <div class="pill">Statut:&nbsp;Preuve enregistrée disponible</div>
+          <div class="pill">Preuve:&nbsp;Enregistrement portable signé (.ho.json)</div>
+          <div class="pill">Lien documentaire:&nbsp;Empreinte du document (SHA-256)</div>
+          <div class="pill">Vérification:&nbsp;Vérifiable publiquement</div>
         </div>
+
         <div class="cta-row">
           <a class="btn-secondary" href="#recordMeaning">Ce que ce registre signifie</a>
           <a class="btn-secondary" href="#technicalVerification">Vérification technique</a>
+          <a class="btn-secondary" href="#registryGuidance">Comment lire cette entrée de registre</a>
+        </div>
+
+        <div class="registry-statement">
+          <div class="registry-statement-kicker">Déclaration officielle</div>
+          <p>
+            Cet enregistrement HumanOrigin certifie qu’une preuve signée cryptographiquement attestant d’un processus de production humain mesuré existe et est liée à l’empreinte d’un document spécifique.
+            HumanOrigin ne certifie ni la vérité, ni l’exactitude, ni la licéité, ni la validité institutionnelle du contenu du document.
+            Il certifie l’existence d’un enregistrement vérifiable de production humaine.
+          </p>
         </div>
       </div>
     `;
@@ -1075,7 +1161,7 @@
   <div class="lang-panel lang-en">
     <h2 class="registry-footer-title">How to read this record</h2>
     <p class="registry-footer-intro">
-      This public record indicates that a HumanOrigin proof exists for a document-specific measured human process. It should be read as an evidence layer, not as a statement that the document is true or institutionally endorsed.
+      This public registry entry indicates that a HumanOrigin proof exists for a document-specific measured human process. It should be read as an evidence layer, not as a statement that the document is true, valid, or institutionally endorsed.
     </p>
 
     <div class="registry-footer-grid">
@@ -1099,7 +1185,7 @@
   <div class="lang-panel lang-fr" style="display:none;">
     <h2 class="registry-footer-title">Comment lire ce registre</h2>
     <p class="registry-footer-intro">
-      Ce registre public indique qu’une preuve HumanOrigin existe pour un processus humain mesuré lié à un document précis. Il doit être lu comme une couche de preuve, et non comme une affirmation selon laquelle le document serait vrai ou validé par une institution.
+      Cette entrée publique du registre indique qu’une preuve HumanOrigin existe pour un processus humain mesuré lié à un document précis. Elle doit être lue comme une couche de preuve, et non comme une affirmation selon laquelle le document serait vrai, valide ou approuvé par une institution.
     </p>
 
     <div class="registry-footer-grid">
