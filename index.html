@@ -233,6 +233,67 @@
   }
 }
 
+
+.tech-section-header{
+  margin-bottom: 18px;
+}
+
+.tech-kicker{
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: #64748b;
+  margin-bottom: 8px;
+}
+
+.tech-title{
+  margin: 0 0 8px 0;
+  font-size: 28px;
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  color: #0f172a;
+}
+
+.tech-intro{
+  margin: 0;
+  max-width: 880px;
+  color: #475569;
+  line-height: 1.65;
+}
+
+.tech-grid{
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0,1fr));
+  gap: 18px;
+  margin-top: 20px;
+}
+
+.tech-subcard{
+  background: rgba(255,255,255,0.72);
+  border: 1px solid rgba(15,23,42,0.08);
+  border-radius: 18px;
+  padding: 20px;
+  box-shadow: 0 10px 30px rgba(15,23,42,0.05);
+}
+
+.tech-subcard h3{
+  margin: 0 0 8px 0;
+  color: #0f172a;
+}
+
+.tech-subcard p{
+  margin: 0;
+  color: #475569;
+  line-height: 1.6;
+}
+
+@media (max-width: 860px){
+  .tech-grid{
+    grid-template-columns: 1fr;
+  }
+}
+
 </style>
 </head>
 <body>
