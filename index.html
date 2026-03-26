@@ -206,8 +206,8 @@
 <body>
 <div class="wrap">
   <div class="langbar">
-    <button class="langbtn active" id="langEnBtn" type="button">EN</button>
-    <button class="langbtn" id="langFrBtn" type="button">FR</button>
+    <button class="langbtn active" id="langEnBtn" type="button" onclick="document.documentElement.lang='en';document.querySelectorAll('[data-lang]').forEach(el=>el.style.display=(el.getAttribute('data-lang')==='en'?'':'none'));document.querySelectorAll('[data-lang-inline]').forEach(el=>el.style.display=(el.getAttribute('data-lang-inline')==='en'?'':'none'));document.getElementById('langEnBtn')&&document.getElementById('langEnBtn').classList.add('active');document.getElementById('langFrBtn')&&document.getElementById('langFrBtn').classList.remove('active');" >EN</button>
+    <button class="langbtn" id="langFrBtn" type="button" onclick="document.documentElement.lang='fr';document.querySelectorAll('[data-lang]').forEach(el=>el.style.display=(el.getAttribute('data-lang')==='fr'?'':'none'));document.querySelectorAll('[data-lang-inline]').forEach(el=>el.style.display=(el.getAttribute('data-lang-inline')==='fr'?'':'none'));document.getElementById('langFrBtn')&&document.getElementById('langFrBtn').classList.add('active');document.getElementById('langEnBtn')&&document.getElementById('langEnBtn').classList.remove('active');" >FR</button>
   </div>
 
   <div id="recordHero" class="hero-record" style="display:none;"></div>
@@ -289,10 +289,25 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/tweetnacl@1.0.3/nacl.min.js">
+
+
 document.addEventListener("DOMContentLoaded", () => {
-  wireLangButtons();
   renderRecordHero();
-  applyLang("en");
+
+  document.documentElement.lang = 'en';
+
+  document.querySelectorAll('#recordHero [data-lang], #recordMeaning [data-lang]').forEach((el) => {
+    el.style.display = (el.getAttribute('data-lang') === 'en') ? '' : 'none';
+  });
+
+  document.querySelectorAll('[data-lang-inline]').forEach((el) => {
+    el.style.display = (el.getAttribute('data-lang-inline') === 'en') ? '' : 'none';
+  });
+
+  const enBtn = document.getElementById('langEnBtn');
+  const frBtn = document.getElementById('langFrBtn');
+  if (enBtn) enBtn.classList.add('active');
+  if (frBtn) frBtn.classList.remove('active');
 });
 
 </script>
@@ -303,13 +318,28 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentLang = "en";
 
   
+
 function applyLang(lang) {
-  currentLang = lang === "fr" ? "fr" : "en";
+  currentLang = (lang === "fr") ? "fr" : "en";
   document.documentElement.lang = currentLang;
 
   document.querySelectorAll("[data-lang]").forEach((el) => {
-    el.style.display = el.getAttribute("data-lang") === currentLang ? "" : "none";
+    el.style.display = (el.getAttribute("data-lang") === currentLang) ? "" : "none";
   });
+
+  document.querySelectorAll("[data-lang-inline]").forEach((el) => {
+    el.style.display = (el.getAttribute("data-lang-inline") === currentLang) ? "" : "none";
+  });
+
+  const enBtn = $("langEnBtn");
+  const frBtn = $("langFrBtn");
+
+  if (enBtn) enBtn.classList.toggle("active", currentLang === "en");
+  if (frBtn) frBtn.classList.toggle("active", currentLang === "fr");
+}
+
+window.setLanguage = applyLang;
+);
 
   document.querySelectorAll("[data-lang-inline]").forEach((el) => {
     el.style.display = el.getAttribute("data-lang-inline") === currentLang ? "" : "none";
@@ -328,15 +358,10 @@ function applyLang(lang) {
 
   
 
-function wireLangButtons() {
-  const enBtn = $("langEnBtn");
-  const frBtn = $("langFrBtn");
 
-  if (enBtn) {
-    enBtn.onclick = (e) => {
-      e.preventDefault();
-      applyLang("en");
-    };
+function wireLangButtons() {
+  return;
+};
   }
 
   if (frBtn) {
