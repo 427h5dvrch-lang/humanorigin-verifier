@@ -628,6 +628,7 @@
 
   
 
+
 <div class="card meaning-card" id="recordMeaning">
   <div class="lang-panel lang-en">
     <div class="section-kicker">Public meaning</div>
@@ -705,11 +706,13 @@
 </div>
 
 <script
+
  src="https://cdn.jsdelivr.net/npm/tweetnacl@1.0.3/nacl.min.js"></script>
 <script>
   const $ = (id) => document.getElementById(id);
   const search = new URLSearchParams(window.location.search);
   const recordId = (search.get("id") || "").trim();
+  
   
   let currentLang = "en";
 
@@ -1046,6 +1049,7 @@
     handleDocFile(f);
   });
 
+  
   document.addEventListener("DOMContentLoaded", () => {
     const enBtn = document.getElementById("langEnBtn");
     const frBtn = document.getElementById("langFrBtn");
