@@ -307,12 +307,25 @@
     if (frBtn) frBtn.classList.toggle("active", currentLang === "fr");
   }
 
-  function wireLangButtons() {
-    const enBtn = $("langEnBtn");
-    const frBtn = $("langFrBtn");
-    if (enBtn) enBtn.addEventListener("click", () => applyLang("en"));
-    if (frBtn) frBtn.addEventListener("click", () => applyLang("fr"));
+  
+function wireLangButtons() {
+  const enBtn = $("langEnBtn");
+  const frBtn = $("langFrBtn");
+
+  if (enBtn) {
+    enBtn.onclick = (e) => {
+      e.preventDefault();
+
+    };
   }
+
+  if (frBtn) {
+    frBtn.onclick = (e) => {
+      e.preventDefault();
+      applyLang("fr");
+    };
+  }
+}
 
   function renderRecordHero() {
     if (!recordId) return;
@@ -597,7 +610,15 @@
 
   renderRecordHero();
 
-  tryLoadPublicRecord();
+  
+
+  document.addEventListener("DOMContentLoaded", () => {
+
+    renderRecordHero();
+
+  });
+
+tryLoadPublicRecord();
 
   const dropHo = $("dropHo");
   dropHo.addEventListener("dragover", (e)=>{ e.preventDefault(); dropHo.style.opacity="0.85"; });
