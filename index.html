@@ -714,6 +714,8 @@
   const recordId = (search.get("id") || "").trim();
   
   
+  
+  
   let currentLang = "en";
 
   function setLanguage(lang) {
@@ -730,8 +732,17 @@
 
     const enBtn = document.getElementById("langEnBtn");
     const frBtn = document.getElementById("langFrBtn");
+
     if (enBtn) enBtn.classList.toggle("active", currentLang === "en");
     if (frBtn) frBtn.classList.toggle("active", currentLang === "fr");
+  }
+
+  function wireLangButtons() {
+    const enBtn = document.getElementById("langEnBtn");
+    const frBtn = document.getElementById("langFrBtn");
+
+    if (enBtn) enBtn.onclick = () => setLanguage("en");
+    if (frBtn) frBtn.onclick = () => setLanguage("fr");
   }
 
   function renderRecordHero() {
@@ -1050,13 +1061,10 @@
   });
 
   
+  
+  
   document.addEventListener("DOMContentLoaded", () => {
-    const enBtn = document.getElementById("langEnBtn");
-    const frBtn = document.getElementById("langFrBtn");
-
-    if (enBtn) enBtn.onclick = () => setLanguage("en");
-    if (frBtn) frBtn.onclick = () => setLanguage("fr");
-
+    wireLangButtons();
     renderRecordHero();
     setLanguage("en");
   });
@@ -1112,6 +1120,60 @@
     </div>
   </div>
 </div>
+
+
+<!-- HUMANORIGIN_LANG_OVERRIDE_START -->
+<script>
+(function () {
+  function hoSetLanguage(lang) {
+    var target = (lang === "fr") ? "fr" : "en";
+    document.documentElement.lang = target;
+
+    document.querySelectorAll(".lang-panel.lang-en").forEach(function (el) {
+      el.style.display = (target === "en") ? "" : "none";
+    });
+    document.querySelectorAll(".lang-panel.lang-fr").forEach(function (el) {
+      el.style.display = (target === "fr") ? "" : "none";
+    });
+
+    var enBtn = document.getElementById("langEnBtn");
+    var frBtn = document.getElementById("langFrBtn");
+    if (enBtn) enBtn.classList.toggle("active", target === "en");
+    if (frBtn) frBtn.classList.toggle("active", target === "fr");
+  }
+
+  function bindLanguageButtons() {
+    var enBtn = document.getElementById("langEnBtn");
+    var frBtn = document.getElementById("langFrBtn");
+
+    if (enBtn) {
+      enBtn.addEventListener("click", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (e.stopImmediatePropagation) e.stopImmediatePropagation();
+        hoSetLanguage("en");
+      }, true);
+    }
+
+    if (frBtn) {
+      frBtn.addEventListener("click", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (e.stopImmediatePropagation) e.stopImmediatePropagation();
+        hoSetLanguage("fr");
+      }, true);
+    }
+  }
+
+  window.hoSetLanguage = hoSetLanguage;
+
+  document.addEventListener("DOMContentLoaded", function () {
+    bindLanguageButtons();
+    hoSetLanguage("en");
+  });
+})();
+</script>
+<!-- HUMANORIGIN_LANG_OVERRIDE_END -->
 
 </body>
 </html>
