@@ -926,42 +926,140 @@
 
   
   
+  
   function renderRecordHero() {
     const heroEl = $("recordHero");
-    const statusEl = $("recordStatusHost");
     if (!heroEl) return;
-    if (statusEl) statusEl.innerHTML = "";
+
+    heroEl.style.display = "block";
 
     if (!recordId) {
-      heroEl.style.display = "block";
       heroEl.innerHTML = `
-        <div class="lang-panel lang-en record-empty">
+        <div class="lang-panel lang-en">
           <h2>HumanOrigin Public Record</h2>
           <p>
-            This page is the public entry point for HumanOrigin registry records.
-            No record identifier was provided in the URL, so no specific registry entry can be displayed.
+            <span class="registry-emphasis">This is the public entry point of the HumanOrigin registry.</span>
+            No specific record identifier was provided in the URL, so this page is currently displayed in generic registry mode.
           </p>
-          <div class="record-empty-actions">
-            <a class="btn-secondary" href="#technicalVerification">Open technical verification</a>
+
+          <div class="hero-meta">
+            <div class="pill">Status:&nbsp;No record loaded</div>
+            <div class="pill">Mode:&nbsp;Public registry entry point</div>
+            <div class="pill">Verification:&nbsp;Available below</div>
+          </div>
+
+          <div class="cta-row">
+            <a class="btn-secondary" href="#technicalVerification">Technical verification</a>
+            <a class="btn-secondary" href="#recordMeaning">What this record means</a>
             <a class="btn-secondary" href="#registryGuidance">How to read this registry</a>
+          </div>
+
+          <div class="registry-statement">
+            <div class="registry-statement-kicker">Registry notice</div>
+            <p>
+              No HumanOrigin record identifier is currently loaded in this page.
+              You can still use the technical verification tools below to inspect a HumanOrigin proof record and its linked document.
+            </p>
           </div>
         </div>
 
-        <div class="lang-panel lang-fr record-empty" style="display:none;">
+        <div class="lang-panel lang-fr" style="display:none;">
           <h2>Registre public HumanOrigin</h2>
           <p>
-            Cette page constitue le point d’entrée public des enregistrements du registre HumanOrigin.
-            Aucun identifiant de record n’a été fourni dans l’URL ; aucune entrée précise ne peut donc être affichée.
+            <span class="registry-emphasis">Ceci est le point d’entrée public du registre HumanOrigin.</span>
+            Aucun identifiant de record spécifique n’a été fourni dans l’URL ; cette page est donc actuellement affichée en mode générique du registre.
           </p>
-          <div class="record-empty-actions">
-            <a class="btn-secondary" href="#technicalVerification">Ouvrir la vérification technique</a>
+
+          <div class="hero-meta">
+            <div class="pill">Statut:&nbsp;Aucun record chargé</div>
+            <div class="pill">Mode:&nbsp;Point d’entrée public du registre</div>
+            <div class="pill">Vérification:&nbsp;Disponible ci-dessous</div>
+          </div>
+
+          <div class="cta-row">
+            <a class="btn-secondary" href="#technicalVerification">Vérification technique</a>
+            <a class="btn-secondary" href="#recordMeaning">Ce que ce registre signifie</a>
             <a class="btn-secondary" href="#registryGuidance">Comment lire ce registre</a>
+          </div>
+
+          <div class="registry-statement">
+            <div class="registry-statement-kicker">Notice du registre</div>
+            <p>
+              Aucun identifiant HumanOrigin n’est actuellement chargé dans cette page.
+              Vous pouvez néanmoins utiliser les outils de vérification technique ci-dessous pour inspecter une preuve HumanOrigin et le document qui lui est lié.
+            </p>
           </div>
         </div>
       `;
       setLanguage(currentLang);
       return;
     }
+
+    heroEl.innerHTML = `
+      <div class="lang-panel lang-en">
+        <h2>HumanOrigin Record</h2>
+        <p>
+          <span class="registry-emphasis">This is a public HumanOrigin registry entry.</span>
+          It indicates that a signed proof record exists for a measured human production process linked to a specific document fingerprint.
+        </p>
+
+        <div class="hero-meta">
+          <div class="pill">Record ID:&nbsp;<span class="record-id">${escapeHtml(recordId)}</span></div>
+          <div class="pill">Status:&nbsp;Recorded proof available</div>
+          <div class="pill">Proof:&nbsp;Signed portable record (.ho.json)</div>
+          <div class="pill">Binding:&nbsp;Document fingerprint (SHA-256)</div>
+          <div class="pill">Verification:&nbsp;Publicly verifiable</div>
+        </div>
+
+        <div class="cta-row">
+          <a class="btn-secondary" href="#recordMeaning">What this record means</a>
+          <a class="btn-secondary" href="#technicalVerification">Technical verification</a>
+          <a class="btn-secondary" href="#registryGuidance">How to read this record</a>
+        </div>
+
+        <div class="registry-statement">
+          <div class="registry-statement-kicker">Official statement</div>
+          <p>
+            This HumanOrigin record certifies that a cryptographically signed proof of a measured human production process exists and is bound to a specific document fingerprint.
+            HumanOrigin does not certify the truth, accuracy, legality, or institutional validity of the document content.
+            It certifies the existence of a verifiable human production record.
+          </p>
+        </div>
+      </div>
+
+      <div class="lang-panel lang-fr" style="display:none;">
+        <h2>Registre HumanOrigin</h2>
+        <p>
+          <span class="registry-emphasis">Ceci est une entrée publique du registre HumanOrigin.</span>
+          Elle indique qu’un enregistrement de preuve signé existe pour un processus de production humain mesuré, lié à l’empreinte d’un document précis.
+        </p>
+
+        <div class="hero-meta">
+          <div class="pill">Record ID:&nbsp;<span class="record-id">${escapeHtml(recordId)}</span></div>
+          <div class="pill">Statut:&nbsp;Preuve enregistrée disponible</div>
+          <div class="pill">Preuve:&nbsp;Enregistrement portable signé (.ho.json)</div>
+          <div class="pill">Lien documentaire:&nbsp;Empreinte du document (SHA-256)</div>
+          <div class="pill">Vérification:&nbsp;Vérifiable publiquement</div>
+        </div>
+
+        <div class="cta-row">
+          <a class="btn-secondary" href="#recordMeaning">Ce que ce registre signifie</a>
+          <a class="btn-secondary" href="#technicalVerification">Vérification technique</a>
+          <a class="btn-secondary" href="#registryGuidance">Comment lire cette entrée de registre</a>
+        </div>
+
+        <div class="registry-statement">
+          <div class="registry-statement-kicker">Déclaration officielle</div>
+          <p>
+            Cet enregistrement HumanOrigin certifie qu’une preuve signée cryptographiquement attestant d’un processus de production humain mesuré existe et est liée à l’empreinte d’un document spécifique.
+            HumanOrigin ne certifie ni la vérité, ni l’exactitude, ni la licéité, ni la validité institutionnelle du contenu du document.
+            Il certifie l’existence d’un enregistrement vérifiable de production humaine.
+          </p>
+        </div>
+      </div>
+    `;
+    setLanguage(currentLang);
+  }
 
     if (statusEl) {
       statusEl.innerHTML = `
