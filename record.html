@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en" data-current-lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>HumanOrigin — Record</title>
+  <style>
+    :root{
+      --bg:#f6f1e8; --card:rgba(255,255,255,0.84); --ink:#14233a; --muted:#617084;
+      --line:rgba(20,35,58,0.14); --primary:#14233a; --shadow:0 18px 45px rgba(20,35,58,0.10);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+      background:radial-gradient(circle at top left, rgba(255,255,255,0.55), transparent 34%), linear-gradient(180deg, #fbf8f2 0%, var(--bg) 100%);
+      color:var(--ink)
+    }
+    [data-lang]{display:none}
+    html[data-current-lang="en"] [data-lang="en"]{display:inline}
+    html[data-current-lang="fr"] [data-lang="fr"]{display:inline}
+    .page{max-width:980px;margin:0 auto;padding:36px 24px 48px}
+    .hero{background:linear-gradient(180deg, rgba(255,255,255,0.88), rgba(255,255,255,0.74)); border:1px solid var(--line); border-radius:34px; box-shadow:var(--shadow); padding:28px 28px 24px}
+    .top{display:flex;justify-content:space-between;gap:16px;align-items:flex-start}
+    .switch{display:inline-flex;gap:8px;background:rgba(20,35,58,0.05);border:1px solid rgba(20,35,58,0.08);border-radius:999px;padding:6px}
+    .switch button{border:0;background:transparent;color:var(--ink);font-weight:800;padding:8px 12px;border-radius:999px;cursor:pointer;font-size:13px}
+    .switch button.active{background:var(--primary);color:#fff}
+    .eyebrow{font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+    h1{margin:0 0 10px;font-size:clamp(34px,5vw,54px);line-height:.98;letter-spacing:-.04em;max-width:760px}
+    .sub{margin:0;max-width:760px;font-size:18px;line-height:1.55;color:var(--muted)}
+    .pills{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+    .pill{display:inline-flex;align-items:center;padding:10px 14px;border-radius:999px;font-size:13px;font-weight:700;background:rgba(20,35,58,0.06);border:1px solid rgba(20,35,58,0.08)}
+    .grid{display:grid;grid-template-columns:1.1fr .9fr;gap:18px;margin-top:24px}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:20px}
+    .card h2{margin:0 0 10px;font-size:20px}
+    .card p{margin:0;color:var(--muted);line-height:1.58;font-size:15px}
+    .actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:16px}
+    .btn{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:0 16px;border-radius:14px;text-decoration:none;font-weight:800;font-size:14px;border:1px solid var(--line)}
+    .btn.primary{background:var(--primary);color:#fff;border-color:transparent}
+    .btn.secondary{background:#fff;color:var(--ink)}
+    .mono{margin-top:22px;background:rgba(255,255,255,0.76);border:1px solid var(--line);border-radius:24px;padding:18px 20px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:#2c4260;font-size:15px;line-height:1.7}
+    @media (max-width:900px){.top,.grid{display:block}.switch{margin-top:14px}.page{padding:20px 14px 28px}h1{font-size:38px}}
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <div class="top">
+        <div>
+          <div class="eyebrow"><span data-lang="en">HUMANORIGIN · DOCUMENT RECORD</span><span data-lang="fr">HUMANORIGIN · DOSSIER DOCUMENT</span></div>
+          <h1><span data-lang="en">This document carries a HumanOrigin proof</span><span data-lang="fr">Ce document porte une preuve HumanOrigin</span></h1>
+          <p class="sub"><span data-lang="en">Use this page to understand what the mark means, then open the verifier if you want to check the proof.</span><span data-lang="fr">Utilisez cette page pour comprendre ce que signifie la marque, puis ouvrez le vérificateur si vous voulez contrôler la preuve.</span></p>
+        </div>
+        <div class="switch">
+          <button class="active" data-lang-switch="en">English</button>
+          <button data-lang-switch="fr">Français</button>
+        </div>
+      </div>
+
+      <div class="pills">
+        <div class="pill"><span data-lang="en">Record ID · </span><span data-lang="fr">ID dossier · </span><span id="recordShort">UNKNOWN</span></div>
+      </div>
+
+      <div class="grid">
+        <article class="card">
+          <h2><span data-lang="en">What this proves</span><span data-lang="fr">Ce que cela prouve</span></h2>
+          <p><span data-lang="en">HumanOrigin proves that a measured human process took place and that the proof is linked to a specific document. It does not prove that the document is true, legal, ethical, or institutionally approved.</span><span data-lang="fr">HumanOrigin prouve qu’un processus humain mesuré a eu lieu et que la preuve est liée à un document précis. Il ne prouve pas que le document est vrai, légal, éthique ou institutionnellement approuvé.</span></p>
+          <div class="actions">
+            <a id="openVerifierBtn" class="btn primary" href="./"><span data-lang="en">Open verifier</span><span data-lang="fr">Ouvrir le vérificateur</span></a>
+          </div>
+        </article>
+
+        <article class="card">
+          <h2><span data-lang="en">How to verify</span><span data-lang="fr">Comment vérifier</span></h2>
+          <p><span data-lang="en">Open the verifier, then drop the HumanOrigin proof file. If you also have the linked source document, add it to confirm the binding.</span><span data-lang="fr">Ouvrez le vérificateur, puis déposez le fichier de preuve HumanOrigin. Si vous avez aussi le document source lié, ajoutez-le pour confirmer l’attache au document.</span></p>
+        </article>
+      </div>
+
+      <div class="mono">
+        <div id="recordLine">Record ID: UNKNOWN</div>
+        <div>Verifier: https://427h5dvrch-lang.github.io/humanorigin-verifier/</div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      const root = document.documentElement;
+      const params = new URLSearchParams(window.location.search);
+      const rid = (params.get("rid") || params.get("id") || "UNKNOWN").trim();
+      const shortId = rid.replace(/[^A-Za-z0-9]/g, "").toUpperCase().slice(0, 8) || "UNKNOWN";
+
+      document.getElementById("recordShort").textContent = shortId;
+      document.getElementById("recordLine").textContent = "Record ID: " + rid;
+      document.getElementById("openVerifierBtn").setAttribute("href", "./");
+
+      const buttons = document.querySelectorAll("[data-lang-switch]");
+      const saved = localStorage.getItem("humanorigin_record_lang");
+      const initial = saved === "fr" ? "fr" : "en";
+
+      function apply(lang) {
+        root.setAttribute("data-current-lang", lang);
+        buttons.forEach(btn => btn.classList.toggle("active", btn.getAttribute("data-lang-switch") === lang));
+        localStorage.setItem("humanorigin_record_lang", lang);
+      }
+
+      buttons.forEach(btn => btn.addEventListener("click", () => apply(btn.getAttribute("data-lang-switch"))));
+      apply(initial);
+    })();
+  </script>
+</body>
+</html>
