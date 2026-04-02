@@ -595,42 +595,46 @@
 </script>
 
 
-<!-- HUMANORIGIN_CONTEXTUAL_HARD_HIDE_V5 -->
+
+<!-- HUMANORIGIN_CONTEXTUAL_PRECISE_HIDE_V7 -->
 <script>
 (function(){
   const params = new URLSearchParams(window.location.search);
   const rawRid = (params.get("rid") || params.get("id") || "").trim();
   if (!rawRid) return;
 
-  const markerId = "ho-contextual-verify-focus-v4";
-
-  function closestBlock(node){
-    return node.closest("section, article, .card, .panel, .tile, div");
+  function closestTightBlock(node){
+    return node.closest("section, article, .card, .panel, .tile") || null;
   }
 
-  function findByHeadingText(needles){
+  function findHeadingBlock(needles){
     const heads = Array.from(document.querySelectorAll("h1,h2,h3,h4,.section-title,.card-title,.kicker"));
     for (const h of heads) {
       const txt = (h.textContent || "").trim();
       if (!txt) continue;
       if (needles.some(n => txt.includes(n))) {
-        const box = closestBlock(h);
-        if (box && !(box.id === markerId || box.closest("#" + markerId))) {
-          return box;
-        }
+        const box = closestTightBlock(h);
+        if (box) return box;
       }
     }
     return null;
   }
 
-  function hide(node){
-    if (!node) return;
-    node.style.display = "none";
+  function showWorkspace(){
+    const workspace = findHeadingBlock([
+      "Verification workspace",
+      "Espace de vérification",
+      "Technical verification",
+      "Vérification technique"
+    ]);
+    if (workspace) {
+      workspace.style.display = "";
+      workspace.classList.remove("ho-hidden-contextual");
+    }
   }
 
-  function run(){
-    // 1) cache le bandeau intermédiaire
-    const summaryStrip = findByHeadingText([
+  function hideOnlyGenericNoise(){
+    const summaryStrip = findHeadingBlock([
       "Public Record",
       "Registre public",
       "Signed proof",
@@ -638,97 +642,19 @@
       "SHA-256 Bound Document",
       "Document lié par SHA-256"
     ]);
-    hide(summaryStrip);
+    if (summaryStrip) summaryStrip.style.display = "none";
 
-    // 2) cache le gros bloc statut
-    const proofStatus = findByHeadingText([
+    const proofStatus = findHeadingBlock([
       "Proof status",
       "Statut de la preuve"
     ]);
-    hide(proofStatus);
-
-    // 3) scroll vers l’espace utile
-    const workspace = findByHeadingText([
-      "Verification workspace",
-      "Espace de vérification",
-      "Technical verification",
-      "Vérification technique"
-    ]);
-    if (workspace) {
-      setTimeout(() => {
-        workspace.scrollIntoView({ behavior: "smooth", block: "start" });
-      }, 250);
-    }
-  }
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", run);
-  } else {
-    run();
-  }
-
-  setTimeout(run, 300);
-  setTimeout(run, 900);
-  setTimeout(run, 1600);
-})();
-</script>
-
-
-<!-- HUMANORIGIN_CONTEXTUAL_WORKSPACE_FOCUS_V6 -->
-<script>
-(function(){
-  const params = new URLSearchParams(window.location.search);
-  const rawRid = (params.get("rid") || params.get("id") || "").trim();
-  if (!rawRid) return;
-
-  const contextId = "ho-contextual-verify-focus-v4";
-
-  function closestBlock(node){
-    return node.closest("section, article, .card, .panel, .tile, div");
-  }
-
-  function findWorkspaceBlock(){
-    const heads = Array.from(document.querySelectorAll("h1,h2,h3,h4,.section-title,.card-title,.kicker"));
-    const needles = [
-      "Verification workspace",
-      "Espace de vérification",
-      "Technical verification",
-      "Vérification technique"
-    ];
-    for (const h of heads) {
-      const txt = (h.textContent || "").trim();
-      if (!txt) continue;
-      if (needles.some(n => txt.includes(n))) {
-        const box = closestBlock(h);
-        if (box) return box;
-      }
-    }
-    return null;
+    if (proofStatus) proofStatus.style.display = "none";
   }
 
   function run(){
-    const contextWrap = document.getElementById(contextId);
-    if (!contextWrap) return;
-
-    const workspace = findWorkspaceBlock();
-    if (!workspace) return;
-
-    // on s’assure qu’il reste visible
-    workspace.style.display = "";
-    workspace.classList.remove("ho-hidden-contextual");
-
-    // on le place juste sous le bloc contextuel
-    if (contextWrap.nextElementSibling !== workspace) {
-      contextWrap.insertAdjacentElement("afterend", workspace);
-    }
-
-    // on réduit l’espace vertical parasite
-    workspace.style.marginTop = "18px";
-
-    // scroll au bon endroit
-    setTimeout(() => {
-      contextWrap.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 200);
+    showWorkspace();
+    hideOnlyGenericNoise();
+    showWorkspace();
   }
 
   if (document.readyState === "loading") {
@@ -737,9 +663,9 @@
     run();
   }
 
-  setTimeout(run, 250);
-  setTimeout(run, 900);
-  setTimeout(run, 1600);
+  setTimeout(run, 150);
+  setTimeout(run, 700);
+  setTimeout(run, 1400);
 })();
 </script>
 
