@@ -673,5 +673,75 @@
 })();
 </script>
 
+
+<!-- HUMANORIGIN_CONTEXTUAL_WORKSPACE_FOCUS_V6 -->
+<script>
+(function(){
+  const params = new URLSearchParams(window.location.search);
+  const rawRid = (params.get("rid") || params.get("id") || "").trim();
+  if (!rawRid) return;
+
+  const contextId = "ho-contextual-verify-focus-v4";
+
+  function closestBlock(node){
+    return node.closest("section, article, .card, .panel, .tile, div");
+  }
+
+  function findWorkspaceBlock(){
+    const heads = Array.from(document.querySelectorAll("h1,h2,h3,h4,.section-title,.card-title,.kicker"));
+    const needles = [
+      "Verification workspace",
+      "Espace de vérification",
+      "Technical verification",
+      "Vérification technique"
+    ];
+    for (const h of heads) {
+      const txt = (h.textContent || "").trim();
+      if (!txt) continue;
+      if (needles.some(n => txt.includes(n))) {
+        const box = closestBlock(h);
+        if (box) return box;
+      }
+    }
+    return null;
+  }
+
+  function run(){
+    const contextWrap = document.getElementById(contextId);
+    if (!contextWrap) return;
+
+    const workspace = findWorkspaceBlock();
+    if (!workspace) return;
+
+    // on s’assure qu’il reste visible
+    workspace.style.display = "";
+    workspace.classList.remove("ho-hidden-contextual");
+
+    // on le place juste sous le bloc contextuel
+    if (contextWrap.nextElementSibling !== workspace) {
+      contextWrap.insertAdjacentElement("afterend", workspace);
+    }
+
+    // on réduit l’espace vertical parasite
+    workspace.style.marginTop = "18px";
+
+    // scroll au bon endroit
+    setTimeout(() => {
+      contextWrap.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 200);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", run);
+  } else {
+    run();
+  }
+
+  setTimeout(run, 250);
+  setTimeout(run, 900);
+  setTimeout(run, 1600);
+})();
+</script>
+
 </body>
 </html>
