@@ -92,7 +92,7 @@
 
       document.getElementById("recordShort").textContent = shortId;
       document.getElementById("recordLine").textContent = "Record ID: " + rid;
-      document.getElementById("openVerifierBtn").setAttribute("href", "./");
+      document.getElementById("openVerifierBtn").setAttribute("href", "./?rid=" + encodeURIComponent(rid));
 
       const buttons = document.querySelectorAll("[data-lang-switch]");
       const saved = localStorage.getItem("humanorigin_record_lang");
