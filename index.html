@@ -161,7 +161,8 @@
   </script>
 
 
-<!-- HUMANORIGIN_CONTEXTUAL_VERIFY_FOCUS_V4 -->
+
+<!-- HUMANORIGIN_CONTEXTUAL_MINIMAL_STABLE_V1 -->
 <style>
   .ho-context-wrap{
     max-width:1100px;
@@ -176,13 +177,6 @@
     box-shadow:0 12px 30px rgba(20,35,58,0.08);
     color:#14233a;
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
-  }
-  .ho-context-top{
-    display:flex;
-    flex-wrap:wrap;
-    align-items:flex-start;
-    justify-content:space-between;
-    gap:14px;
   }
   .ho-context-kicker{
     font-size:11px;
@@ -279,9 +273,6 @@
     color:#31455f;
     word-break:break-word;
   }
-  .ho-hidden-contextual{
-    display:none !important;
-  }
   @media (max-width: 900px){
     .ho-context-grid{ grid-template-columns:1fr; }
     .ho-context-title{ font-size:24px; }
@@ -295,7 +286,7 @@
   const rawRid = (params.get("rid") || params.get("id") || "").trim();
   if (!rawRid) return;
 
-  const markerId = "ho-contextual-verify-focus-v4";
+  const markerId = "ho-contextual-minimal-stable-v1";
   if (document.getElementById(markerId)) return;
 
   function extractShortRid(raw){
@@ -316,7 +307,7 @@
     en: {
       kicker: "HumanOrigin · verification context",
       title: "Verify this specific document",
-      copy: "This verifier was opened from a document-specific HumanOrigin link. Drop the reference proof file below. The verifier will compare the expected record ID with the proof you provide.",
+      copy: "This verifier was opened from a document-specific HumanOrigin link. Drop the reference proof file below. The verifier compares the expected record ID with the proof you provide.",
       expected: "Expected Record ID",
       status_wait: "Awaiting proof file",
       status_match: "Reference proof matches",
@@ -333,7 +324,7 @@
     fr: {
       kicker: "HumanOrigin · contexte de vérification",
       title: "Vérifier ce document précis",
-      copy: "Ce vérificateur a été ouvert depuis un lien HumanOrigin propre à un document. Déposez ci-dessous le fichier de preuve de référence. Le vérificateur comparera l’ID attendu avec celui trouvé dans la preuve.",
+      copy: "Ce vérificateur a été ouvert depuis un lien HumanOrigin propre à un document. Déposez le fichier de preuve de référence ci-dessous. Le vérificateur compare l’ID attendu avec celui trouvé dans la preuve.",
       expected: "ID dossier attendu",
       status_wait: "En attente du fichier de preuve",
       status_match: "La preuve correspond",
@@ -369,15 +360,12 @@
 
   wrap.innerHTML = `
     <section class="ho-context-card">
-      <div class="ho-context-top">
-        <div>
-          <div class="ho-context-kicker" id="hoCtxKicker"></div>
-          <h2 class="ho-context-title" id="hoCtxTitle"></h2>
-          <p class="ho-context-copy" id="hoCtxCopy"></p>
-          <div class="ho-context-actions">
-            <a id="hoBackRecordBtn" class="ho-context-btn" href="${recordUrl}"></a>
-          </div>
-        </div>
+      <div class="ho-context-kicker" id="hoCtxKicker"></div>
+      <h2 class="ho-context-title" id="hoCtxTitle"></h2>
+      <p class="ho-context-copy" id="hoCtxCopy"></p>
+
+      <div class="ho-context-actions">
+        <a id="hoBackRecordBtn" class="ho-context-btn" href="${recordUrl}"></a>
       </div>
 
       <div class="ho-context-pills">
@@ -515,157 +503,16 @@
     }
   }, true);
 
-  function findWorkspaceHeading(){
-    const headings = Array.from(document.querySelectorAll("h1,h2,h3,h4"));
-    const needles = [
-      "Verification workspace",
-      "Espace de vérification",
-      "Technical verification",
-      "Vérification technique"
-    ];
-    return headings.find(h => {
-      const txt = (h.textContent || "").trim();
-      return needles.some(n => txt.includes(n));
-    }) || null;
-  }
-
-  function hideBetweenContextAndWorkspace(){
-    const workspaceHeading = findWorkspaceHeading();
-    if (!workspaceHeading) return;
-
-    let node = wrap.nextElementSibling;
-    while (node && node !== workspaceHeading.closest("section, article, div")) {
-      node.classList.add("ho-hidden-contextual");
-      node = node.nextElementSibling;
-    }
-  }
-
-  function cleanupLocalTopNoise(){
-    const blocks = Array.from(document.querySelectorAll("section, article, div"));
-    const badNeedles = [
-      "Public Record",
-      "Registre public",
-      "Signed proof",
-      "Preuve signée",
-      "SHA-256 Bound Document",
-      "Document lié par SHA-256",
-      "Proof status",
-      "Statut de la preuve"
-    ];
-    blocks.forEach(box => {
-      if (box.id === markerId || box.closest("#" + markerId)) return;
-      const txt = (box.textContent || "").trim();
-      if (!txt) return;
-      if (badNeedles.some(n => txt.includes(n))) {
-        box.classList.add("ho-hidden-contextual");
-      }
-    });
-  }
-
-  function maybeScrollToWorkspace(){
-    const workspaceHeading = findWorkspaceHeading();
-    if (!workspaceHeading) return;
-    const box = workspaceHeading.closest("section, article, div");
-    if (!box) return;
-    setTimeout(() => {
-      box.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 250);
-  }
-
   const mo = new MutationObserver(() => {
     const nextLang = getLang();
     if (nextLang !== state.lang) {
       state.lang = nextLang;
       render();
     }
-    hideBetweenContextAndWorkspace();
-    cleanupLocalTopNoise();
   });
-
   mo.observe(document.documentElement, { attributes: true, attributeFilter: ["data-current-lang"] });
-  mo.observe(document.body, { childList: true, subtree: true });
 
   render();
-  setTimeout(hideBetweenContextAndWorkspace, 120);
-  setTimeout(cleanupLocalTopNoise, 150);
-  setTimeout(hideBetweenContextAndWorkspace, 700);
-  setTimeout(cleanupLocalTopNoise, 900);
-  setTimeout(maybeScrollToWorkspace, 500);
-})();
-</script>
-
-
-
-<!-- HUMANORIGIN_CONTEXTUAL_PRECISE_HIDE_V7 -->
-<script>
-(function(){
-  const params = new URLSearchParams(window.location.search);
-  const rawRid = (params.get("rid") || params.get("id") || "").trim();
-  if (!rawRid) return;
-
-  function closestTightBlock(node){
-    return node.closest("section, article, .card, .panel, .tile") || null;
-  }
-
-  function findHeadingBlock(needles){
-    const heads = Array.from(document.querySelectorAll("h1,h2,h3,h4,.section-title,.card-title,.kicker"));
-    for (const h of heads) {
-      const txt = (h.textContent || "").trim();
-      if (!txt) continue;
-      if (needles.some(n => txt.includes(n))) {
-        const box = closestTightBlock(h);
-        if (box) return box;
-      }
-    }
-    return null;
-  }
-
-  function showWorkspace(){
-    const workspace = findHeadingBlock([
-      "Verification workspace",
-      "Espace de vérification",
-      "Technical verification",
-      "Vérification technique"
-    ]);
-    if (workspace) {
-      workspace.style.display = "";
-      workspace.classList.remove("ho-hidden-contextual");
-    }
-  }
-
-  function hideOnlyGenericNoise(){
-    const summaryStrip = findHeadingBlock([
-      "Public Record",
-      "Registre public",
-      "Signed proof",
-      "Preuve signée",
-      "SHA-256 Bound Document",
-      "Document lié par SHA-256"
-    ]);
-    if (summaryStrip) summaryStrip.style.display = "none";
-
-    const proofStatus = findHeadingBlock([
-      "Proof status",
-      "Statut de la preuve"
-    ]);
-    if (proofStatus) proofStatus.style.display = "none";
-  }
-
-  function run(){
-    showWorkspace();
-    hideOnlyGenericNoise();
-    showWorkspace();
-  }
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", run);
-  } else {
-    run();
-  }
-
-  setTimeout(run, 150);
-  setTimeout(run, 700);
-  setTimeout(run, 1400);
 })();
 </script>
 
