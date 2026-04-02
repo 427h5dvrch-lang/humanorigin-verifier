@@ -160,7 +160,8 @@
     setLanguage(currentLang);
   </script>
 
-<!-- HUMANORIGIN_CONTEXTUAL_VERIFY_V1 -->
+
+<!-- HUMANORIGIN_CONTEXTUAL_VERIFY_FOCUS_V4 -->
 <style>
   .ho-context-wrap{
     max-width:1100px;
@@ -168,7 +169,7 @@
     padding:0 24px;
   }
   .ho-context-card{
-    background:linear-gradient(180deg, rgba(255,255,255,0.92), rgba(255,255,255,0.82));
+    background:linear-gradient(180deg, rgba(255,255,255,0.94), rgba(255,255,255,0.84));
     border:1px solid rgba(20,35,58,0.12);
     border-radius:24px;
     padding:18px 18px 16px;
@@ -205,6 +206,26 @@
     line-height:1.58;
     color:#617084;
     max-width:760px;
+  }
+  .ho-context-actions{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-top:14px;
+  }
+  .ho-context-btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-height:42px;
+    padding:0 14px;
+    border-radius:12px;
+    text-decoration:none;
+    font-weight:800;
+    font-size:14px;
+    border:1px solid rgba(20,35,58,0.10);
+    background:#fff;
+    color:#14233a;
   }
   .ho-context-pills{
     display:flex;
@@ -258,6 +279,9 @@
     color:#31455f;
     word-break:break-word;
   }
+  .ho-hidden-contextual{
+    display:none !important;
+  }
   @media (max-width: 900px){
     .ho-context-grid{ grid-template-columns:1fr; }
     .ho-context-title{ font-size:24px; }
@@ -268,14 +292,25 @@
 <script>
 (function(){
   const params = new URLSearchParams(window.location.search);
-  const expectedRaw = (params.get("rid") || params.get("id") || "").trim();
-  if (!expectedRaw) return;
+  const rawRid = (params.get("rid") || params.get("id") || "").trim();
+  if (!rawRid) return;
 
-  const markerId = "ho-contextual-verify";
+  const markerId = "ho-contextual-verify-focus-v4";
   if (document.getElementById(markerId)) return;
 
-  const normalize = (s) => (s || "").replace(/[^A-Za-z0-9]/g, "").toUpperCase();
+  function extractShortRid(raw){
+    const src = String(raw || "").toUpperCase();
+    const matches = src.match(/[A-Z0-9]{8}/g) || [];
+    return matches.length ? matches[matches.length - 1] : "";
+  }
+  function normalize(s){
+    return String(s || "").replace(/[^A-Za-z0-9]/g, "").toUpperCase();
+  }
+
+  const expectedRaw = extractShortRid(rawRid) || rawRid;
   const expectedNorm = normalize(expectedRaw);
+  const baseRoot = window.location.origin + window.location.pathname.replace(/index\.html.*$/, "");
+  const recordUrl = baseRoot + "record.html?rid=" + encodeURIComponent(expectedRaw);
 
   const T = {
     en: {
@@ -292,7 +327,8 @@
       result_title: "What this check means",
       result_copy: "Green means the uploaded proof appears to match this document link. Red means the proof appears to belong to another record.",
       found_label: "Found in uploaded proof",
-      no_found: "No record ID found yet"
+      no_found: "No record ID found yet",
+      back_record: "Back to record page"
     },
     fr: {
       kicker: "HumanOrigin · contexte de vérification",
@@ -308,7 +344,8 @@
       result_title: "Ce que signifie ce contrôle",
       result_copy: "Vert = la preuve déposée semble correspondre à ce lien document. Rouge = la preuve semble appartenir à un autre dossier.",
       found_label: "Trouvé dans la preuve déposée",
-      no_found: "Aucun ID trouvé pour l’instant"
+      no_found: "Aucun ID trouvé pour l’instant",
+      back_record: "Retour à la page record"
     }
   };
 
@@ -337,6 +374,9 @@
           <div class="ho-context-kicker" id="hoCtxKicker"></div>
           <h2 class="ho-context-title" id="hoCtxTitle"></h2>
           <p class="ho-context-copy" id="hoCtxCopy"></p>
+          <div class="ho-context-actions">
+            <a id="hoBackRecordBtn" class="ho-context-btn" href="${recordUrl}"></a>
+          </div>
         </div>
       </div>
 
@@ -359,10 +399,7 @@
     </section>
   `;
 
-  const anchor =
-    document.querySelector("main") ||
-    document.querySelector("#app") ||
-    document.body;
+  const anchor = document.querySelector("main") || document.querySelector("#app") || document.body;
   anchor.prepend(wrap);
 
   function render(){
@@ -370,6 +407,7 @@
     document.getElementById("hoCtxKicker").textContent = t.kicker;
     document.getElementById("hoCtxTitle").textContent = t.title;
     document.getElementById("hoCtxCopy").textContent = t.copy;
+    document.getElementById("hoBackRecordBtn").textContent = t.back_record;
     document.getElementById("hoExpectedPill").textContent = `${t.expected} · ${expectedRaw}`;
     document.getElementById("hoHowTitle").textContent = t.how_title;
     document.getElementById("hoHowCopy").textContent = t.how_copy;
@@ -408,10 +446,8 @@
     if (typeof obj === "object") {
       for (const [k, v] of Object.entries(obj)) {
         const lk = String(k).toLowerCase();
-        if (
-          ["record_id","recordid","certificate_id","certificateid","id"].includes(lk)
-          && typeof v === "string" && v.trim()
-        ) {
+        if (["record_id","recordid","certificate_id","certificateid","id"].includes(lk)
+            && typeof v === "string" && v.trim()) {
           out.push(v.trim());
         }
         deepFindIds(v, out);
@@ -479,16 +515,82 @@
     }
   }, true);
 
+  function findWorkspaceHeading(){
+    const headings = Array.from(document.querySelectorAll("h1,h2,h3,h4"));
+    const needles = [
+      "Verification workspace",
+      "Espace de vérification",
+      "Technical verification",
+      "Vérification technique"
+    ];
+    return headings.find(h => {
+      const txt = (h.textContent || "").trim();
+      return needles.some(n => txt.includes(n));
+    }) || null;
+  }
+
+  function hideBetweenContextAndWorkspace(){
+    const workspaceHeading = findWorkspaceHeading();
+    if (!workspaceHeading) return;
+
+    let node = wrap.nextElementSibling;
+    while (node && node !== workspaceHeading.closest("section, article, div")) {
+      node.classList.add("ho-hidden-contextual");
+      node = node.nextElementSibling;
+    }
+  }
+
+  function cleanupLocalTopNoise(){
+    const blocks = Array.from(document.querySelectorAll("section, article, div"));
+    const badNeedles = [
+      "Public Record",
+      "Registre public",
+      "Signed proof",
+      "Preuve signée",
+      "SHA-256 Bound Document",
+      "Document lié par SHA-256",
+      "Proof status",
+      "Statut de la preuve"
+    ];
+    blocks.forEach(box => {
+      if (box.id === markerId || box.closest("#" + markerId)) return;
+      const txt = (box.textContent || "").trim();
+      if (!txt) return;
+      if (badNeedles.some(n => txt.includes(n))) {
+        box.classList.add("ho-hidden-contextual");
+      }
+    });
+  }
+
+  function maybeScrollToWorkspace(){
+    const workspaceHeading = findWorkspaceHeading();
+    if (!workspaceHeading) return;
+    const box = workspaceHeading.closest("section, article, div");
+    if (!box) return;
+    setTimeout(() => {
+      box.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 250);
+  }
+
   const mo = new MutationObserver(() => {
     const nextLang = getLang();
     if (nextLang !== state.lang) {
       state.lang = nextLang;
       render();
     }
+    hideBetweenContextAndWorkspace();
+    cleanupLocalTopNoise();
   });
+
   mo.observe(document.documentElement, { attributes: true, attributeFilter: ["data-current-lang"] });
+  mo.observe(document.body, { childList: true, subtree: true });
 
   render();
+  setTimeout(hideBetweenContextAndWorkspace, 120);
+  setTimeout(cleanupLocalTopNoise, 150);
+  setTimeout(hideBetweenContextAndWorkspace, 700);
+  setTimeout(cleanupLocalTopNoise, 900);
+  setTimeout(maybeScrollToWorkspace, 500);
 })();
 </script>
 
