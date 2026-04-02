@@ -162,7 +162,8 @@
 
 
 
-<!-- HUMANORIGIN_CONTEXTUAL_DIRECT_FIX_V1 -->
+
+<!-- HUMANORIGIN_CONTEXTUAL_HOOK_REAL_LANG_V1 -->
 <style>
   .ho-context-wrap{
     max-width:1100px;
@@ -244,7 +245,7 @@
     color:#31455f;
     word-break:break-word;
   }
-  @media (max-width: 900px){
+  @media (max-width:900px){
     .ho-context-wrap{ padding:0 14px; }
     .ho-context-title{ font-size:20px; }
   }
@@ -256,7 +257,7 @@
   const rawRid = (params.get("rid") || params.get("id") || "").trim();
   if (!rawRid) return;
 
-  const markerId = "ho-contextual-direct-fix-v1";
+  const markerId = "ho-contextual-hook-real-lang-v1";
   const old = document.getElementById(markerId);
   if (old) old.remove();
 
@@ -265,65 +266,8 @@
     const matches = src.match(/[A-Z0-9]{8}/g) || [];
     return matches.length ? matches[matches.length - 1] : "";
   }
-
   function normalize(s){
     return String(s || "").replace(/[^A-Za-z0-9]/g, "").toUpperCase();
-  }
-
-  function detectLangFromButtons(){
-    const candidates = Array.from(document.querySelectorAll('button,a,[role="button"]'));
-    let active = null;
-
-    for (const el of candidates) {
-      const txt = (el.textContent || "").trim().toLowerCase();
-      if (!txt) continue;
-
-      const isLangBtn =
-        txt === "en" || txt === "english" ||
-        txt === "fr" || txt === "français" || txt === "francais";
-
-      if (!isLangBtn) continue;
-
-      const isActive =
-        el.classList.contains("active") ||
-        el.classList.contains("selected") ||
-        el.classList.contains("current") ||
-        el.getAttribute("aria-pressed") === "true" ||
-        el.getAttribute("aria-current") === "true";
-
-      if (isActive) {
-        if (txt === "fr" || txt === "français" || txt === "francais") return "fr";
-        if (txt === "en" || txt === "english") return "en";
-      }
-
-      if (!active) {
-        if (txt === "fr" || txt === "français" || txt === "francais") active = "fr";
-        if (txt === "en" || txt === "english") active = "en";
-      }
-    }
-    return active;
-  }
-
-  function detectLang(){
-    const htmlLang = (document.documentElement.getAttribute("data-current-lang") || "").toLowerCase();
-    if (htmlLang === "fr" || htmlLang === "en") return htmlLang;
-
-    const langAttr = (document.documentElement.lang || "").toLowerCase();
-    if (langAttr.startsWith("fr")) return "fr";
-    if (langAttr.startsWith("en")) return "en";
-
-    const fromButtons = detectLangFromButtons();
-    if (fromButtons) return fromButtons;
-
-    try {
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        const val = (localStorage.getItem(key) || "").toLowerCase();
-        if (val === "fr" || val === "en") return val;
-      }
-    } catch (e) {}
-
-    return "en";
   }
 
   const expectedRaw = extractShortRid(rawRid) || rawRid;
@@ -361,7 +305,6 @@
   };
 
   const state = {
-    lang: detectLang(),
     found: "",
     verdict: "wait"
   };
@@ -386,12 +329,23 @@
     </section>
   `;
 
-  const anchor = document.querySelector("main") || document.querySelector("#app") || document.body;
+  const anchor = document.querySelector(".page") || document.querySelector("main") || document.body;
   anchor.prepend(wrap);
 
-  function render(){
-    state.lang = detectLang();
-    const t = T[state.lang] || T.en;
+  function getRealLang(){
+    try {
+      if (typeof currentLang === "string" && (currentLang === "fr" || currentLang === "en")) {
+        return currentLang;
+      }
+    } catch (e) {}
+    const docLang = (document.documentElement.lang || "").toLowerCase();
+    if (docLang.startsWith("fr")) return "fr";
+    return "en";
+  }
+
+  function renderContext(){
+    const lang = getRealLang();
+    const t = T[lang] || T.en;
 
     document.getElementById("hoCtxKicker").textContent = t.kicker;
     document.getElementById("hoCtxTitle").textContent = t.title;
@@ -449,7 +403,7 @@
     if (!normalized.length) {
       state.verdict = "unknown";
       state.found = "";
-      render();
+      renderContext();
       return;
     }
 
@@ -466,7 +420,7 @@
       state.verdict = "mismatch";
       state.found = normalized.map(v => v.raw).join(" · ");
     }
-    render();
+    renderContext();
   }
 
   async function inspectFile(file){
@@ -482,7 +436,7 @@
     } catch (e) {
       state.verdict = "unknown";
       state.found = "";
-      render();
+      renderContext();
     }
   }
 
@@ -500,29 +454,30 @@
     }
   }, true);
 
-  document.addEventListener("click", (e) => {
-    const el = e.target && e.target.closest && e.target.closest('button,a,[role="button"]');
-    if (!el) return;
-    setTimeout(render, 30);
-    setTimeout(render, 180);
-  }, true);
+  // Hook direct sur la vraie fonction de la page
+  if (typeof window.setLanguage === "function" && !window.__hoSetLanguageHooked) {
+    const originalSetLanguage = window.setLanguage;
+    window.setLanguage = function(lang){
+      const out = originalSetLanguage.apply(this, arguments);
+      setTimeout(renderContext, 0);
+      return out;
+    };
+    window.__hoSetLanguageHooked = true;
+  }
 
-  const mo = new MutationObserver(() => {
-    render();
-  });
-  mo.observe(document.documentElement, {
-    attributes: true,
-    attributeFilter: ["data-current-lang", "lang", "class"]
-  });
-  mo.observe(document.body, {
-    attributes: true,
-    childList: true,
-    subtree: true
-  });
+  // Hook direct sur les vrais boutons
+  const enBtn = document.getElementById("langEnBtn");
+  const frBtn = document.getElementById("langFrBtn");
+  if (enBtn) {
+    enBtn.addEventListener("click", () => setTimeout(renderContext, 0), true);
+  }
+  if (frBtn) {
+    frBtn.addEventListener("click", () => setTimeout(renderContext, 0), true);
+  }
 
-  render();
-  setTimeout(render, 200);
-  setTimeout(render, 800);
+  renderContext();
+  setTimeout(renderContext, 150);
+  setTimeout(renderContext, 700);
 })();
 </script>
 
