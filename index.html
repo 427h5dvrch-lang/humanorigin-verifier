@@ -594,5 +594,84 @@
 })();
 </script>
 
+
+<!-- HUMANORIGIN_CONTEXTUAL_HARD_HIDE_V5 -->
+<script>
+(function(){
+  const params = new URLSearchParams(window.location.search);
+  const rawRid = (params.get("rid") || params.get("id") || "").trim();
+  if (!rawRid) return;
+
+  const markerId = "ho-contextual-verify-focus-v4";
+
+  function closestBlock(node){
+    return node.closest("section, article, .card, .panel, .tile, div");
+  }
+
+  function findByHeadingText(needles){
+    const heads = Array.from(document.querySelectorAll("h1,h2,h3,h4,.section-title,.card-title,.kicker"));
+    for (const h of heads) {
+      const txt = (h.textContent || "").trim();
+      if (!txt) continue;
+      if (needles.some(n => txt.includes(n))) {
+        const box = closestBlock(h);
+        if (box && !(box.id === markerId || box.closest("#" + markerId))) {
+          return box;
+        }
+      }
+    }
+    return null;
+  }
+
+  function hide(node){
+    if (!node) return;
+    node.style.display = "none";
+  }
+
+  function run(){
+    // 1) cache le bandeau intermédiaire
+    const summaryStrip = findByHeadingText([
+      "Public Record",
+      "Registre public",
+      "Signed proof",
+      "Preuve signée",
+      "SHA-256 Bound Document",
+      "Document lié par SHA-256"
+    ]);
+    hide(summaryStrip);
+
+    // 2) cache le gros bloc statut
+    const proofStatus = findByHeadingText([
+      "Proof status",
+      "Statut de la preuve"
+    ]);
+    hide(proofStatus);
+
+    // 3) scroll vers l’espace utile
+    const workspace = findByHeadingText([
+      "Verification workspace",
+      "Espace de vérification",
+      "Technical verification",
+      "Vérification technique"
+    ]);
+    if (workspace) {
+      setTimeout(() => {
+        workspace.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 250);
+    }
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", run);
+  } else {
+    run();
+  }
+
+  setTimeout(run, 300);
+  setTimeout(run, 900);
+  setTimeout(run, 1600);
+})();
+</script>
+
 </body>
 </html>
