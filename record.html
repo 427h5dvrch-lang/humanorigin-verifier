@@ -30,6 +30,8 @@
     .sub{margin:0;max-width:760px;font-size:18px;line-height:1.55;color:var(--muted)}
     .pills{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
     .pill{display:inline-flex;align-items:center;padding:10px 14px;border-radius:999px;font-size:13px;font-weight:700;background:rgba(20,35,58,0.06);border:1px solid rgba(20,35,58,0.08)}
+    .pill.strong{background:var(--primary);color:#fff;border-color:transparent}
+    .pill.soft{background:rgba(255,255,255,0.88)}
     .grid{display:grid;grid-template-columns:1.1fr .9fr;gap:18px;margin-top:24px}
     .card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:20px}
     .card h2{margin:0 0 10px;font-size:20px}
@@ -38,8 +40,14 @@
     .btn{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:0 16px;border-radius:14px;text-decoration:none;font-weight:800;font-size:14px;border:1px solid var(--line)}
     .btn.primary{background:var(--primary);color:#fff;border-color:transparent}
     .btn.secondary{background:#fff;color:var(--ink)}
-    .mono{margin-top:22px;background:rgba(255,255,255,0.76);border:1px solid var(--line);border-radius:24px;padding:18px 20px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:#2c4260;font-size:15px;line-height:1.7}
-    @media (max-width:900px){.top,.grid{display:block}.switch{margin-top:14px}.page{padding:20px 14px 28px}h1{font-size:38px}}
+    .registry{margin-top:22px;background:rgba(255,255,255,0.76);border:1px solid var(--line);border-radius:24px;padding:18px 20px}
+    .registry-row{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;padding:10px 0;border-bottom:1px solid rgba(20,35,58,0.08)}
+    .registry-row:last-child{border-bottom:none;padding-bottom:0}
+    .registry-row:first-child{padding-top:0}
+    .registry-label{font-size:12px;font-weight:800;letter-spacing:.10em;text-transform:uppercase;color:var(--muted)}
+    .registry-value{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:#2c4260;font-size:15px;line-height:1.6;text-align:right;word-break:break-word}
+    .registry-link{color:var(--primary);font-weight:800;text-decoration:none}
+    @media (max-width:900px){.top,.grid{display:block}.switch{margin-top:14px}.page{padding:20px 14px 28px}h1{font-size:38px}.registry-row{display:block}.registry-value{text-align:left;margin-top:6px}}
   </style>
 </head>
 <body>
@@ -47,9 +55,9 @@
     <section class="hero">
       <div class="top">
         <div>
-          <div class="eyebrow"><span data-lang="en">HUMANORIGIN · DOCUMENT RECORD</span><span data-lang="fr">HUMANORIGIN · DOSSIER DOCUMENT</span></div>
-          <h1><span data-lang="en">This document carries a HumanOrigin proof</span><span data-lang="fr">Ce document porte une preuve HumanOrigin</span></h1>
-          <p class="sub"><span data-lang="en">Use this page to understand what the mark means, then open the verifier if you want to check the proof.</span><span data-lang="fr">Utilisez cette page pour comprendre ce que signifie la marque, puis ouvrez le vérificateur si vous voulez contrôler la preuve.</span></p>
+          <div class="eyebrow"><span data-lang="en">HUMANORIGIN · PUBLIC DOCUMENT RECORD</span><span data-lang="fr">HUMANORIGIN · REGISTRE PUBLIC DU DOCUMENT</span></div>
+          <h1><span data-lang="en">A signed HumanOrigin proof is attached to this document</span><span data-lang="fr">Une preuve HumanOrigin signée est attachée à ce document</span></h1>
+          <p class="sub"><span data-lang="en">This page is the public entry for a document-linked proof. HumanOrigin certifies that a measured human process was recorded and linked to this document. It does not certify that the document is true, legal, ethical, or institutionally approved.</span><span data-lang="fr">Cette page est l’entrée publique d’une preuve liée à un document. HumanOrigin certifie qu’un processus humain mesuré a été enregistré et lié à ce document. Il ne certifie pas que le document est vrai, légal, éthique ou institutionnellement approuvé.</span></p>
         </div>
         <div class="switch">
           <button class="active" data-lang-switch="en">English</button>
@@ -58,27 +66,36 @@
       </div>
 
       <div class="pills">
-        <div class="pill"><span data-lang="en">Record ID · </span><span data-lang="fr">ID dossier · </span><span id="recordShort">UNKNOWN</span></div>
+        <div class="pill strong"><span data-lang="en">Record ID · </span><span data-lang="fr">ID dossier · </span><span id="recordShort">UNKNOWN</span></div>
+        <div class="pill soft"><span data-lang="en">Signed proof available</span><span data-lang="fr">Preuve signée disponible</span></div>
+        <div class="pill soft"><span data-lang="en">Linked to this document</span><span data-lang="fr">Liée à ce document</span></div>
+        <div class="pill soft"><span data-lang="en">Public verification available</span><span data-lang="fr">Vérification publique disponible</span></div>
       </div>
 
       <div class="grid">
         <article class="card">
-          <h2><span data-lang="en">What this proves</span><span data-lang="fr">Ce que cela prouve</span></h2>
-          <p><span data-lang="en">HumanOrigin proves that a measured human process took place and that the proof is linked to a specific document. It does not prove that the document is true, legal, ethical, or institutionally approved.</span><span data-lang="fr">HumanOrigin prouve qu’un processus humain mesuré a eu lieu et que la preuve est liée à un document précis. Il ne prouve pas que le document est vrai, légal, éthique ou institutionnellement approuvé.</span></p>
+          <h2><span data-lang="en">What this means</span><span data-lang="fr">Ce que cela signifie</span></h2>
+          <p><span data-lang="en">This document is associated with a signed, portable proof. That proof can be checked against the linked source document through its fingerprint. HumanOrigin certifies process and document binding, not the truth of the document itself.</span><span data-lang="fr">Ce document est associé à une preuve signée et portable. Cette preuve peut être contrôlée par rapport au document source lié grâce à son empreinte. HumanOrigin certifie un processus et un lien documentaire, pas la vérité du document lui-même.</span></p>
           <div class="actions">
-            <a id="openVerifierBtn" class="btn primary" href="./"><span data-lang="en">Open verifier</span><span data-lang="fr">Ouvrir le vérificateur</span></a>
+            <a id="openVerifierBtn" class="btn primary" href="./"><span data-lang="en">Verify this proof</span><span data-lang="fr">Vérifier cette preuve</span></a>
           </div>
         </article>
 
         <article class="card">
-          <h2><span data-lang="en">How to verify</span><span data-lang="fr">Comment vérifier</span></h2>
-          <p><span data-lang="en">Open the verifier, then drop the HumanOrigin proof file. If you also have the linked source document, add it to confirm the binding.</span><span data-lang="fr">Ouvrez le vérificateur, puis déposez le fichier de preuve HumanOrigin. Si vous avez aussi le document source lié, ajoutez-le pour confirmer l’attache au document.</span></p>
+          <h2><span data-lang="en">How to check it</span><span data-lang="fr">Comment la contrôler</span></h2>
+          <p><span data-lang="en">Open the verifier, upload the HumanOrigin proof file, then add the linked source document if you also have it. The verifier will check signature integrity and document binding.</span><span data-lang="fr">Ouvrez le vérificateur, importez le fichier de preuve HumanOrigin, puis ajoutez le document source lié si vous l’avez aussi. Le vérificateur contrôlera l’intégrité de la signature et le lien au document.</span></p>
         </article>
       </div>
 
-      <div class="mono">
-        <div id="recordLine">Record ID: UNKNOWN</div>
-        <div>Verifier: https://427h5dvrch-lang.github.io/humanorigin-verifier/</div>
+      <div class="registry">
+        <div class="registry-row">
+          <div class="registry-label"><span data-lang="en">Record ID</span><span data-lang="fr">ID dossier</span></div>
+          <div class="registry-value" id="recordLineValue">UNKNOWN</div>
+        </div>
+        <div class="registry-row">
+          <div class="registry-label"><span data-lang="en">Verification route</span><span data-lang="fr">Accès vérification</span></div>
+          <div class="registry-value"><a id="openVerifierInline" class="registry-link" href="./">humanorigin-verifier</a></div>
+        </div>
       </div>
     </section>
   </main>
@@ -91,8 +108,9 @@
       const shortId = rid.replace(/[^A-Za-z0-9]/g, "").toUpperCase().slice(0, 8) || "UNKNOWN";
 
       document.getElementById("recordShort").textContent = shortId;
-      document.getElementById("recordLine").textContent = "Record ID: " + rid;
+      document.getElementById("recordLineValue").textContent = rid;
       document.getElementById("openVerifierBtn").setAttribute("href", "./?rid=" + encodeURIComponent(rid));
+      document.getElementById("openVerifierInline").setAttribute("href", "./?rid=" + encodeURIComponent(rid));
 
       const buttons = document.querySelectorAll("[data-lang-switch]");
       const saved = localStorage.getItem("humanorigin_record_lang");
