@@ -76,10 +76,94 @@
     pre{white-space:pre-wrap;word-break:break-word;background:rgba(0,0,0,.24);padding:12px;border-radius:12px;color:#e8eefc}
     @media (max-width:980px){.rail-shell,.card-grid,.workspace-grid,.trust-chain,.hero-meta{grid-template-columns:1fr}.rail-item{border-right:none;border-bottom:1px solid var(--line)} .rail-item:last-child{border-bottom:none}}
     @media (max-width:760px){.page{padding:18px 16px 42px}.hero,.section{padding:18px 16px}.hero-title{font-size:32px}.hero-side{white-space:normal;min-height:auto;padding:10px 12px;border-radius:14px}.hero-top{flex-direction:column;align-items:flex-start}.chip{white-space:normal;height:auto;padding:12px 14px;border-radius:16px}}
+  
+  .ho-context-wrap{
+    max-width:1100px;
+    margin:0 auto 18px;
+    padding:0;
+  }
+  .ho-context-card{
+    background:linear-gradient(180deg, rgba(255,255,255,.988) 0%, rgba(248,250,252,.97) 100%);
+    border:1px solid var(--line);
+    border-radius:22px;
+    padding:14px 16px 13px;
+    box-shadow:0 12px 28px rgba(15,23,42,.10);
+    color:var(--ink);
+  }
+  .ho-context-kicker{
+    margin:0 0 6px;
+    font-size:10px;
+    line-height:1.1;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    color:var(--muted2);
+    font-weight:800;
+  }
+  .ho-context-title{
+    margin:0 0 6px;
+    font-size:22px;
+    line-height:1.02;
+    letter-spacing:-.04em;
+    color:var(--ink);
+    font-weight:880;
+  }
+  .ho-context-copy{
+    margin:0;
+    max-width:920px;
+    color:var(--muted);
+    font-size:13px;
+    line-height:1.52;
+  }
+  .ho-context-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    align-items:center;
+    margin-top:10px;
+  }
+  .ho-context-btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-height:36px;
+    padding:0 12px;
+    border-radius:12px;
+    text-decoration:none;
+    font-weight:800;
+    font-size:13px;
+    border:1px solid rgba(15,23,42,.10);
+    background:#fff;
+    color:var(--ink);
+  }
+  .ho-pill{
+    display:inline-flex;
+    align-items:center;
+    min-height:36px;
+    padding:0 12px;
+    border-radius:999px;
+    font-size:12.5px;
+    font-weight:760;
+    background:rgba(15,23,42,.05);
+    border:1px solid rgba(15,23,42,.08);
+    color:var(--ink);
+  }
+  .ho-pill.ok{ background:#eaf6ea; border-color:rgba(22,163,74,.16); color:#166534; }
+  .ho-pill.warn{ background:#fff5df; border-color:rgba(217,119,6,.16); color:#92400e; }
+  .ho-pill.bad{ background:#fde9e9; border-color:rgba(220,38,38,.16); color:#991b1b; }
+  .ho-context-foot{
+    margin-top:8px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+    font-size:11.5px;
+    line-height:1.45;
+    color:#5d6a7a;
+    word-break:break-word;
+  }
+
   </style>
 </head>
 <body>
   <div class="page">
+    <div id="contextualVerifyHost"></div>
     <div class="rail"><div class="rail-shell" id="topRail"></div></div>
     <div class="langbar">
       <button class="langbtn active" id="langEnBtn" type="button">EN</button>
@@ -92,14 +176,15 @@
   </div>
   <script src="https://cdn.jsdelivr.net/npm/tweetnacl@1.0.3/nacl.min.js"></script>
   <script>
-    const $=(id)=>document.getElementById(id),search=new URLSearchParams(window.location.search),recordId=(search.get("id")||"").trim();
-    let currentLang=document.documentElement.lang&&document.documentElement.lang.startsWith("fr")?"fr":"en",lastHo=null,lastDocHex=null;
+    const $=(id)=>document.getElementById(id),search=new URLSearchParams(window.location.search),recordId=(search.get("rid")||search.get("id")||"").trim();
+    let currentLang=document.documentElement.lang&&document.documentElement.lang.startsWith("fr")?"fr":"en",lastHo=null,lastDocHex=null,contextualProofState={found:"",verdict:"wait"};
     const COPY={
       en:{rail:[["This page","Public Record","Public entry associated with a HumanOrigin proof."],["Source of truth","Signed proof (<code>.ho.json</code>)","The signed proof governs the record."],["Linked object","SHA-256 Bound Document","Hash-bound document. QR = access point to this record."]],
       heroGeneric:{kicker:"Public record",title:"Proof status",badge:"Public entry",intro:"Current page status and access to verification tools.",chips:[["Status: No record loaded","strong"],["Mode: Generic view","primary"],["Verification: Tools below","primary"]],chainKicker:"Trust chain",chain:"Source of truth: signed proof (.ho.json) • Linked object: SHA-256 bound document • HumanOrigin certifies process, not truth.",toolsLabel:"Quick access",tools:["Technical verification","What this record means","How to read this registry"],statementKicker:"Status note",statement:"No specific record is currently loaded on this page. Verification tools remain available below."},
       heroRecord:{kicker:"Public record",title:"Proof available",badge:"Portable proof",intro:"This page points to a signed proof linked to a specific document fingerprint.",chips:(id)=>[["Record ID: "+id,"strong"],["Status: Recorded proof available","primary"],["Proof: Signed portable record (.ho.json)","primary"],["Binding: SHA-256 document fingerprint","primary"],["Verification: Publicly verifiable","primary"]],chainKicker:"Trust chain",chain:"Source of truth: signed proof (.ho.json) • Linked object: SHA-256 bound document • HumanOrigin certifies process, not truth.",toolsLabel:"Quick access",tools:["Technical verification","What this record means","How to read this record"],statementKicker:"Official statement",statement:"This record certifies that a signed HumanOrigin proof exists for a measured human production process linked to a specific document fingerprint. HumanOrigin does not certify that the document is true, accurate, lawful, ethical, or institutionally approved."},
       meaning:{kicker:"Meaning",title:recordId?"What this record means":"What this registry means",intro:recordId?"This section explains what this public record proves, what it does not prove, and how public verification works.":"This section explains what the HumanOrigin public registry is for, what HumanOrigin certifies, what it does not certify, and how public verification works.",cards:[{title:recordId?"What this record certifies":"What HumanOrigin certifies",p1:recordId?"This record certifies that a signed proof exists showing that a measured human production process was linked to a specific document.":"HumanOrigin certifies that a proof record can exist showing that a human production process was measured and linked to a specific document.",p2:"That proof is bound to the document through its SHA-256 fingerprint and can be publicly verified."},{title:recordId?"What this record does not certify":"What HumanOrigin does not certify",p1:recordId?"HumanOrigin does not certify that the linked document is true, accurate, lawful, ethical, or institutionally endorsed.":"HumanOrigin does not certify that a document is true, accurate, lawful, ethical, or endorsed by any institution.",p2:"It certifies the existence of a measured human process, not the validity of a document’s claims."},{title:"Why this matters",p1:"This makes HumanOrigin proofs portable, verifiable, and document-specific.",p2:recordId?"A third party can verify that this record matches the linked document and that the proof has not been altered.":"When a specific record is loaded, a third party can verify that it matches the linked document and has not been altered."}]},
       tech:{kicker:"Verification workspace",title:"Verify a proof record",intro:"Upload a .ho.json proof file and, optionally, the linked document. HumanOrigin will verify the signature and compare the document hash when available.",proofLabel:"Proof input",proofTitle:"Upload proof record",proofCopy:"Drop a .ho.json or .json proof file here.",proofBtn:"Choose proof file",docLabel:"Document input",docTitle:"Upload linked document",docCopy:"Drop the PDF, DOCX, image, or other linked file here.",docBtn:"Choose document",pubKeyKicker:"Override public key (optional)",pubKeyPlaceholder:"Paste a public key only if you need to override the embedded key"},
+      context:{kicker:"HumanOrigin · verification context",title:"Verify this document",copy:"You arrived from a document-specific HumanOrigin link. Upload the signed proof file below to confirm that its record ID matches this document.",expected:"Expected Record ID",wait:"Awaiting proof file",match:"Proof matches",mismatch:"Proof mismatch",unknown:"Proof read, record unclear",back:"Back to record page",found:"Found in uploaded proof",none:"No record ID found yet"},
       footer:{kicker:"Reading guidance",title:"How to read this record",intro:"This public registry entry should be read as an evidence layer, not as a statement that the linked document is true, valid, or institutionally endorsed.",cards:[{title:"What this record shows",p:"A portable cryptographic proof exists and can be checked against a specific document."},{title:"Confidence model",p:"Trust comes from three combined elements: a measured process, a document hash binding, and a verifiable signature."},{title:"Recommended action",p:"If you need confirmation, request the .ho.json proof and verify it together with the linked document in the verification workspace above."}]},
       result:{signature:"Signature",valid:"VALID",invalid:"INVALID",docMissing:"Document: not provided",docMatch:"Document hash: MATCH",docNoMatch:"Document hash: NO MATCH",expected:"expected",got:"got",payloadOk:"payload_sha256: OK",payloadDifferent:"payload_sha256: different",payloadToSignOk:"payload_to_sign: OK",payloadToSignDifferent:"payload_to_sign: different (non blocking)",digest:"digest (sha256 hex of canonical)"},
       details:{summary:"Summary",processSummary:"Process summary",pubkey:"Public key used",expectedDoc:"Expected document (sha256)",verificationMethod:"Verification method",format:"Format",version:"Version",certId:"Cert ID",issuer:"Issuer",project:"Project",verdict:"Verdict"},error:"Error"},
@@ -108,18 +193,26 @@
       heroRecord:{kicker:"Registre public",title:"Preuve disponible",badge:"Preuve portable",intro:"Cette page renvoie vers une preuve signée liée à l’empreinte d’un document spécifique.",chips:(id)=>[["Record ID : "+id,"strong"],["Statut : preuve enregistrée disponible","primary"],["Preuve : enregistrement portable signé (.ho.json)","primary"],["Lien documentaire : empreinte SHA-256","primary"],["Vérification : vérifiable publiquement","primary"]],chainKicker:"Chaîne de confiance",chain:"Source de vérité : preuve signée (.ho.json) • Objet lié : document lié par SHA-256 • HumanOrigin certifie le processus, pas la vérité.",toolsLabel:"Accès rapide",tools:["Vérification technique","Ce que ce record signifie","Comment lire ce record"],statementKicker:"Déclaration officielle",statement:"Ce record certifie qu’une preuve HumanOrigin signée existe pour un processus de production humaine mesuré, lié à l’empreinte d’un document précis. HumanOrigin ne certifie ni la vérité, ni l’exactitude, ni la licéité, ni l’éthique, ni la validation institutionnelle du contenu."},
       meaning:{kicker:"Signification",title:recordId?"Ce que ce record signifie":"Ce que ce registre signifie",intro:recordId?"Cette section explique ce que cette entrée publique prouve, ce qu’elle ne prouve pas, et comment fonctionne la vérification publique.":"Cette section explique à quoi sert le registre public HumanOrigin, ce que HumanOrigin certifie, ce qu’il ne certifie pas, et comment fonctionne la vérification publique.",cards:[{title:recordId?"Ce que ce record certifie":"Ce que HumanOrigin certifie",p1:recordId?"Ce record certifie qu’une preuve signée existe, montrant qu’un processus de production humaine mesuré a été lié à un document spécifique.":"HumanOrigin certifie qu’une preuve enregistrée peut exister, montrant qu’un processus de production humaine a été mesuré et lié à un document spécifique.",p2:"Cette preuve est liée au document par son empreinte SHA-256 et peut être vérifiée publiquement."},{title:recordId?"Ce que ce record ne certifie pas":"Ce que HumanOrigin ne certifie pas",p1:recordId?"HumanOrigin ne certifie pas que le document lié est vrai, exact, licite, éthique, ou institutionnellement approuvé.":"HumanOrigin ne certifie pas qu’un document est vrai, exact, licite, éthique, ou approuvé par une institution.",p2:"Il certifie l’existence d’un processus humain mesuré, et non la validité des affirmations d’un document."},{title:"Pourquoi c’est important",p1:"Cela rend les preuves HumanOrigin portables, vérifiables et spécifiques à un document.",p2:recordId?"Un tiers peut vérifier que ce record correspond au document lié et que la preuve n’a pas été altérée.":"Lorsqu’une entrée spécifique est chargée, un tiers peut vérifier qu’elle correspond au document lié et qu’elle n’a pas été altérée."}]},
       tech:{kicker:"Espace de vérification",title:"Vérifier une preuve",intro:"Importez un fichier de preuve .ho.json et, si vous le souhaitez, le document lié. HumanOrigin vérifiera la signature et comparera l’empreinte du document si elle est disponible.",proofLabel:"Entrée preuve",proofTitle:"Importer la preuve",proofCopy:"Déposez ici un fichier de preuve .ho.json ou .json.",proofBtn:"Choisir le fichier de preuve",docLabel:"Entrée document",docTitle:"Importer le document lié",docCopy:"Déposez ici le PDF, DOCX, image ou autre fichier lié.",docBtn:"Choisir le document",pubKeyKicker:"Clé publique de remplacement (optionnel)",pubKeyPlaceholder:"Collez une clé publique uniquement si vous devez remplacer la clé embarquée"},
+      context:{kicker:"HumanOrigin · contexte de vérification",title:"Vérifier ce document",copy:"Vous êtes arrivé depuis un lien HumanOrigin propre à ce document. Déposez la preuve signée ci-dessous pour confirmer que son ID dossier correspond à ce document.",expected:"ID dossier attendu",wait:"En attente du fichier",match:"Preuve correspondante",mismatch:"Preuve non correspondante",unknown:"Preuve lue, dossier incertain",back:"Retour à la page record",found:"Trouvé dans la preuve déposée",none:"Aucun ID trouvé pour l’instant"},
       footer:{kicker:"Guide de lecture",title:"Comment lire ce record",intro:"Cette entrée publique du registre doit être lue comme une couche de preuve, et non comme une affirmation selon laquelle le document lié serait vrai, valide ou approuvé par une institution.",cards:[{title:"Ce que ce record montre",p:"Une preuve cryptographique portable existe et peut être vérifiée par rapport à un document précis."},{title:"Modèle de confiance",p:"La confiance repose sur trois éléments combinés : un processus mesuré, un lien par empreinte documentaire, et une signature vérifiable."},{title:"Action recommandée",p:"Si vous avez besoin d’une confirmation, demandez le fichier de preuve .ho.json et vérifiez-le avec le document lié dans l’espace de vérification ci-dessus."}]},
       result:{signature:"Signature",valid:"VALIDE",invalid:"INVALIDE",docMissing:"Document : non fourni",docMatch:"Empreinte du document : CORRESPONDANCE",docNoMatch:"Empreinte du document : AUCUNE CORRESPONDANCE",expected:"attendu",got:"obtenu",payloadOk:"payload_sha256 : OK",payloadDifferent:"payload_sha256 : différent",payloadToSignOk:"payload_to_sign : OK",payloadToSignDifferent:"payload_to_sign : différent (non bloquant)",digest:"digest (sha256 hex du canonical)"},
       details:{summary:"Résumé",processSummary:"Résumé du processus",pubkey:"Clé publique utilisée",expectedDoc:"Document attendu (sha256)",verificationMethod:"Méthode de vérification",format:"Format",version:"Version",certId:"Cert ID",issuer:"Émetteur",project:"Projet",verdict:"Verdict"},error:"Erreur"}};
 
     function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+
+    function extractShortRid(raw){const src=String(raw||"").toUpperCase();const matches=src.match(/[A-Z0-9]{8}/g)||[];return matches.length?matches[matches.length-1]:""}
+    function normalizeRecordId(s){return String(s||"").replace(/[^A-Za-z0-9]/g,"").toUpperCase()}
+    function collectContextProofIds(value,out=[]){if(!value||typeof value==="string")return out;if(Array.isArray(value)){value.forEach(v=>collectContextProofIds(v,out));return out}if(typeof value==="object"){for(const [k,v] of Object.entries(value)){const lk=String(k).toLowerCase();if(["record_id","recordid","certificate_id","certificateid"].includes(lk)&&typeof v==="string"&&v.trim())out.push(v.trim());collectContextProofIds(v,out)}}return out}
+    function renderContextualVerify(){const host=$("contextualVerifyHost");if(!host)return;if(!recordId){host.innerHTML="";host.style.display="none";return}const C=COPY[currentLang].context,expectedRaw=extractShortRid(recordId)||recordId,baseRoot=window.location.origin+window.location.pathname.replace(/index\.html.*$/,""),recordUrl=baseRoot+"record.html?rid="+encodeURIComponent(expectedRaw);let statusClass="warn",statusText=C.wait;if(contextualProofState.verdict==="match"){statusClass="ok";statusText=C.match}else if(contextualProofState.verdict==="mismatch"){statusClass="bad";statusText=C.mismatch}else if(contextualProofState.verdict==="unknown"){statusClass="warn";statusText=C.unknown}host.style.display="block";host.innerHTML=`<div class="ho-context-wrap"><section class="ho-context-card"><div class="ho-context-kicker">${C.kicker}</div><h2 class="ho-context-title">${C.title}</h2><p class="ho-context-copy">${C.copy}</p><div class="ho-context-row"><a class="ho-context-btn" href="${recordUrl}">${C.back}</a><div class="ho-pill">${C.expected} · ${escapeHtml(expectedRaw)}</div><div class="ho-pill ${statusClass}">${statusText}</div></div><div class="ho-context-foot">${C.found} · ${contextualProofState.found?escapeHtml(contextualProofState.found):C.none}</div></section></div>`}
+    function updateContextFromProofDoc(doc){const expectedRaw=extractShortRid(recordId)||recordId,expectedNorm=normalizeRecordId(expectedRaw),foundValues=[...new Set(collectContextProofIds(doc,[]).map(v=>String(v||"").trim()).filter(Boolean))],normalized=foundValues.map(v=>({raw:v,norm:normalizeRecordId(v)})).filter(v=>v.norm);if(!normalized.length){contextualProofState={found:"",verdict:"unknown"};renderContextualVerify();return}const match=normalized.find(v=>v.norm===expectedNorm||v.norm.startsWith(expectedNorm)||expectedNorm.startsWith(v.norm));if(match){contextualProofState={found:match.raw,verdict:"match"}}else{contextualProofState={found:normalized.map(v=>v.raw).join(" · "),verdict:"mismatch"}}renderContextualVerify()}
+
     function renderTopRail(){const L=COPY[currentLang].rail;$("topRail").innerHTML=`<article class="rail-item"><p class="rail-kicker">${L[0][0]}</p><h2 class="rail-title">${L[0][1]}</h2><p class="rail-copy">${L[0][2]}</p></article><article class="rail-item"><p class="rail-kicker">${L[1][0]}</p><h3 class="rail-title">${L[1][1]}</h3><p class="rail-copy">${L[1][2]}</p></article><article class="rail-item"><p class="rail-kicker">${L[2][0]}</p><h3 class="rail-title">${L[2][1]}</h3><p class="rail-copy">${L[2][2]}</p></article>`}
     function renderChips(items){return items.map(([text,cls])=>`<div class="chip ${cls||''}">${escapeHtml(text)}</div>`).join("")}
     function renderHero(){const C=recordId?COPY[currentLang].heroRecord:COPY[currentLang].heroGeneric;const chips=recordId?C.chips(recordId):C.chips;$("heroHost").innerHTML=`<div class="hero-top"><div><div class="hero-kicker">${C.kicker}</div><h1 class="hero-title">${C.title}</h1></div><div class="hero-side">${C.badge}</div></div><p class="hero-intro">${C.intro}</p><div class="hero-meta">${renderChips(chips)}</div><div class="trust-chain"><div class="trust-card"><p class="trust-kicker">${C.chainKicker}</p><p class="trust-copy">${C.chain}</p></div><div class="trust-card"><p class="trust-kicker">${C.toolsLabel}</p><div class="tool-row">${C.tools.map(t=>`<span class="tool-pill">${escapeHtml(t)}</span>`).join("")}</div></div></div><div class="statement"><p class="statement-kicker">${C.statementKicker}</p><p class="statement-copy">${C.statement}</p></div>`}
     function renderMeaning(){const C=COPY[currentLang].meaning;$("meaningHost").innerHTML=`<div class="section-kicker">${C.kicker}</div><h2 class="section-title">${C.title}</h2><p class="section-intro">${C.intro}</p><div class="card-grid">${C.cards.map(card=>`<article class="subcard"><h3>${card.title}</h3><p>${card.p1}</p><p>${card.p2}</p></article>`).join("")}</div>`}
     function renderFooter(){const C=COPY[currentLang].footer;$("guidanceHost").innerHTML=`<div class="section-kicker">${C.kicker}</div><h2 class="section-title">${C.title}</h2><p class="section-intro">${C.intro}</p><div class="card-grid">${C.cards.map(card=>`<article class="subcard"><h3>${card.title}</h3><p>${card.p}</p></article>`).join("")}</div>`}
     function renderTechShell(){const C=COPY[currentLang].tech;$("technicalVerification").innerHTML=`<div class="section-kicker">${C.kicker}</div><h2 class="section-title">${C.title}</h2><p class="section-intro">${C.intro}</p><div class="workspace-grid"><div class="workspace-card"><div class="workspace-label">${C.proofLabel}</div><h3 class="workspace-title">${C.proofTitle}</h3><p class="workspace-copy">${C.proofCopy}</p><div class="drop" id="dropHo"><div class="drop-title">${C.proofTitle}</div><div class="muted">${C.proofCopy}</div><label class="file-trigger" for="fileHo">${C.proofBtn}</label><input id="fileHo" type="file" accept=".json,.ho.json,application/json"></div></div><div class="workspace-card"><div class="workspace-label">${C.docLabel}</div><h3 class="workspace-title">${C.docTitle}</h3><p class="workspace-copy">${C.docCopy}</p><div class="drop" id="dropDoc"><div class="drop-title">${C.docTitle}</div><div class="muted">${C.docCopy}</div><label class="file-trigger" for="fileDoc">${C.docBtn}</label><input id="fileDoc" type="file"></div></div></div><div style="margin-top:16px;"><div class="section-kicker" style="margin-bottom:0">${C.pubKeyKicker}</div><input id="overridePubKey" type="text" placeholder="${escapeHtml(C.pubKeyPlaceholder)}"></div><div class="result-box" id="result" style="display:${lastHo?'block':'none'};"></div><div class="details-box" id="details" style="display:${lastHo?'block':'none'};"></div>`;wireDropzones();renderVerification()}
-    function setLanguage(lang){currentLang=(lang==="fr")?"fr":"en";document.documentElement.lang=currentLang;$("langEnBtn").classList.toggle("active",currentLang==="en");$("langFrBtn").classList.toggle("active",currentLang==="fr");renderTopRail();renderHero();renderTechShell();renderMeaning();renderFooter()}
+    function setLanguage(lang){currentLang=(lang==="fr")?"fr":"en";document.documentElement.lang=currentLang;$("langEnBtn").classList.toggle("active",currentLang==="en");$("langFrBtn").classList.toggle("active",currentLang==="fr");renderContextualVerify();renderTopRail();renderHero();renderTechShell();renderMeaning();renderFooter()}
 
     function b64ToU8(b64){b64=(b64||"").replace(/\s+/g,"");const bin=atob(b64);const u8=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u8[i]=bin.charCodeAt(i);return u8}
     function u8ToHex(u8){return [...u8].map(b=>b.toString(16).padStart(2,"0")).join("")}
@@ -146,7 +239,7 @@
       const ho=doc.ho||{},subj=doc.subject||{},score=doc.score||{},m=(doc.evidence&&doc.evidence.sessions&&doc.evidence.sessions[0]&&doc.evidence.sessions[0].metrics)||{};
       detailsEl.innerHTML=`<div style="display:flex;gap:18px;flex-wrap:wrap;"><div style="flex:1;min-width:260px;"><div style="font-weight:950;margin-bottom:6px;">${D.summary}</div><div class="muted">HO v: <b>${escapeHtml(ho.version||"?")}</b></div><div class="muted">${D.certId}: <b>${escapeHtml(ho.certificate_id||"?")}</b></div><div class="muted">App: <b>${escapeHtml((ho.app&&ho.app.name)||"?")}</b> ${(ho.app&&ho.app.version)?("v"+escapeHtml(ho.app.version)):""}</div><div class="muted">Titre: <b>${escapeHtml(subj.title||"?")}</b></div><div class="muted">${D.verdict}: <b>${escapeHtml(score.verdict||"?")}</b></div></div><div style="flex:1;min-width:260px;"><div style="font-weight:950;margin-bottom:6px;">${D.processSummary}</div><div class="muted">active_seconds: <b>${escapeHtml(m.active_seconds ?? "?")}</b></div><div class="muted">keystrokes: <b>${escapeHtml(m.keystrokes ?? "?")}</b></div><div class="muted">mouse_moves: <b>${escapeHtml(m.mouse_moves ?? "?")}</b></div><div class="muted">pastes: <b>${escapeHtml(m.pastes ?? "?")}</b></div></div></div><div style="margin-top:14px;font-weight:950;">${D.pubkey}</div><pre>${escapeHtml(pubUsedB64)}</pre><div style="margin-top:14px;font-weight:950;">${D.expectedDoc}</div><pre>${escapeHtml(expectedDocSha||"—")}</pre>`;
     }
-    async function handleHoText(text){try{lastHo=await verifyHoJson(text);renderVerification()}catch(e){const resultEl=$("result"),detailsEl=$("details");if(resultEl){resultEl.style.display="block";resultEl.innerHTML=`<div style="font-size:18px;font-weight:950;">${COPY[currentLang].error}: <span class="bad">${escapeHtml(e.message||String(e))}</span></div>`}if(detailsEl){detailsEl.style.display="none";detailsEl.innerHTML=""}}}
+    async function handleHoText(text){try{lastHo=await verifyHoJson(text);updateContextFromProofDoc(lastHo.doc);renderVerification()}catch(e){contextualProofState={found:"",verdict:"unknown"};renderContextualVerify();const resultEl=$("result"),detailsEl=$("details");if(resultEl){resultEl.style.display="block";resultEl.innerHTML=`<div style="font-size:18px;font-weight:950;">${COPY[currentLang].error}: <span class="bad">${escapeHtml(e.message||String(e))}</span></div>`}if(detailsEl){detailsEl.style.display="none";detailsEl.innerHTML=""}}}
     async function handleDocFile(file){const digestBytes=await sha256BytesFromFile(file);lastDocHex=u8ToHex(digestBytes);renderVerification()}
     function wireDropzones(){
       const dropHo=$("dropHo"),fileHo=$("fileHo"),dropDoc=$("dropDoc"),fileDoc=$("fileDoc");
@@ -160,320 +253,6 @@
     setLanguage(currentLang);
   </script>
 
-
-<!-- HUMANORIGIN_CONTEXTUAL_PREMIUM_FREEZE_V2 -->
-<style>
-  .ho-context-wrap{
-    max-width:1100px;
-    margin:16px auto 10px;
-    padding:0 24px;
-  }
-  .ho-context-card{
-    background:linear-gradient(180deg, rgba(255,255,255,0.96), rgba(255,255,255,0.90));
-    border:1px solid rgba(20,35,58,0.10);
-    border-radius:18px;
-    padding:12px 14px 12px;
-    box-shadow:0 8px 22px rgba(20,35,58,0.06);
-    color:#14233a;
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
-  }
-  .ho-context-kicker{
-    font-size:10px;
-    font-weight:800;
-    letter-spacing:.14em;
-    text-transform:uppercase;
-    color:#7a8797;
-    margin-bottom:6px;
-  }
-  .ho-context-title{
-    font-size:20px;
-    line-height:1.04;
-    letter-spacing:-.03em;
-    font-weight:800;
-    margin:0 0 6px;
-    color:#14233a;
-  }
-  .ho-context-copy{
-    margin:0;
-    font-size:12.5px;
-    line-height:1.45;
-    color:#617084;
-    max-width:920px;
-  }
-  .ho-context-row{
-    display:flex;
-    flex-wrap:wrap;
-    gap:8px;
-    align-items:center;
-    margin-top:10px;
-  }
-  .ho-context-btn{
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    min-height:34px;
-    padding:0 12px;
-    border-radius:10px;
-    text-decoration:none;
-    font-weight:700;
-    font-size:13px;
-    border:1px solid rgba(20,35,58,0.10);
-    background:#fff;
-    color:#14233a;
-  }
-  .ho-pill{
-    display:inline-flex;
-    align-items:center;
-    padding:7px 11px;
-    border-radius:999px;
-    font-size:12.5px;
-    font-weight:700;
-    background:rgba(20,35,58,0.06);
-    border:1px solid rgba(20,35,58,0.08);
-    color:#14233a;
-  }
-  .ho-pill.ok{ background:#eaf6ea; border-color:rgba(20,120,50,0.16); color:#0f5f2a; }
-  .ho-pill.warn{ background:#fff5df; border-color:rgba(180,120,0,0.16); color:#8a5a00; }
-  .ho-pill.bad{ background:#fde9e9; border-color:rgba(180,40,40,0.16); color:#8d1e1e; }
-  .ho-context-foot{
-    margin-top:8px;
-    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
-    font-size:11.5px;
-    line-height:1.45;
-    color:#5d6a7a;
-    word-break:break-word;
-  }
-  @media (max-width:900px){
-    .ho-context-wrap{ padding:0 14px; }
-    .ho-context-title{ font-size:18px; }
-    .ho-context-copy{ font-size:12px; }
-  }
-</style>
-
-<script>
-(function(){
-  const params = new URLSearchParams(window.location.search);
-  const rawRid = (params.get("rid") || params.get("id") || "").trim();
-  if (!rawRid) return;
-
-  const markerId = "ho-contextual-premium-freeze-v2";
-  const old = document.getElementById(markerId);
-  if (old) old.remove();
-
-  function extractShortRid(raw){
-    const src = String(raw || "").toUpperCase();
-    const matches = src.match(/[A-Z0-9]{8}/g) || [];
-    return matches.length ? matches[matches.length - 1] : "";
-  }
-
-  function normalize(s){
-    return String(s || "").replace(/[^A-Za-z0-9]/g, "").toUpperCase();
-  }
-
-  const expectedRaw = extractShortRid(rawRid) || rawRid;
-  const expectedNorm = normalize(expectedRaw);
-  const baseRoot = window.location.origin + window.location.pathname.replace(/index\.html.*$/, "");
-  const recordUrl = baseRoot + "record.html?rid=" + encodeURIComponent(expectedRaw);
-
-  const T = {
-    en: {
-      kicker: "HumanOrigin · verification context",
-      title: "Verify this document",
-      copy: "You arrived from a document-specific HumanOrigin link. Upload the signed proof file below to confirm that its record ID matches this document.",
-      expected: "Expected Record ID",
-      wait: "Awaiting proof file",
-      match: "Proof matches",
-      mismatch: "Proof mismatch",
-      unknown: "Proof read, record unclear",
-      back: "Back to record page",
-      found: "Found in uploaded proof",
-      none: "No record ID found yet"
-    },
-    fr: {
-      kicker: "HumanOrigin · contexte de vérification",
-      title: "Vérifier ce document",
-      copy: "Vous êtes arrivé depuis un lien HumanOrigin propre à ce document. Déposez la preuve signée ci-dessous pour confirmer que son ID dossier correspond à ce document.",
-      expected: "ID dossier attendu",
-      wait: "En attente du fichier",
-      match: "Preuve correspondante",
-      mismatch: "Preuve non correspondante",
-      unknown: "Preuve lue, dossier incertain",
-      back: "Retour à la page record",
-      found: "Trouvé dans la preuve déposée",
-      none: "Aucun ID trouvé pour l’instant"
-    }
-  };
-
-  const state = {
-    found: "",
-    verdict: "wait"
-  };
-
-  const wrap = document.createElement("div");
-  wrap.className = "ho-context-wrap";
-  wrap.id = markerId;
-
-  wrap.innerHTML = `
-    <section class="ho-context-card">
-      <div class="ho-context-kicker" id="hoCtxKicker"></div>
-      <h2 class="ho-context-title" id="hoCtxTitle"></h2>
-      <p class="ho-context-copy" id="hoCtxCopy"></p>
-
-      <div class="ho-context-row">
-        <a id="hoBackRecordBtn" class="ho-context-btn" href="${recordUrl}"></a>
-        <div class="ho-pill" id="hoExpectedPill"></div>
-        <div class="ho-pill warn" id="hoStatusPill"></div>
-      </div>
-
-      <div class="ho-context-foot" id="hoFoundLine"></div>
-    </section>
-  `;
-
-  const anchor = document.querySelector(".page") || document.querySelector("main") || document.body;
-  anchor.prepend(wrap);
-
-  function getRealLang(){
-    try {
-      if (typeof currentLang === "string" && (currentLang === "fr" || currentLang === "en")) {
-        return currentLang;
-      }
-    } catch (e) {}
-    const docLang = (document.documentElement.lang || "").toLowerCase();
-    if (docLang.startsWith("fr")) return "fr";
-    return "en";
-  }
-
-  function renderContext(){
-    const lang = getRealLang();
-    const t = T[lang] || T.en;
-
-    document.getElementById("hoCtxKicker").textContent = t.kicker;
-    document.getElementById("hoCtxTitle").textContent = t.title;
-    document.getElementById("hoCtxCopy").textContent = t.copy;
-    document.getElementById("hoBackRecordBtn").textContent = t.back;
-    document.getElementById("hoExpectedPill").textContent = `${t.expected} · ${expectedRaw}`;
-
-    const status = document.getElementById("hoStatusPill");
-    status.className = "ho-pill";
-    if (state.verdict === "match") {
-      status.classList.add("ok");
-      status.textContent = t.match;
-    } else if (state.verdict === "mismatch") {
-      status.classList.add("bad");
-      status.textContent = t.mismatch;
-    } else if (state.verdict === "unknown") {
-      status.classList.add("warn");
-      status.textContent = t.unknown;
-    } else {
-      status.classList.add("warn");
-      status.textContent = t.wait;
-    }
-
-    document.getElementById("hoFoundLine").textContent =
-      state.found
-        ? `${t.found} · ${state.found}`
-        : `${t.found} · ${t.none}`;
-  }
-
-  function deepFindIds(obj, out = []){
-    if (!obj) return out;
-    if (typeof obj === "string") return out;
-    if (Array.isArray(obj)) {
-      obj.forEach(v => deepFindIds(v, out));
-      return out;
-    }
-    if (typeof obj === "object") {
-      for (const [k, v] of Object.entries(obj)) {
-        const lk = String(k).toLowerCase();
-        if (["record_id","recordid","certificate_id","certificateid","id"].includes(lk)
-            && typeof v === "string" && v.trim()) {
-          out.push(v.trim());
-        }
-        deepFindIds(v, out);
-      }
-    }
-    return out;
-  }
-
-  function compareFound(foundValues){
-    const normalized = foundValues
-      .map(v => ({ raw: v, norm: normalize(v) }))
-      .filter(v => v.norm);
-
-    if (!normalized.length) {
-      state.verdict = "unknown";
-      state.found = "";
-      renderContext();
-      return;
-    }
-
-    const match = normalized.find(v =>
-      v.norm === expectedNorm ||
-      v.norm.startsWith(expectedNorm) ||
-      expectedNorm.startsWith(v.norm)
-    );
-
-    if (match) {
-      state.verdict = "match";
-      state.found = match.raw;
-    } else {
-      state.verdict = "mismatch";
-      state.found = normalized.map(v => v.raw).join(" · ");
-    }
-    renderContext();
-  }
-
-  async function inspectFile(file){
-    if (!file) return;
-    const lower = (file.name || "").toLowerCase();
-    if (!lower.endsWith(".json") && !lower.endsWith(".ho.json")) return;
-
-    try {
-      const text = await file.text();
-      const parsed = JSON.parse(text);
-      const ids = deepFindIds(parsed, []);
-      compareFound(ids);
-    } catch (e) {
-      state.verdict = "unknown";
-      state.found = "";
-      renderContext();
-    }
-  }
-
-  document.addEventListener("change", (e) => {
-    const target = e.target;
-    if (target && target.files && target.files.length) {
-      inspectFile(target.files[0]);
-    }
-  }, true);
-
-  document.addEventListener("drop", (e) => {
-    const files = e.dataTransfer && e.dataTransfer.files;
-    if (files && files.length) {
-      inspectFile(files[0]);
-    }
-  }, true);
-
-  if (typeof window.setLanguage === "function" && !window.__hoSetLanguageHooked) {
-    const originalSetLanguage = window.setLanguage;
-    window.setLanguage = function(lang){
-      const out = originalSetLanguage.apply(this, arguments);
-      setTimeout(renderContext, 0);
-      return out;
-    };
-    window.__hoSetLanguageHooked = true;
-  }
-
-  const enBtn = document.getElementById("langEnBtn");
-  const frBtn = document.getElementById("langFrBtn");
-  if (enBtn) enBtn.addEventListener("click", () => setTimeout(renderContext, 0), true);
-  if (frBtn) frBtn.addEventListener("click", () => setTimeout(renderContext, 0), true);
-
-  renderContext();
-  setTimeout(renderContext, 150);
-  setTimeout(renderContext, 700);
-})();
-</script>
 
 </body>
 </html>
