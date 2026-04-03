@@ -160,64 +160,73 @@
     setLanguage(currentLang);
   </script>
 
-<!-- HUMANORIGIN_CONTEXTUAL_VERIFY_V1 -->
+
+<!-- HUMANORIGIN_CONTEXTUAL_PREMIUM_FREEZE_V2 -->
 <style>
   .ho-context-wrap{
     max-width:1100px;
-    margin:18px auto 0;
+    margin:16px auto 10px;
     padding:0 24px;
   }
   .ho-context-card{
-    background:linear-gradient(180deg, rgba(255,255,255,0.92), rgba(255,255,255,0.82));
-    border:1px solid rgba(20,35,58,0.12);
-    border-radius:24px;
-    padding:18px 18px 16px;
-    box-shadow:0 12px 30px rgba(20,35,58,0.08);
+    background:linear-gradient(180deg, rgba(255,255,255,0.96), rgba(255,255,255,0.90));
+    border:1px solid rgba(20,35,58,0.10);
+    border-radius:18px;
+    padding:12px 14px 12px;
+    box-shadow:0 8px 22px rgba(20,35,58,0.06);
     color:#14233a;
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
   }
-  .ho-context-top{
-    display:flex;
-    flex-wrap:wrap;
-    align-items:flex-start;
-    justify-content:space-between;
-    gap:14px;
-  }
   .ho-context-kicker{
-    font-size:11px;
+    font-size:10px;
     font-weight:800;
-    letter-spacing:.12em;
+    letter-spacing:.14em;
     text-transform:uppercase;
-    color:#617084;
-    margin-bottom:8px;
+    color:#7a8797;
+    margin-bottom:6px;
   }
   .ho-context-title{
-    font-size:28px;
-    line-height:1.05;
+    font-size:20px;
+    line-height:1.04;
     letter-spacing:-.03em;
     font-weight:800;
-    margin:0 0 8px;
+    margin:0 0 6px;
     color:#14233a;
   }
   .ho-context-copy{
     margin:0;
-    font-size:15px;
-    line-height:1.58;
+    font-size:12.5px;
+    line-height:1.45;
     color:#617084;
-    max-width:760px;
+    max-width:920px;
   }
-  .ho-context-pills{
+  .ho-context-row{
     display:flex;
     flex-wrap:wrap;
-    gap:10px;
-    margin-top:16px;
+    gap:8px;
+    align-items:center;
+    margin-top:10px;
+  }
+  .ho-context-btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-height:34px;
+    padding:0 12px;
+    border-radius:10px;
+    text-decoration:none;
+    font-weight:700;
+    font-size:13px;
+    border:1px solid rgba(20,35,58,0.10);
+    background:#fff;
+    color:#14233a;
   }
   .ho-pill{
     display:inline-flex;
     align-items:center;
-    padding:10px 14px;
+    padding:7px 11px;
     border-radius:999px;
-    font-size:13px;
+    font-size:12.5px;
     font-weight:700;
     background:rgba(20,35,58,0.06);
     border:1px solid rgba(20,35,58,0.08);
@@ -226,102 +235,76 @@
   .ho-pill.ok{ background:#eaf6ea; border-color:rgba(20,120,50,0.16); color:#0f5f2a; }
   .ho-pill.warn{ background:#fff5df; border-color:rgba(180,120,0,0.16); color:#8a5a00; }
   .ho-pill.bad{ background:#fde9e9; border-color:rgba(180,40,40,0.16); color:#8d1e1e; }
-  .ho-context-grid{
-    display:grid;
-    grid-template-columns:1.15fr .85fr;
-    gap:16px;
-    margin-top:16px;
-  }
-  .ho-context-box{
-    background:rgba(255,255,255,0.72);
-    border:1px solid rgba(20,35,58,0.10);
-    border-radius:18px;
-    padding:16px;
-  }
-  .ho-context-box h3{
-    margin:0 0 8px;
-    font-size:17px;
-    letter-spacing:-.02em;
-    color:#14233a;
-  }
-  .ho-context-box p{
-    margin:0;
-    font-size:14px;
-    line-height:1.56;
-    color:#617084;
-  }
-  .ho-context-mono{
-    margin-top:12px;
+  .ho-context-foot{
+    margin-top:8px;
     font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
-    font-size:13px;
-    line-height:1.6;
-    color:#31455f;
+    font-size:11.5px;
+    line-height:1.45;
+    color:#5d6a7a;
     word-break:break-word;
   }
-  @media (max-width: 900px){
-    .ho-context-grid{ grid-template-columns:1fr; }
-    .ho-context-title{ font-size:24px; }
+  @media (max-width:900px){
     .ho-context-wrap{ padding:0 14px; }
+    .ho-context-title{ font-size:18px; }
+    .ho-context-copy{ font-size:12px; }
   }
 </style>
 
 <script>
 (function(){
   const params = new URLSearchParams(window.location.search);
-  const expectedRaw = (params.get("rid") || params.get("id") || "").trim();
-  if (!expectedRaw) return;
+  const rawRid = (params.get("rid") || params.get("id") || "").trim();
+  if (!rawRid) return;
 
-  const markerId = "ho-contextual-verify";
-  if (document.getElementById(markerId)) return;
+  const markerId = "ho-contextual-premium-freeze-v2";
+  const old = document.getElementById(markerId);
+  if (old) old.remove();
 
-  const normalize = (s) => (s || "").replace(/[^A-Za-z0-9]/g, "").toUpperCase();
+  function extractShortRid(raw){
+    const src = String(raw || "").toUpperCase();
+    const matches = src.match(/[A-Z0-9]{8}/g) || [];
+    return matches.length ? matches[matches.length - 1] : "";
+  }
+
+  function normalize(s){
+    return String(s || "").replace(/[^A-Za-z0-9]/g, "").toUpperCase();
+  }
+
+  const expectedRaw = extractShortRid(rawRid) || rawRid;
   const expectedNorm = normalize(expectedRaw);
+  const baseRoot = window.location.origin + window.location.pathname.replace(/index\.html.*$/, "");
+  const recordUrl = baseRoot + "record.html?rid=" + encodeURIComponent(expectedRaw);
 
   const T = {
     en: {
       kicker: "HumanOrigin · verification context",
-      title: "Verify this specific document",
-      copy: "This verifier was opened from a document-specific HumanOrigin link. Drop the reference proof file below. The verifier will compare the expected record ID with the proof you provide.",
+      title: "Verify this document",
+      copy: "You arrived from a document-specific HumanOrigin link. Upload the signed proof file below to confirm that its record ID matches this document.",
       expected: "Expected Record ID",
-      status_wait: "Awaiting proof file",
-      status_match: "Reference proof matches",
-      status_mismatch: "Reference proof mismatch",
-      status_unknown: "Proof read, record unclear",
-      how_title: "What to do",
-      how_copy: "Drop the HumanOrigin reference proof file. Optionally add the linked source document if you want to confirm the document binding as well.",
-      result_title: "What this check means",
-      result_copy: "Green means the uploaded proof appears to match this document link. Red means the proof appears to belong to another record.",
-      found_label: "Found in uploaded proof",
-      no_found: "No record ID found yet"
+      wait: "Awaiting proof file",
+      match: "Proof matches",
+      mismatch: "Proof mismatch",
+      unknown: "Proof read, record unclear",
+      back: "Back to record page",
+      found: "Found in uploaded proof",
+      none: "No record ID found yet"
     },
     fr: {
       kicker: "HumanOrigin · contexte de vérification",
-      title: "Vérifier ce document précis",
-      copy: "Ce vérificateur a été ouvert depuis un lien HumanOrigin propre à un document. Déposez ci-dessous le fichier de preuve de référence. Le vérificateur comparera l’ID attendu avec celui trouvé dans la preuve.",
+      title: "Vérifier ce document",
+      copy: "Vous êtes arrivé depuis un lien HumanOrigin propre à ce document. Déposez la preuve signée ci-dessous pour confirmer que son ID dossier correspond à ce document.",
       expected: "ID dossier attendu",
-      status_wait: "En attente du fichier de preuve",
-      status_match: "La preuve correspond",
-      status_mismatch: "La preuve ne correspond pas",
-      status_unknown: "Preuve lue, dossier incertain",
-      how_title: "Que faire",
-      how_copy: "Déposez le fichier de preuve de référence HumanOrigin. Vous pouvez aussi ajouter le document source lié si vous voulez confirmer l’attache au document.",
-      result_title: "Ce que signifie ce contrôle",
-      result_copy: "Vert = la preuve déposée semble correspondre à ce lien document. Rouge = la preuve semble appartenir à un autre dossier.",
-      found_label: "Trouvé dans la preuve déposée",
-      no_found: "Aucun ID trouvé pour l’instant"
+      wait: "En attente du fichier",
+      match: "Preuve correspondante",
+      mismatch: "Preuve non correspondante",
+      unknown: "Preuve lue, dossier incertain",
+      back: "Retour à la page record",
+      found: "Trouvé dans la preuve déposée",
+      none: "Aucun ID trouvé pour l’instant"
     }
   };
 
-  function getLang(){
-    const docLang = document.documentElement.getAttribute("data-current-lang");
-    if (docLang === "fr" || docLang === "en") return docLang;
-    const stored = localStorage.getItem("humanorigin_record_lang")
-      || localStorage.getItem("humanorigin_public_lang");
-    return stored === "fr" ? "fr" : "en";
-  }
-
   const state = {
-    lang: getLang(),
     found: "",
     verdict: "wait"
   };
@@ -332,70 +315,64 @@
 
   wrap.innerHTML = `
     <section class="ho-context-card">
-      <div class="ho-context-top">
-        <div>
-          <div class="ho-context-kicker" id="hoCtxKicker"></div>
-          <h2 class="ho-context-title" id="hoCtxTitle"></h2>
-          <p class="ho-context-copy" id="hoCtxCopy"></p>
-        </div>
-      </div>
+      <div class="ho-context-kicker" id="hoCtxKicker"></div>
+      <h2 class="ho-context-title" id="hoCtxTitle"></h2>
+      <p class="ho-context-copy" id="hoCtxCopy"></p>
 
-      <div class="ho-context-pills">
+      <div class="ho-context-row">
+        <a id="hoBackRecordBtn" class="ho-context-btn" href="${recordUrl}"></a>
         <div class="ho-pill" id="hoExpectedPill"></div>
         <div class="ho-pill warn" id="hoStatusPill"></div>
       </div>
 
-      <div class="ho-context-grid">
-        <article class="ho-context-box">
-          <h3 id="hoHowTitle"></h3>
-          <p id="hoHowCopy"></p>
-        </article>
-        <article class="ho-context-box">
-          <h3 id="hoResultTitle"></h3>
-          <p id="hoResultCopy"></p>
-          <div class="ho-context-mono" id="hoFoundLine"></div>
-        </article>
-      </div>
+      <div class="ho-context-foot" id="hoFoundLine"></div>
     </section>
   `;
 
-  const anchor =
-    document.querySelector("main") ||
-    document.querySelector("#app") ||
-    document.body;
+  const anchor = document.querySelector(".page") || document.querySelector("main") || document.body;
   anchor.prepend(wrap);
 
-  function render(){
-    const t = T[state.lang];
+  function getRealLang(){
+    try {
+      if (typeof currentLang === "string" && (currentLang === "fr" || currentLang === "en")) {
+        return currentLang;
+      }
+    } catch (e) {}
+    const docLang = (document.documentElement.lang || "").toLowerCase();
+    if (docLang.startsWith("fr")) return "fr";
+    return "en";
+  }
+
+  function renderContext(){
+    const lang = getRealLang();
+    const t = T[lang] || T.en;
+
     document.getElementById("hoCtxKicker").textContent = t.kicker;
     document.getElementById("hoCtxTitle").textContent = t.title;
     document.getElementById("hoCtxCopy").textContent = t.copy;
+    document.getElementById("hoBackRecordBtn").textContent = t.back;
     document.getElementById("hoExpectedPill").textContent = `${t.expected} · ${expectedRaw}`;
-    document.getElementById("hoHowTitle").textContent = t.how_title;
-    document.getElementById("hoHowCopy").textContent = t.how_copy;
-    document.getElementById("hoResultTitle").textContent = t.result_title;
-    document.getElementById("hoResultCopy").textContent = t.result_copy;
 
     const status = document.getElementById("hoStatusPill");
     status.className = "ho-pill";
     if (state.verdict === "match") {
       status.classList.add("ok");
-      status.textContent = t.status_match;
+      status.textContent = t.match;
     } else if (state.verdict === "mismatch") {
       status.classList.add("bad");
-      status.textContent = t.status_mismatch;
+      status.textContent = t.mismatch;
     } else if (state.verdict === "unknown") {
       status.classList.add("warn");
-      status.textContent = t.status_unknown;
+      status.textContent = t.unknown;
     } else {
       status.classList.add("warn");
-      status.textContent = t.status_wait;
+      status.textContent = t.wait;
     }
 
     document.getElementById("hoFoundLine").textContent =
       state.found
-        ? `${t.found_label} · ${state.found}`
-        : `${t.found_label} · ${t.no_found}`;
+        ? `${t.found} · ${state.found}`
+        : `${t.found} · ${t.none}`;
   }
 
   function deepFindIds(obj, out = []){
@@ -408,10 +385,8 @@
     if (typeof obj === "object") {
       for (const [k, v] of Object.entries(obj)) {
         const lk = String(k).toLowerCase();
-        if (
-          ["record_id","recordid","certificate_id","certificateid","id"].includes(lk)
-          && typeof v === "string" && v.trim()
-        ) {
+        if (["record_id","recordid","certificate_id","certificateid","id"].includes(lk)
+            && typeof v === "string" && v.trim()) {
           out.push(v.trim());
         }
         deepFindIds(v, out);
@@ -428,7 +403,7 @@
     if (!normalized.length) {
       state.verdict = "unknown";
       state.found = "";
-      render();
+      renderContext();
       return;
     }
 
@@ -445,7 +420,7 @@
       state.verdict = "mismatch";
       state.found = normalized.map(v => v.raw).join(" · ");
     }
-    render();
+    renderContext();
   }
 
   async function inspectFile(file){
@@ -461,7 +436,7 @@
     } catch (e) {
       state.verdict = "unknown";
       state.found = "";
-      render();
+      renderContext();
     }
   }
 
@@ -479,16 +454,24 @@
     }
   }, true);
 
-  const mo = new MutationObserver(() => {
-    const nextLang = getLang();
-    if (nextLang !== state.lang) {
-      state.lang = nextLang;
-      render();
-    }
-  });
-  mo.observe(document.documentElement, { attributes: true, attributeFilter: ["data-current-lang"] });
+  if (typeof window.setLanguage === "function" && !window.__hoSetLanguageHooked) {
+    const originalSetLanguage = window.setLanguage;
+    window.setLanguage = function(lang){
+      const out = originalSetLanguage.apply(this, arguments);
+      setTimeout(renderContext, 0);
+      return out;
+    };
+    window.__hoSetLanguageHooked = true;
+  }
 
-  render();
+  const enBtn = document.getElementById("langEnBtn");
+  const frBtn = document.getElementById("langFrBtn");
+  if (enBtn) enBtn.addEventListener("click", () => setTimeout(renderContext, 0), true);
+  if (frBtn) frBtn.addEventListener("click", () => setTimeout(renderContext, 0), true);
+
+  renderContext();
+  setTimeout(renderContext, 150);
+  setTimeout(renderContext, 700);
 })();
 </script>
 
