@@ -160,6 +160,116 @@
   }
 
   </style>
+
+<style id="HO_VERIFIER_CONTEXT_FOCUS_CSS">
+  .ho-context-focus{
+    max-width:1120px;
+    margin:24px auto 18px auto;
+    border-radius:28px;
+    background:linear-gradient(135deg, rgba(255,255,255,.98), rgba(248,250,252,.94));
+    border:1px solid rgba(15,23,42,.10);
+    box-shadow:0 24px 70px rgba(2,6,23,.20);
+    color:#0f172a;
+    overflow:hidden;
+  }
+  .ho-context-focus-head{
+    padding:26px 28px 18px 28px;
+    border-bottom:1px solid rgba(15,23,42,.08);
+  }
+  .ho-context-kicker{
+    font-size:11px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    font-weight:950;
+    color:#64748b;
+    margin-bottom:8px;
+  }
+  .ho-context-title{
+    font-size:34px;
+    line-height:1.02;
+    letter-spacing:-.055em;
+    font-weight:950;
+    margin:0 0 10px 0;
+    color:#0f172a;
+  }
+  .ho-context-sub{
+    max-width:860px;
+    color:#475569;
+    font-size:14px;
+    line-height:1.45;
+    font-weight:650;
+    margin:0;
+  }
+  .ho-context-grid{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:10px;
+    margin-top:18px;
+  }
+  .ho-context-item{
+    padding:13px 14px;
+    border-radius:16px;
+    background:white;
+    border:1px solid rgba(15,23,42,.09);
+  }
+  .ho-context-item span{
+    display:block;
+    font-size:10px;
+    letter-spacing:.10em;
+    text-transform:uppercase;
+    color:#64748b;
+    font-weight:950;
+    margin-bottom:6px;
+  }
+  .ho-context-item strong{
+    display:block;
+    font-size:13px;
+    line-height:1.32;
+    color:#0f172a;
+    word-break:break-word;
+  }
+  .ho-context-action{
+    padding:20px 28px 28px 28px;
+  }
+  .ho-context-action-title{
+    font-size:18px;
+    line-height:1.15;
+    font-weight:950;
+    margin:0 0 12px 0;
+    color:#0f172a;
+  }
+  .ho-context-note{
+    margin-top:14px;
+    padding:12px 14px;
+    border-radius:16px;
+    background:rgba(251,191,36,.16);
+    color:#78350f;
+    font-size:12px;
+    line-height:1.42;
+    font-weight:750;
+  }
+  body.ho-context-mode .ho-context-moved{
+    margin:0!important;
+    max-width:none!important;
+    box-shadow:none!important;
+    border:0!important;
+    background:transparent!important;
+    padding:0!important;
+  }
+  body.ho-context-mode .ho-secondary-soft{
+    opacity:.72;
+  }
+  body.ho-context-mode .ho-secondary-soft:hover{
+    opacity:1;
+  }
+  @media (max-width:820px){
+    .ho-context-focus{margin:14px 12px;}
+    .ho-context-focus-head,.ho-context-action{padding:20px;}
+    .ho-context-title{font-size:27px;}
+    .ho-context-grid{grid-template-columns:1fr;}
+  }
+</style>
+
 </head>
 <body>
   <div class="page">
@@ -253,6 +363,99 @@
     setLanguage(currentLang);
   </script>
 
+
+
+<script id="HO_VERIFIER_CONTEXT_FOCUS_JS">
+(function(){
+  function esc(s){
+    return String(s || "").replace(/[&<>"']/g, function(c){
+      return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];
+    });
+  }
+
+  function textOf(el){
+    return (el && el.textContent || "").replace(/\s+/g, " ").trim();
+  }
+
+  function findSmallestBlockContaining(words){
+    var nodes = Array.prototype.slice.call(document.querySelectorAll("section, main > div, .card, .panel, .container > div, body > div"));
+    var best = null;
+    nodes.forEach(function(el){
+      var t = textOf(el);
+      var ok = words.every(function(w){ return t.indexOf(w) !== -1; });
+      if(ok){
+        if(!best || textOf(el).length < textOf(best).length) best = el;
+      }
+    });
+    return best;
+  }
+
+  function init(){
+    var params = new URLSearchParams(window.location.search);
+    var project = params.get("project") || "";
+    var expectedDocument = params.get("expected_document") || params.get("expected_file") || "";
+    var expectedProof = params.get("expected_proof") || "";
+
+    if(!project && !expectedDocument && !expectedProof) return;
+    if(document.querySelector(".ho-context-focus")) return;
+
+    document.body.classList.add("ho-context-mode");
+
+    var box = document.createElement("section");
+    box.className = "ho-context-focus";
+    box.innerHTML =
+      '<div class="ho-context-focus-head">' +
+        '<div class="ho-context-kicker">HumanOrigin · Vérification guidée</div>' +
+        '<h1 class="ho-context-title">Vérifier ce package HumanOrigin</h1>' +
+        '<p class="ho-context-sub">Déposez la preuve signée et le document attendu pour confirmer que ce fichier correspond bien à la preuve HumanOrigin.</p>' +
+        '<div class="ho-context-grid">' +
+          '<div class="ho-context-item"><span>Projet</span><strong>' + esc(project || "Non précisé") + '</strong></div>' +
+          '<div class="ho-context-item"><span>Document attendu</span><strong>' + esc(expectedDocument || "Document lié par empreinte SHA-256") + '</strong></div>' +
+          '<div class="ho-context-item"><span>Preuve attendue</span><strong>' + esc(expectedProof || "Fichier .ho.json") + '</strong></div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="ho-context-action">' +
+        '<div class="ho-context-action-title">Déposer les fichiers</div>' +
+        '<div id="ho-context-verification-slot"></div>' +
+        '<div class="ho-context-note">La vérification repose sur l’empreinte cryptographique du contenu. Le fichier peut avoir été renommé : ce qui compte est que son contenu corresponde à l’empreinte enregistrée dans la preuve.</div>' +
+      '</div>';
+
+    var root = document.querySelector("main") || document.querySelector(".container") || document.body;
+    root.insertBefore(box, root.firstChild);
+
+    var verification =
+      findSmallestBlockContaining(["Vérifier une preuve", "Importer la preuve"]) ||
+      findSmallestBlockContaining(["Importer la preuve", "Importer le document lié"]) ||
+      findSmallestBlockContaining(["Choisir le fichier de preuve", "Choisir le document"]);
+
+    var slot = document.getElementById("ho-context-verification-slot");
+
+    if(verification && slot && !verification.contains(box)){
+      verification.classList.add("ho-context-moved");
+      slot.appendChild(verification);
+    }
+
+    Array.prototype.slice.call(document.querySelectorAll("section, main > div, .card, .panel")).forEach(function(el){
+      var t = textOf(el);
+      if(
+        t.indexOf("Preuve disponible") !== -1 ||
+        t.indexOf("Ce que ce record signifie") !== -1 ||
+        t.indexOf("Comment lire ce record") !== -1 ||
+        t.indexOf("Chaîne de confiance") !== -1 ||
+        t.indexOf("Déclaration officielle") !== -1
+      ){
+        el.classList.add("ho-secondary-soft");
+      }
+    });
+  }
+
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
+  }
+})();
+</script>
 
 </body>
 </html>
