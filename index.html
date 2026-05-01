@@ -457,5 +457,194 @@
 })();
 </script>
 
+
+<style id="HO_CONTEXT_UX_FINAL_V1">
+  body.ho-package-context #contextualVerifyHost{
+    display:block !important;
+    margin:28px auto 28px auto !important;
+  }
+
+  body.ho-package-context .ho-context-wrap{
+    max-width:1120px !important;
+    margin:0 auto !important;
+  }
+
+  body.ho-package-context .ho-context-card{
+    background:#ffffff !important;
+    color:#0f172a !important;
+    border:1px solid rgba(15,23,42,.10) !important;
+    box-shadow:0 24px 70px rgba(15,23,42,.16) !important;
+    border-radius:28px !important;
+  }
+
+  body.ho-package-context .ho-context-kicker{
+    color:#64748b !important;
+    opacity:1 !important;
+    font-weight:950 !important;
+    letter-spacing:.16em !important;
+  }
+
+  body.ho-package-context .ho-context-title{
+    color:#0f172a !important;
+    opacity:1 !important;
+    font-weight:950 !important;
+    letter-spacing:-.045em !important;
+  }
+
+  body.ho-package-context .ho-context-sub,
+  body.ho-package-context .ho-context-copy{
+    color:#334155 !important;
+    opacity:1 !important;
+    font-weight:700 !important;
+  }
+
+  body.ho-package-context .ho-context-item,
+  body.ho-package-context .ho-pill{
+    background:#ffffff !important;
+    color:#0f172a !important;
+    border:1px solid rgba(15,23,42,.11) !important;
+    box-shadow:0 8px 22px rgba(15,23,42,.055) !important;
+    opacity:1 !important;
+  }
+
+  body.ho-package-context .ho-context-item span,
+  body.ho-package-context .ho-context-item strong{
+    opacity:1 !important;
+    color:#0f172a !important;
+  }
+
+  body.ho-package-context .ho-context-item span{
+    color:#64748b !important;
+    font-weight:950 !important;
+  }
+
+  body.ho-package-context h1,
+  body.ho-package-context h2,
+  body.ho-package-context h3,
+  body.ho-package-context p,
+  body.ho-package-context .muted{
+    opacity:1 !important;
+  }
+
+  body.ho-package-context .muted{
+    color:#475569 !important;
+  }
+
+  body.ho-package-context [class*="drop"],
+  body.ho-package-context [class*="upload"],
+  body.ho-package-context [class*="zone"],
+  body.ho-package-context [class*="input"],
+  body.ho-package-context [class*="file"]{
+    opacity:1 !important;
+  }
+
+  body.ho-package-context [class*="drop"],
+  body.ho-package-context [class*="upload"]{
+    background:#ffffff !important;
+    color:#0f172a !important;
+    border-color:#cbd5e1 !important;
+  }
+
+  body.ho-package-context button,
+  body.ho-package-context .btn,
+  body.ho-package-context [role="button"]{
+    opacity:1 !important;
+    color:#0f172a !important;
+  }
+
+  body.ho-package-context input,
+  body.ho-package-context textarea{
+    opacity:1 !important;
+    background:#ffffff !important;
+    color:#0f172a !important;
+    border-color:#cbd5e1 !important;
+  }
+
+  body.ho-package-context [data-ho-hidden-generic-status="1"]{
+    display:none !important;
+  }
+</style>
+
+<script id="HO_CONTEXT_UX_FINAL_JS_V1">
+(function(){
+  function hasPackageContext(){
+    try{
+      var p = new URLSearchParams(window.location.search || "");
+      return !!(
+        p.get("project") ||
+        p.get("expected_document") ||
+        p.get("expected_file") ||
+        p.get("expected_proof")
+      );
+    }catch(_){
+      return false;
+    }
+  }
+
+  function nearestSectionLike(el){
+    if(!el) return null;
+    var section = el.closest && el.closest("section");
+    if(section) return section;
+
+    var node = el;
+    for(var i=0;i<8 && node && node.parentElement && node.parentElement !== document.body;i++){
+      var cls = String(node.className || "");
+      if(
+        /hero|record|status|panel|card|registry/i.test(cls) ||
+        node.tagName === "SECTION"
+      ){
+        return node;
+      }
+      node = node.parentElement;
+    }
+    return el.parentElement || null;
+  }
+
+  function hideGenericProofStatus(){
+    if(!hasPackageContext()) return;
+
+    document.body.classList.add("ho-package-context");
+
+    var needles = [
+      "Statut de la preuve",
+      "Proof status"
+    ];
+
+    Array.from(document.querySelectorAll("h1,h2")).forEach(function(h){
+      var t = (h.textContent || "").trim();
+      var isGenericStatus = needles.some(function(n){ return t === n || t.indexOf(n) >= 0; });
+
+      if(!isGenericStatus) return;
+      if(h.closest("#contextualVerifyHost")) return;
+
+      var box = nearestSectionLike(h);
+      if(box){
+        box.setAttribute("data-ho-hidden-generic-status", "1");
+        box.style.display = "none";
+      }
+    });
+  }
+
+  function run(){
+    hideGenericProofStatus();
+  }
+
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", run);
+  }else{
+    run();
+  }
+
+  setTimeout(run, 100);
+  setTimeout(run, 500);
+  setTimeout(run, 1200);
+
+  try{
+    var mo = new MutationObserver(function(){ run(); });
+    mo.observe(document.documentElement, { childList:true, subtree:true });
+  }catch(_){}
+})();
+</script>
+
 </body>
 </html>
