@@ -435,6 +435,116 @@
   }
 </style>
 
+
+<style id="HO_EXPLAIN_SECTIONS_CONTRAST_V1">
+  /*
+    Rend lisibles les sections basses :
+    - "Ce que ce registre signifie"
+    - "Comment lire ce record"
+    sans modifier la logique du verifier.
+  */
+
+  body.ho-context-mode .ho-explain-section{
+    background:rgba(255,255,255,.94) !important;
+    border:1px solid rgba(15,23,42,.10) !important;
+    border-radius:26px !important;
+    box-shadow:0 22px 60px rgba(15,23,42,.13) !important;
+    color:#0f172a !important;
+  }
+
+  body.ho-context-mode .ho-explain-section *{
+    opacity:1 !important;
+    filter:none !important;
+    text-shadow:none !important;
+  }
+
+  body.ho-context-mode .ho-explain-section h1,
+  body.ho-context-mode .ho-explain-section h2,
+  body.ho-context-mode .ho-explain-section h3{
+    color:#0f172a !important;
+    opacity:1 !important;
+    font-weight:950 !important;
+  }
+
+  body.ho-context-mode .ho-explain-section p,
+  body.ho-context-mode .ho-explain-section .muted,
+  body.ho-context-mode .ho-explain-section [class*="intro"],
+  body.ho-context-mode .ho-explain-section [class*="copy"]{
+    color:#334155 !important;
+    opacity:1 !important;
+    font-weight:650 !important;
+    line-height:1.55 !important;
+  }
+
+  body.ho-context-mode .ho-explain-section .kicker,
+  body.ho-context-mode .ho-explain-section [class*="kicker"],
+  body.ho-context-mode .ho-explain-section .label,
+  body.ho-context-mode .ho-explain-section [class*="label"]{
+    color:#64748b !important;
+    opacity:1 !important;
+    font-weight:950 !important;
+    letter-spacing:.15em !important;
+    text-transform:uppercase !important;
+  }
+
+  body.ho-context-mode .ho-explain-section .card,
+  body.ho-context-mode .ho-explain-section .panel,
+  body.ho-context-mode .ho-explain-section [class*="card"],
+  body.ho-context-mode .ho-explain-section [class*="panel"]{
+    background:#f8fafc !important;
+    border:1px solid rgba(15,23,42,.09) !important;
+    color:#0f172a !important;
+    box-shadow:none !important;
+  }
+
+  body.ho-context-mode .ho-explain-section .card h1,
+  body.ho-context-mode .ho-explain-section .card h2,
+  body.ho-context-mode .ho-explain-section .card h3,
+  body.ho-context-mode .ho-explain-section .panel h1,
+  body.ho-context-mode .ho-explain-section .panel h2,
+  body.ho-context-mode .ho-explain-section .panel h3,
+  body.ho-context-mode .ho-explain-section [class*="card"] h1,
+  body.ho-context-mode .ho-explain-section [class*="card"] h2,
+  body.ho-context-mode .ho-explain-section [class*="card"] h3{
+    color:#0f172a !important;
+  }
+
+  body.ho-context-mode .ho-explain-section .card p,
+  body.ho-context-mode .ho-explain-section .panel p,
+  body.ho-context-mode .ho-explain-section [class*="card"] p,
+  body.ho-context-mode .ho-explain-section [class*="panel"] p{
+    color:#334155 !important;
+  }
+
+  /*
+    Le bandeau "Cette page / Source de vérité / Objet lié" est utile :
+    on le garde, mais on l'affine légèrement.
+  */
+  body.ho-context-mode .ho-trust-rail{
+    background:rgba(255,255,255,.96) !important;
+    border:1px solid rgba(15,23,42,.10) !important;
+    box-shadow:0 16px 45px rgba(15,23,42,.10) !important;
+  }
+
+  body.ho-context-mode .ho-trust-rail *{
+    opacity:1 !important;
+    filter:none !important;
+  }
+
+  body.ho-context-mode .ho-trust-rail h1,
+  body.ho-context-mode .ho-trust-rail h2,
+  body.ho-context-mode .ho-trust-rail h3,
+  body.ho-context-mode .ho-trust-rail strong{
+    color:#0f172a !important;
+  }
+
+  body.ho-context-mode .ho-trust-rail p,
+  body.ho-context-mode .ho-trust-rail div,
+  body.ho-context-mode .ho-trust-rail span{
+    color:#334155 !important;
+  }
+</style>
+
 </head>
 <body>
   <div class="page">
@@ -793,6 +903,87 @@
   }
 
   [50,150,400,900,1600,2500].forEach(function(ms){ setTimeout(run, ms); });
+
+  try{
+    var mo = new MutationObserver(run);
+    mo.observe(document.documentElement, {childList:true, subtree:true, characterData:true});
+  }catch(e){}
+})();
+</script>
+
+
+<script id="HO_EXPLAIN_SECTIONS_CONTRAST_JS_V1">
+(function(){
+  function hasContext(){
+    try{
+      var p = new URLSearchParams(window.location.search || "");
+      return !!(p.get("project") || p.get("expected_document") || p.get("expected_file") || p.get("expected_proof"));
+    }catch(e){
+      return false;
+    }
+  }
+
+  function textOf(el){
+    return (el && el.textContent || "").replace(/\s+/g, " ").trim();
+  }
+
+  function markNearestLargeBlock(el, cls){
+    var node = el;
+    var best = null;
+
+    for(var i=0;i<10 && node && node.parentElement && node.parentElement !== document.body;i++){
+      var t = textOf(node);
+      var childCount = node.children ? node.children.length : 0;
+
+      if(
+        node.tagName === "SECTION" ||
+        childCount >= 2 ||
+        /section|meaning|guide|card|panel|block|wrap/i.test(String(node.className || ""))
+      ){
+        best = node;
+      }
+
+      node = node.parentElement;
+    }
+
+    if(best) best.classList.add(cls);
+  }
+
+  function run(){
+    if(!hasContext()) return;
+    document.body.classList.add("ho-context-mode");
+
+    Array.from(document.querySelectorAll("h1,h2,h3,div")).forEach(function(el){
+      var t = textOf(el);
+
+      if(
+        t === "Ce que ce registre signifie" ||
+        t === "What this registry means" ||
+        t === "What this record means" ||
+        t === "Comment lire ce record" ||
+        t === "How to read this record" ||
+        t === "How to read this registry"
+      ){
+        markNearestLargeBlock(el, "ho-explain-section");
+      }
+
+      if(
+        t.indexOf("Registre public") >= 0 &&
+        t.indexOf("Preuve signée") >= 0 &&
+        t.indexOf("Document lié par SHA-256") >= 0
+      ){
+        markNearestLargeBlock(el, "ho-trust-rail");
+      }
+    });
+  }
+
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", run);
+  }else{
+    run();
+  }
+
+  [80,200,500,1000,1800].forEach(function(ms){ setTimeout(run, ms); });
 
   try{
     var mo = new MutationObserver(run);
