@@ -545,6 +545,40 @@
   }
 </style>
 
+
+<style id="HO_UPLOAD_GRID_TWO_COLUMNS_V1">
+  /*
+    Desktop: preuve et document côte à côte.
+    Mobile: retour en une colonne.
+  */
+
+  body.ho-context-mode .ho-proof-workspace{
+    max-width:100% !important;
+  }
+
+  body.ho-context-mode .ho-proof-workspace .ho-upload-grid{
+    display:grid !important;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr) !important;
+    gap:20px !important;
+    align-items:stretch !important;
+  }
+
+  body.ho-context-mode .ho-proof-workspace .ho-upload-card{
+    width:100% !important;
+    min-width:0 !important;
+  }
+
+  body.ho-context-mode .ho-proof-workspace .ho-drop-target{
+    min-height:150px !important;
+  }
+
+  @media(max-width:820px){
+    body.ho-context-mode .ho-proof-workspace .ho-upload-grid{
+      grid-template-columns:1fr !important;
+    }
+  }
+</style>
+
 </head>
 <body>
   <div class="page">
