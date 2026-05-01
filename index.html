@@ -408,6 +408,158 @@
   }
 </style>
 
+
+<style id="HO_FINAL_DROPZONE_CONTRAST_V3">
+  /*
+    Final HumanOrigin verifier polish:
+    when opened from a package context, the verification workspace must read
+    as an active white card, not as a disabled/pale surface.
+  */
+
+  body.ho-context-mode{
+    --ho-ink:#0f172a;
+    --ho-muted:#334155;
+    --ho-soft:#64748b;
+    --ho-line:#cbd5e1;
+    --ho-navy:#08234d;
+  }
+
+  body.ho-context-mode #contextualVerifyHost ~ *,
+  body.ho-context-mode main,
+  body.ho-context-mode main *,
+  body.ho-context-mode section,
+  body.ho-context-mode section *,
+  body.ho-context-mode .card,
+  body.ho-context-mode .card *,
+  body.ho-context-mode .panel,
+  body.ho-context-mode .panel *{
+    opacity:1 !important;
+    filter:none !important;
+  }
+
+  /* Force readable text inside the verification workspace */
+  body.ho-context-mode h1,
+  body.ho-context-mode h2,
+  body.ho-context-mode h3,
+  body.ho-context-mode h4,
+  body.ho-context-mode p,
+  body.ho-context-mode label,
+  body.ho-context-mode span,
+  body.ho-context-mode div{
+    text-shadow:none !important;
+  }
+
+  body.ho-context-mode h1,
+  body.ho-context-mode h2,
+  body.ho-context-mode h3,
+  body.ho-context-mode .title,
+  body.ho-context-mode [class*="title"],
+  body.ho-context-mode [id*="Title"]{
+    color:var(--ho-ink) !important;
+    opacity:1 !important;
+  }
+
+  body.ho-context-mode p,
+  body.ho-context-mode .muted,
+  body.ho-context-mode [class*="copy"],
+  body.ho-context-mode [id*="Copy"],
+  body.ho-context-mode [class*="intro"],
+  body.ho-context-mode [id*="Intro"]{
+    color:var(--ho-muted) !important;
+    opacity:1 !important;
+  }
+
+  body.ho-context-mode .label,
+  body.ho-context-mode [class*="label"],
+  body.ho-context-mode [id*="Label"],
+  body.ho-context-mode .kicker,
+  body.ho-context-mode [class*="kicker"],
+  body.ho-context-mode [id*="Kicker"]{
+    color:var(--ho-soft) !important;
+    opacity:1 !important;
+    font-weight:950 !important;
+  }
+
+  /* Make the two upload boxes feel active and readable */
+  body.ho-context-mode [class*="drop"],
+  body.ho-context-mode [class*="upload"],
+  body.ho-context-mode [class*="file"],
+  body.ho-context-mode [id*="drop"],
+  body.ho-context-mode [id*="upload"],
+  body.ho-context-mode [id*="file"]{
+    opacity:1 !important;
+    filter:none !important;
+  }
+
+  body.ho-context-mode [class*="drop"],
+  body.ho-context-mode [id*="drop"]{
+    background:#ffffff !important;
+    border:2px dashed var(--ho-line) !important;
+    color:var(--ho-ink) !important;
+    box-shadow:0 16px 38px rgba(15,23,42,.08) !important;
+  }
+
+  body.ho-context-mode [class*="drop"] *,
+  body.ho-context-mode [id*="drop"] *,
+  body.ho-context-mode [class*="upload"] *,
+  body.ho-context-mode [id*="upload"] *{
+    color:var(--ho-ink) !important;
+    opacity:1 !important;
+  }
+
+  body.ho-context-mode button,
+  body.ho-context-mode .btn,
+  body.ho-context-mode [role="button"],
+  body.ho-context-mode input[type="file"]::file-selector-button{
+    opacity:1 !important;
+    filter:none !important;
+    background:var(--ho-navy) !important;
+    color:#ffffff !important;
+    border:1px solid var(--ho-navy) !important;
+    font-weight:900 !important;
+  }
+
+  body.ho-context-mode input,
+  body.ho-context-mode textarea{
+    opacity:1 !important;
+    filter:none !important;
+    background:#ffffff !important;
+    color:var(--ho-ink) !important;
+    border:1px solid var(--ho-line) !important;
+  }
+
+  body.ho-context-mode input::placeholder,
+  body.ho-context-mode textarea::placeholder{
+    color:#64748b !important;
+    opacity:1 !important;
+  }
+
+  /* Specific visual correction for the pale verification panel */
+  body.ho-context-mode [id*="proof"],
+  body.ho-context-mode [id*="doc"],
+  body.ho-context-mode [id*="Proof"],
+  body.ho-context-mode [id*="Doc"]{
+    opacity:1 !important;
+    filter:none !important;
+  }
+
+  body.ho-context-mode [id*="proof"] *,
+  body.ho-context-mode [id*="doc"] *,
+  body.ho-context-mode [id*="Proof"] *,
+  body.ho-context-mode [id*="Doc"] *{
+    opacity:1 !important;
+    filter:none !important;
+  }
+
+  /* Keep the warning note readable but not aggressive */
+  body.ho-context-mode .warn,
+  body.ho-context-mode [class*="warn"],
+  body.ho-context-mode [class*="notice"]{
+    color:#7c2d12 !important;
+    opacity:1 !important;
+  }
+</style>
+
 </head>
 <body>
   <div class="page">
