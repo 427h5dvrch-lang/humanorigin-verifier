@@ -377,47 +377,6 @@
     color:#334155 !important;
   }
 </style>
-
-<style id="HO_UPLOAD_BLOCKS_SIDE_BY_SIDE_ONLY">
-/* HumanOrigin — micro-fix layout only.
-   Ne modifie pas les boutons, couleurs, bordures internes, typos ou DA.
-   Objectif unique : preuve + document côte à côte sur desktop. */
-
-@media (min-width: 860px) {
-  .ho-contextual-upload-zone,
-  .ho-upload-workspace,
-  .proof-workspace,
-  .upload-workspace,
-  .verify-workspace,
-  .verification-workspace {
-    display: grid !important;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
-    gap: 22px !important;
-    align-items: stretch !important;
-  }
-
-  .ho-contextual-upload-zone > *,
-  .ho-upload-workspace > *,
-  .proof-workspace > *,
-  .upload-workspace > *,
-  .verify-workspace > *,
-  .verification-workspace > * {
-    min-width: 0 !important;
-  }
-}
-
-@media (max-width: 859px) {
-  .ho-contextual-upload-zone,
-  .ho-upload-workspace,
-  .proof-workspace,
-  .upload-workspace,
-  .verify-workspace,
-  .verification-workspace {
-    display: block !important;
-  }
-}
-</style>
-
 </head>
 <body>
   <div class="page">
@@ -604,187 +563,6 @@
   }
 })();
 </script>
-
-<script id="HO_PROOF_WORKSPACE_PREMIUM_JS_V4">
-(function(){
-  function hasContext(){
-    try{
-      var p = new URLSearchParams(window.location.search || "");
-      return !!(p.get("project") || p.get("expected_document") || p.get("expected_file") || p.get("expected_proof"));
-    }catch(e){
-      return false;
-    }
-  }
-
-  function textOf(el){
-    return (el && el.textContent || "").replace(/\s+/g, " ").trim();
-  }
-
-  function smallestAncestorContaining(el, requiredTexts, stopTexts){
-    var node = el;
-    var best = null;
-
-    for(var i=0;i<12 && node && node.parentElement && node !== document.body;i++){
-      var t = textOf(node);
-      var ok = requiredTexts.every(function(s){ return t.indexOf(s) >= 0; });
-      var blocked = (stopTexts || []).some(function(s){ return t.indexOf(s) >= 0; });
-
-      if(ok && !blocked) best = node;
-      node = node.parentElement;
-    }
-
-    return best;
-  }
-
-  function hideGenericStatus(){
-    if(!hasContext()) return;
-
-    Array.from(document.querySelectorAll("h1,h2,h3,div,section")).forEach(function(el){
-      var t = textOf(el);
-      if(
-        t.indexOf("Statut de la preuve") >= 0 ||
-        t.indexOf("Proof status") >= 0 ||
-        t.indexOf("Mode : vue générique") >= 0 ||
-        t.indexOf("Mode: Generic view") >= 0
-      ){
-        if(el.closest("#contextualVerifyHost")) return;
-
-        var node = el;
-        for(var i=0;i<8 && node && node.parentElement && node.parentElement !== document.body;i++){
-          var nt = textOf(node);
-          if(
-            nt.indexOf("Mode : vue générique") >= 0 ||
-            nt.indexOf("Mode: Generic view") >= 0 ||
-            nt.indexOf("Statut actuel de la page") >= 0 ||
-            nt.indexOf("Current page status") >= 0
-          ){
-            node.classList.add("ho-contextual-generic-status-hidden");
-            return;
-          }
-          node = node.parentElement;
-        }
-      }
-    });
-  }
-
-  function markProofWorkspace(){
-    if(!hasContext()) return;
-    document.body.classList.add("ho-context-mode");
-
-    var heading = Array.from(document.querySelectorAll("h1,h2,h3,div")).find(function(el){
-      var t = textOf(el);
-      return t === "Vérifier une preuve" || t === "Verify a proof record" || t === "Verify a proof";
-    });
-
-    if(!heading) return;
-
-    var workspace = smallestAncestorContaining(
-      heading,
-      ["Importer la preuve", "Importer le document"],
-      ["Registre public", "Preuve signée", "Document lié par SHA-256"]
-    );
-
-    if(!workspace){
-      workspace = smallestAncestorContaining(
-        heading,
-        ["Upload proof", "Upload linked document"],
-        ["Public record", "Signed proof", "SHA-256"]
-      );
-    }
-
-    if(!workspace) return;
-
-    workspace.classList.add("ho-proof-workspace");
-
-    // Cards
-    Array.from(workspace.querySelectorAll("div,section,article")).forEach(function(el){
-      var t = textOf(el);
-      var isProofCard =
-        t.indexOf("Importer la preuve") >= 0 &&
-        t.indexOf("Importer le document lié") < 0 &&
-        t.indexOf("Clé publique") < 0;
-
-      var isDocCard =
-        t.indexOf("Importer le document lié") >= 0 &&
-        t.indexOf("Importer la preuve") < 0 &&
-        t.indexOf("Clé publique") < 0;
-
-      if(isProofCard || isDocCard){
-        var childText = Array.from(el.children || []).map(textOf).join(" ");
-        if(childText.length > 20){
-          el.classList.add("ho-upload-card");
-        }
-      }
-    });
-
-    // Si les deux cards ne sont pas correctement trouvées, marquer les deux plus grands blocs contenant chaque titre
-    ["Importer la preuve", "Importer le document lié"].forEach(function(label){
-      var el = Array.from(workspace.querySelectorAll("div,section,article")).find(function(x){
-        var t = textOf(x);
-        return t.indexOf(label) >= 0 && t.length < 900;
-      });
-      if(el) el.classList.add("ho-upload-card");
-    });
-
-    // Drop targets
-    Array.from(workspace.querySelectorAll("div,label,section")).forEach(function(el){
-      var t = textOf(el);
-      if(
-        t.indexOf("Déposez ici un fichier") >= 0 ||
-        t.indexOf("Glissez-déposez") >= 0 ||
-        t.indexOf("Drop") >= 0 ||
-        t.indexOf("Choose proof") >= 0 ||
-        t.indexOf("Choisir le fichier") >= 0 ||
-        t.indexOf("Choisir le document") >= 0
-      ){
-        if(t.length < 520){
-          el.classList.add("ho-drop-target");
-        }
-      }
-    });
-
-    // Public key zone
-    Array.from(workspace.querySelectorAll("div,section")).forEach(function(el){
-      var t = textOf(el);
-      if(t.indexOf("CLÉ PUBLIQUE DE REMPLACEMENT") >= 0 || t.indexOf("Override public key") >= 0){
-        if(t.length < 420){
-          el.classList.add("ho-public-key-zone");
-        }
-      }
-    });
-
-    // Warning
-    Array.from(document.querySelectorAll("div,p,section")).forEach(function(el){
-      var t = textOf(el);
-      if(t.indexOf("La vérification repose sur l’empreinte cryptographique") >= 0 || t.indexOf("cryptographic fingerprint") >= 0){
-        if(t.length < 420){
-          el.classList.add("ho-proof-warning");
-        }
-      }
-    });
-  }
-
-  function run(){
-    hideGenericStatus();
-    markProofWorkspace();
-  }
-
-  if(document.readyState === "loading"){
-    document.addEventListener("DOMContentLoaded", run);
-  }else{
-    run();
-  }
-
-  [50,150,400,900,1600,2500].forEach(function(ms){ setTimeout(run, ms); });
-
-  try{
-    var mo = new MutationObserver(run);
-    mo.observe(document.documentElement, {childList:true, subtree:true, characterData:true});
-  }catch(e){}
-})();
-</script>
-
-
 <script id="HO_EXPLAIN_SECTIONS_CONTRAST_JS_V1">
 (function(){
   function hasContext(){
@@ -865,16 +643,38 @@
 })();
 </script>
 
-<style id="HO_FORCE_HIDE_STATUS_PANEL_V2">
-/* HumanOrigin — correction ciblée :
-   masque uniquement le panneau pré-import "Statut de la preuve".
-   Ne touche pas au bandeau registre, ni au bloc Vérifier une preuve, ni aux boutons. */
+<style id="HO_FINAL_SAFE_VERIFIER_UI_V1">
+/* HumanOrigin — final safe verifier UI.
+   Ne change pas la DA des boutons/cartes.
+   Objectifs uniques :
+   1) masquer le panneau générique "Statut de la preuve"
+   2) mettre les deux cartes Importer la preuve / Importer le document lié côte à côte sur desktop. */
+
 .ho-force-hide-status-panel {
   display: none !important;
 }
+
+@media (min-width: 900px) {
+  .ho-upload-two-columns {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    gap: 22px !important;
+    align-items: stretch !important;
+  }
+
+  .ho-upload-two-columns > * {
+    min-width: 0 !important;
+  }
+}
+
+@media (max-width: 899px) {
+  .ho-upload-two-columns {
+    display: block !important;
+  }
+}
 </style>
 
-<script id="HO_FORCE_HIDE_STATUS_PANEL_V2">
+<script id="HO_FINAL_SAFE_VERIFIER_UI_V1">
 (function () {
   function norm(s) {
     return String(s || "")
@@ -900,11 +700,11 @@
     for (var i = 0; i < 10 && current && current !== document.body; i++) {
       var t = norm(current.textContent);
 
-      var containsStatusTitle =
+      var containsStatus =
         t.indexOf("statut de la preuve") !== -1 ||
         t.indexOf("proof status") !== -1;
 
-      var containsStatusPanelMarkers =
+      var containsEmptyStatus =
         t.indexOf("chaine de confiance") !== -1 ||
         t.indexOf("chain of trust") !== -1 ||
         t.indexOf("note de statut") !== -1 ||
@@ -914,36 +714,17 @@
         t.indexOf("mode : vue generique") !== -1 ||
         t.indexOf("generic view") !== -1;
 
-      var containsUploadWorkspace =
+      var containsVerifier =
         t.indexOf("verifier une preuve") !== -1 ||
         t.indexOf("verify a proof") !== -1 ||
         t.indexOf("importer la preuve") !== -1 ||
         t.indexOf("import proof") !== -1;
 
-      if (containsStatusTitle && containsStatusPanelMarkers && !containsUploadWorkspace) {
+      if (containsStatus && containsEmptyStatus && !containsVerifier) {
         best = current;
       }
 
       current = current.parentElement;
-    }
-
-    if (!best) {
-      // Fallback : masquer le plus petit grand bloc autour du titre
-      current = title.parentElement;
-      for (var j = 0; j < 8 && current && current !== document.body; j++) {
-        var box = current.getBoundingClientRect ? current.getBoundingClientRect() : { width: 0, height: 0 };
-        var tx = norm(current.textContent);
-        if (
-          tx.indexOf("statut de la preuve") !== -1 &&
-          box.width > 500 &&
-          box.height > 180 &&
-          tx.indexOf("verifier une preuve") === -1
-        ) {
-          best = current;
-          break;
-        }
-        current = current.parentElement;
-      }
     }
 
     if (best) {
@@ -952,17 +733,76 @@
     }
   }
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", hideStatusPanel);
-  } else {
-    hideStatusPanel();
+  function makeUploadCardsTwoColumns() {
+    var headings = Array.from(document.querySelectorAll("h1, h2, h3, h4, strong, b, div, p"));
+
+    var proofTitle = headings.find(function (el) {
+      var t = norm(el.textContent);
+      return t === "importer la preuve" || t === "import proof";
+    });
+
+    var docTitle = headings.find(function (el) {
+      var t = norm(el.textContent);
+      return t === "importer le document lie" || t === "import linked document" || t === "import document";
+    });
+
+    if (!proofTitle || !docTitle) return;
+
+    function findCard(el) {
+      var current = el;
+      for (var i = 0; i < 8 && current && current !== document.body; i++) {
+        var tx = norm(current.textContent);
+        var box = current.getBoundingClientRect ? current.getBoundingClientRect() : { width: 0, height: 0 };
+
+        var isProofCard =
+          tx.indexOf("entree preuve") !== -1 ||
+          tx.indexOf("proof input") !== -1;
+
+        var isDocCard =
+          tx.indexOf("entree document") !== -1 ||
+          tx.indexOf("document input") !== -1;
+
+        var hasOnlyOneMainCard =
+          (isProofCard && tx.indexOf("entree document") === -1) ||
+          (isDocCard && tx.indexOf("entree preuve") === -1);
+
+        if (hasOnlyOneMainCard && box.width > 220 && box.height > 120) {
+          return current;
+        }
+
+        current = current.parentElement;
+      }
+      return null;
+    }
+
+    var proofCard = findCard(proofTitle);
+    var docCard = findCard(docTitle);
+
+    if (!proofCard || !docCard || proofCard === docCard) return;
+
+    var parent = proofCard.parentElement;
+    if (!parent || docCard.parentElement !== parent) return;
+
+    parent.classList.add("ho-upload-two-columns");
+    parent.setAttribute("data-ho-layout", "upload-two-columns");
   }
 
-  setTimeout(hideStatusPanel, 100);
-  setTimeout(hideStatusPanel, 400);
-  setTimeout(hideStatusPanel, 1000);
+  function apply() {
+    hideStatusPanel();
+    makeUploadCardsTwoColumns();
+  }
 
-  new MutationObserver(hideStatusPanel).observe(document.documentElement, {
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", apply);
+  } else {
+    apply();
+  }
+
+  setTimeout(apply, 150);
+  setTimeout(apply, 500);
+  setTimeout(apply, 1000);
+
+  new MutationObserver(apply).observe(document.documentElement, {
     childList: true,
     subtree: true
   });
