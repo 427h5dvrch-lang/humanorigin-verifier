@@ -115,7 +115,7 @@
     function canonicalize(value){if(value===null||typeof value!=="object")return value;if(Array.isArray(value))return value.map(canonicalize);const keys=Object.keys(value).sort();const out={};for(const k of keys)out[k]=canonicalize(value[k]);return out}
     function stripForSigning(doc){const copy=JSON.parse(JSON.stringify(doc));if(copy.signing){delete copy.signing.signature;delete copy.signing.payload_to_sign}return copy}
     function isHoJsonV1(doc){return !!(doc&&doc.format==="humanorigin-hojson"&&doc.version==="1.0"&&doc.payload&&Array.isArray(doc.signatures))}
-    const HO_OFFICIAL_SERVER_KEYS={};
+    const HO_OFFICIAL_SERVER_KEYS={"ho-server-v1":"grJGdfIU8wy+iB9dDV+QmRfte38qlhi/32+hReyJd9c="};
     const HO_REGISTRY_LOOKUP_URL="https://bhlisgvozsgqxugrfsiu.supabase.co/functions/v1/proof-registry";
     async function checkRegistryStatus(proofId){
       if(!HO_REGISTRY_LOOKUP_URL)return{status:"not_configured"};
