@@ -87,7 +87,8 @@
     </main>
     <footer class="footer"><p id="footerText"></p></footer>
   </div>
-  <script src="https://cdn.jsdelivr.net/npm/tweetnacl@1.0.3/nacl.min.js"></script>
+  <!-- tweetnacl 1.0.3 auto-hébergé (self-hosted) : plus de dépendance CDN au moment de la vérification. integrity = SRI sha384 du fichier vendorisé. -->
+  <script src="vendor/nacl.min.js" integrity="sha384-LMUiUHpaYNGZFzWFRjsADnCSqae1Mk5llcUOHOLDhCxkyF2cdsWAueTZAzV+swW/" crossorigin="anonymous"></script>
   <script>
     const $=(id)=>document.getElementById(id),search=new URLSearchParams(window.location.search),recordId=(search.get("rid")||search.get("id")||"").trim();
     let currentLang=document.documentElement.lang&&document.documentElement.lang.startsWith("fr")?"fr":"en",lastHo=null,lastDocHex=null,contextualProofState={found:"",verdict:"wait"};
