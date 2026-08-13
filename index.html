@@ -271,10 +271,10 @@
           + '</div>';
       }
       return '<div style="margin-top:12px;padding:10px 12px;border-radius:8px;background:rgba(148,163,184,.07);border:1px solid rgba(148,163,184,.18);font-size:12px;color:rgba(232,238,252,.72);">'
-        + '<div style="font-weight:700;color:rgba(232,238,252,.65);margin-bottom:4px;">' + (isFr?'Mode de preuve : locale':'Proof mode: local') + '</div>'
+        + '<div style="font-weight:700;color:rgba(232,238,252,.65);margin-bottom:4px;">' + (isFr?'Preuve locale auto-signée':'Local self-signed proof') + '</div>'
         + '<div>' + (isFr?'Clé : locale non enregistrée':'Key: local unregistered key') + '</div>'
-        + '<div style="margin-top:2px;">' + (isFr?'Identité : non vérifiée par HumanOrigin':'Identity: not verified by HumanOrigin') + '</div>'
-        + '<div style="margin-top:6px;color:rgba(232,238,252,.45);">' + (isFr?'Cette preuve est cryptographiquement valide, mais elle n\'est pas contre-signée par un serveur HumanOrigin.':'This proof is cryptographically valid, but it is not countersigned by a HumanOrigin server.') + '</div>'
+        + '<div style="margin-top:2px;">' + (isFr?'Non attestée par un serveur HumanOrigin':'Not attested by a HumanOrigin server') + '</div>'
+        + '<div style="margin-top:6px;color:rgba(232,238,252,.45);">' + (isFr?'Cette preuve est cryptographiquement intègre, mais elle n\'est pas contre-signée par un serveur HumanOrigin. À interpréter comme une preuve locale, pas comme une attestation officielle.':'This proof is cryptographically intact, but it is not countersigned by a HumanOrigin server. Interpret it as a local proof, not an official attestation.') + '</div>'
         + '</div>';
     }
     function buildSimpleSummaryHtml(doc,ok,lastDocHexVal,expectedDocShaVal,isFr){
@@ -282,7 +282,7 @@
       if(!lastDocHexVal&&!expectedDocShaVal){docLine={icon:"—",color:"rgba(232,238,252,.45)",text:isFr?"Document non joint":"Document not provided"}}
       else if(lastDocHexVal&&expectedDocShaVal){const match=String(expectedDocShaVal||"").toLowerCase()===String(lastDocHexVal||"").toLowerCase();docLine=match?{icon:"✅",color:"#22c55e",text:isFr?"Document correspondant à la preuve":"Document matches proof"}:{icon:"❌",color:"#ef4444",text:isFr?"Document ne correspond pas à la preuve":"Document does not match proof"}}
       else{docLine={icon:"—",color:"rgba(232,238,252,.45)",text:isFr?"Document non vérifié":"Document not verified"}}
-      const sigLine=ok?{icon:"✅",color:"#22c55e",text:isFr?"Signature cryptographique valide":"Cryptographic signature valid"}:{icon:"❌",color:"#ef4444",text:isFr?"Signature cryptographique invalide":"Cryptographic signature invalid"};
+      const sigLine=ok?{icon:"✅",color:"#22c55e",text:isFr?"Intégrité cryptographique vérifiée — le fichier n'a pas été modifié depuis sa signature":"Cryptographic integrity verified — the file has not been modified since signing"}:{icon:"❌",color:"#ef4444",text:isFr?"Intégrité cryptographique non vérifiée":"Cryptographic integrity not verified"};
       const issuer=(doc&&doc.payload&&doc.payload.issuer)||{};
       const keyTrust=issuer.key_trust||"";
       const OFFICIAL=["official_server_key","registered_humanorigin_key","server_countersigned"];
