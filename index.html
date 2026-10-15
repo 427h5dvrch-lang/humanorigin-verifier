@@ -293,6 +293,107 @@
       const row=l=>`<div style="display:flex;align-items:baseline;gap:8px;margin-top:7px;font-size:13px;"><span style="min-width:20px;">${l.icon}</span><span style="color:${l.color};">${escapeHtml(l.text)}</span></div>`;
       return `<div style="margin:0 0 14px;padding:14px;border-radius:14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);"><div style="font-size:10px;font-weight:900;letter-spacing:.13em;text-transform:uppercase;color:rgba(232,238,252,.38);margin-bottom:8px;">${isFr?"Résumé":"Summary"}</div>${row(docLine)}${row(sigLine)}${row(trustLine)}</div>`;
     }
+
+    function buildRecipientSummaryHtml(doc,ok,lastDocHexVal,expectedDocShaVal,isFr){
+      const payload=(doc&&doc.payload)||{};
+      const ps=payload.process_summary||{};
+      const label=payload.label_eligibility||{};
+      const d=payload.document||{};
+      const issuer=payload.issuer||{};
+      const processEvidence=(doc&&doc.process_evidence)||(payload&&payload.process_evidence)||(doc&&doc.evidence&&doc.evidence.process_evidence)||{};
+      const periods=Array.isArray(processEvidence.observation_periods)?processEvidence.observation_periods:[];
+      const paste=ps.paste_summary||{};
+      let pasteEvents=Number(paste.total_paste_events||0);
+      let pastedChars=Number(paste.total_pasted_chars||0);
+      const legacySessions=(doc&&doc.evidence&&Array.isArray(doc.evidence.sessions))?doc.evidence.sessions:[];
+      if((!pasteEvents&&!pastedChars)&&legacySessions.length){
+        for(const s of legacySessions){
+          const m=(s&&s.metrics)||{};
+          pasteEvents+=Number(m.pastes||0);
+          pastedChars+=Number(m.pasted_chars||0);
+        }
+      }
+      const activeMs=Number(ps.active_ms||0);
+      const recordedChanges=Number(
+        (processEvidence.observed_facts&&processEvidence.observed_facts.recorded_changes)||
+        (doc&&doc.event_count)||
+        0
+      );
+      const visible=normalizeVerdict(label.visible_verdict||ps.verdict||(doc&&doc.score&&doc.score.verdict)||"");
+      const expected=String(expectedDocShaVal||"").toLowerCase();
+      const got=String(lastDocHexVal||"").toLowerCase();
+      const docMatch=expected&&got?(expected===got):null;
+      const highPaste=(Number(paste.paste_dominant_sessions||0)>0)||(Number(paste.paste_heavy_sessions||0)>0)||(pastedChars>=120&&pasteEvents>0);
+      const official=["official_server_key","registered_humanorigin_key","server_countersigned"].includes(String(issuer.key_trust||""));
+
+      let tone="#94a3b8",bg="rgba(148,163,184,.10)",border="rgba(148,163,184,.24)",headline,lead;
+      if(!ok){
+        tone="#ef4444";bg="rgba(239,68,68,.12)";border="rgba(239,68,68,.34)";
+        headline=isFr?"L’intégrité de cette preuve n’a pas pu être vérifiée":"This proof’s integrity could not be verified";
+        lead=isFr?"Ne tirez pas de conclusion sur le processus ou le document à partir de cette preuve.":"Do not draw conclusions about the process or document from this proof.";
+      }else if(docMatch===false){
+        tone="#ef4444";bg="rgba(239,68,68,.12)";border="rgba(239,68,68,.34)";
+        headline=isFr?"Le document fourni ne correspond pas à cette preuve":"The supplied document does not match this proof";
+        lead=isFr?"La preuve peut être intègre, mais elle est liée à un autre état du fichier.":"The proof may be intact, but it is bound to a different file state.";
+      }else if(visible==="PREUVE LIMITÉE"||visible==="PREUVE LIMITEE"||visible==="LIMITED"||visible==="SUSPECT"){
+        tone="#f59e0b";bg="rgba(245,158,11,.11)";border="rgba(245,158,11,.30)";
+        headline=isFr?"Observation partielle — conclusion limitée":"Partial observation — limited conclusion";
+        lead=isFr?"HumanOrigin a enregistré certains éléments du processus, mais pas assez pour une conclusion forte sur cette version du document.":"HumanOrigin recorded some process evidence, but not enough for a strong conclusion about this document version.";
+      }else if(highPaste){
+        tone="#f59e0b";bg="rgba(245,158,11,.11)";border="rgba(245,158,11,.30)";
+        headline=isFr?"Travail observé avec insertion externe importante":"Observed work with significant external insertion";
+        lead=isFr?"HumanOrigin décrit le fait observé. Cela ne permet pas de conclure que le contenu vient d’une IA ou d’une personne.":"HumanOrigin describes the observed fact. It does not establish whether that content came from AI or from a person.";
+      }else if(docMatch===true){
+        tone="#22c55e";bg="rgba(34,197,94,.11)";border="rgba(34,197,94,.30)";
+        headline=isFr?"Travail observé relié à ce document":"Observed work linked to this document";
+        lead=isFr?"Le fichier fourni correspond à l’empreinte engagée par la preuve.":"The supplied file matches the fingerprint committed by the proof.";
+      }else{
+        tone="#60a5fa";bg="rgba(96,165,250,.10)";border="rgba(96,165,250,.26)";
+        headline=isFr?"Travail observé — document à confirmer":"Observed work — document not yet confirmed";
+        lead=isFr?"La preuve décrit un processus observé. Fournissez aussi le document pour confirmer qu’il correspond exactement à cette preuve.":"The proof describes an observed process. Also provide the document to confirm that it exactly matches this proof.";
+      }
+
+      const observed=[];
+      if(periods.length>1) observed.push(isFr?(periods.length+" périodes d’observation distinctes ; les intervalles entre elles n’ont pas été observés."):(periods.length+" separate observation periods; the gaps between them were not observed."));
+      else if(periods.length===1) observed.push(isFr?"Une période d’observation est enregistrée.":"One observation period is recorded.");
+      if(activeMs>0){
+        const sec=Math.round(activeMs/1000),mins=Math.floor(sec/60),rest=sec%60;
+        const duration=mins>0?(mins+" min"+(rest?(" "+rest+" s"):"")):(sec+" s");
+        observed.push(isFr?("Temps actif observé : "+duration+"."):("Observed active time: "+duration+"."));
+      }
+      if(recordedChanges>0) observed.push(isFr?(recordedChanges+" changements enregistrés pendant l’observation."):(recordedChanges+" changes recorded during observation."));
+      if(d.delta_significant===true) observed.push(isFr?"Un changement mesurable du document a été constaté.":"A measurable change to the document was observed.");
+      if(pasteEvents>0) observed.push(isFr?((pasteEvents+" insertion"+(pasteEvents>1?"s":"")+" externe"+(pasteEvents>1?"s":"")+" observée"+(pasteEvents>1?"s":""))+(pastedChars?(" · "+pastedChars+" caractères"):"")+"."):((pasteEvents+" external insertion"+(pasteEvents>1?"s":"")+" observed")+(pastedChars?(" · "+pastedChars+" characters"):"")+"."));
+      if(!observed.length) observed.push(isFr?"La preuve contient des observations du processus de travail produites par l’application.":"The proof contains work-process observations produced by the application.");
+
+      const verified=[];
+      verified.push(ok?(isFr?"Intégrité cryptographique de la preuve : vérifiée.":"Proof cryptographic integrity: verified."):(isFr?"Intégrité cryptographique : non vérifiée.":"Cryptographic integrity: not verified."));
+      if(docMatch===true) verified.push(isFr?"Fichier fourni : correspondance exacte avec l’empreinte de la preuve.":"Supplied file: exact match with the proof fingerprint.");
+      else if(docMatch===false) verified.push(isFr?"Fichier fourni : aucune correspondance avec l’empreinte de la preuve.":"Supplied file: does not match the proof fingerprint.");
+      else if(expected) verified.push(isFr?"Fichier final non fourni : la liaison documentaire n’est pas encore confirmée ici.":"Final file not provided: document binding has not yet been confirmed here.");
+      if(official) verified.push(isFr?"Confiance de signature : contre-signature HumanOrigin enregistrée.":"Signature trust: registered HumanOrigin countersignature.");
+      else if(issuer.key_trust) verified.push(isFr?"Confiance de signature : clé locale ; identité non vérifiée par HumanOrigin.":"Signature trust: local key; identity not verified by HumanOrigin.");
+
+      const unknown=[];
+      unknown.push(isFr?"L’identité réelle de la personne qui se trouvait devant l’ordinateur.":"The real-world identity of the person using the computer.");
+      unknown.push(isFr?"L’absence totale d’utilisation d’IA ou d’un autre outil externe.":"Whether AI or another external tool was never used.");
+      unknown.push(isFr?"La vérité, la qualité ou l’originalité du contenu.":"The truth, quality, or originality of the content.");
+      if(periods.length>1) unknown.push(isFr?"Ce qui s’est passé entre les périodes non observées.":"What happened during the unobserved gaps.");
+      else unknown.push(isFr?"L’origine de tout contenu ou toute action qui n’a pas été observé par HumanOrigin.":"The origin of any content or action not observed by HumanOrigin.");
+
+      const list=(title,items)=>"<section style=\"flex:1 1 180px;min-width:0;padding:14px;border-radius:14px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08);\"><div style=\"font-size:11px;font-weight:900;letter-spacing:.11em;text-transform:uppercase;color:rgba(232,238,252,.48);margin-bottom:8px;\">"+escapeHtml(title)+"</div><ul style=\"margin:0;padding-left:18px;color:rgba(232,238,252,.76);font-size:12.5px;line-height:1.52;\">"+items.map(x=>"<li style=\"margin:5px 0;\">"+escapeHtml(x)+"</li>").join("")+"</ul></section>";
+
+      return "<section style=\"margin:0 0 14px;padding:18px;border-radius:18px;background:"+bg+";border:1px solid "+border+";\">"
+        +"<div style=\"font-size:10px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:"+tone+";margin-bottom:7px;\">"+(isFr?"Lecture de la preuve":"Proof reading")+"</div>"
+        +"<div style=\"font-size:22px;font-weight:900;color:#fff;line-height:1.18;\">"+escapeHtml(headline)+"</div>"
+        +"<div style=\"margin-top:7px;font-size:13px;color:rgba(255,255,255,.74);line-height:1.5;\">"+escapeHtml(lead)+"</div>"
+        +"<div style=\"display:flex;flex-wrap:wrap;gap:10px;margin-top:14px;\">"
+        +list(isFr?"Ce qui a été observé":"What was observed",observed)
+        +list(isFr?"Ce qui est vérifié":"What is verified",verified)
+        +list(isFr?"Ce que HumanOrigin ne sait pas":"What HumanOrigin does not know",unknown)
+        +"</div></section>";
+    }
+
     async function renderVerification(){
       const resultEl=$("result"),detailsEl=$("details");if(!resultEl||!detailsEl)return;if(!lastHo){resultEl.style.display="none";detailsEl.style.display="none";resultEl.innerHTML="";detailsEl.innerHTML="";return}
       const R=COPY[currentLang].result,D=COPY[currentLang].details;resultEl.style.display="block";detailsEl.style.display="block";
@@ -321,8 +422,8 @@
       if(lastDocHex&&expectedDocSha){const expected=String(expectedDocSha||"").toLowerCase(),got=String(lastDocHex||"").toLowerCase(),match=expected&&got&&expected===got;docCheckHtml=match?`<span class="ok">${isFr?"Fichier correspondant au hash de la preuve ✅":"File matching proof hash ✅"}</span>`:`<span class="bad">${R.docNoMatch} ❌</span><div class="muted" style="margin-top:6px;">${R.expected}: <b>${escapeHtml(expected)}</b><br>${R.got}: <b>${escapeHtml(got)}</b></div>`}
       let payloadHtml="";if(mode==="v1"){if(payloadMatch===true)payloadHtml=`<span class="ok">${isFr?"Intégrité de la preuve : OK":"Proof integrity: OK"} ✅</span>`;else if(payloadMatch===false)payloadHtml=`<span class="warn">${R.payloadDifferent} ⚠️</span>`}else{if(payloadMatch===true)payloadHtml=`<span class="ok">${R.payloadToSignOk} ✅</span>`;else if(payloadMatch===false)payloadHtml=`<span class="warn">${R.payloadToSignDifferent} ⚠️</span>`}
       const sigLabel=isFr?"Signature cryptographique":"Cryptographic signature";
-      const _simpleHtml=buildSimpleSummaryHtml(doc,ok,lastDocHex,expectedDocSha,isFr);
-      resultEl.innerHTML=tierHtml+_capNoticeHtml+_simpleHtml+_attBannerHtml+_registryStatusHtml+_reasonsHtml+`<details class="technical-details"><summary>${isFr?"Détails techniques":"Technical details"}</summary><div style="margin-top:8px;">`+_contributionHtml+_claimsHtml+`<div style="margin-top:14px;padding-top:10px;border-top:1px solid rgba(232,238,252,.08);font-size:16px;font-weight:800;">${sigLabel} : <span class="${ok?"ok":"bad"}">${ok?(isFr?"valide":"valid")+" ✅":(isFr?"invalide":"invalid")+" ❌"}</span></div><div style="margin-top:8px;">${docCheckHtml}</div><div style="margin-top:8px;">${payloadHtml}</div>`+_trustMetaHtml+`</div></details>`+disclaimerHtml;
+      const _recipientHtml=buildRecipientSummaryHtml(doc,ok,lastDocHex,expectedDocSha,isFr);
+      resultEl.innerHTML=_recipientHtml+_attBannerHtml+_registryStatusHtml+_reasonsHtml+`<details class="technical-details"><summary>${isFr?"Détails techniques":"Technical details"}</summary><div style="margin-top:8px;">`+_capNoticeHtml+_contributionHtml+_claimsHtml+`<div style="margin-top:14px;padding-top:10px;border-top:1px solid rgba(232,238,252,.08);font-size:16px;font-weight:800;">${sigLabel} : <span class="${ok?"ok":"bad"}">${ok?(isFr?"valide":"valid")+" ✅":(isFr?"invalide":"invalid")+" ❌"}</span></div><div style="margin-top:8px;">${docCheckHtml}</div><div style="margin-top:8px;">${payloadHtml}</div>`+_trustMetaHtml+`</div></details>`+disclaimerHtml;
       resultEl.scrollIntoView({behavior:"smooth",block:"nearest"});
       if(mode==="v1"){const payload=doc.payload||{},issuer=payload.issuer||{},project=payload.project||{},ps=payload.process_summary||{},verification=payload.verification||{},leDoc=payload.document||{},le=payload.label_eligibility||{},activeSeconds=(ps.active_ms!=null)?Math.round(Number(ps.active_ms)/1000):"—";detailsEl.innerHTML=`<details class="technical-details"><summary>${isFr?"Détails techniques":"Technical details"}</summary><div class="muted" style="margin-top:10px;font-size:11px;">${R.digest}: <b>${escapeHtml(digestHex)}</b></div><div style="display:flex;gap:18px;flex-wrap:wrap;margin-top:12px;"><div style="flex:1;min-width:260px;"><div style="font-weight:950;margin-bottom:6px;">${D.summary}</div><div class="muted">${D.format}: <b>${escapeHtml(doc.format||"?")}</b></div><div class="muted">${D.version}: <b>${escapeHtml(doc.version||"?")}</b></div><div class="muted">${D.certId}: <b>${escapeHtml(payload.certificate_id||"?")}</b></div><div class="muted">${D.issuer}: <b>${escapeHtml(issuer.product||"?")}</b></div><div class="muted">issuer_mode: <b>${escapeHtml(issuer.issuer_mode||"—")}</b></div><div class="muted">app_version: <b>${escapeHtml(issuer.app_version||"—")}</b></div><div class="muted">security_schema_version: <b>${escapeHtml(issuer.security_schema_version||"—")}</b></div><div class="muted">proof_trust_level: <b>${escapeHtml(issuer.proof_trust_level||"—")}</b></div><div class="muted">key_trust: <b>${escapeHtml(issuer.key_trust||"—")}</b></div><div class="muted">${D.project}: <b>${escapeHtml(project.name||"?")}</b></div><div class="muted">${D.verdict}: <b>${escapeHtml(ps.verdict||"?")}</b></div></div><div style="flex:1;min-width:260px;"><div style="font-weight:950;margin-bottom:6px;">${D.processSummary}</div><div class="muted">active_seconds: <b>${escapeHtml(activeSeconds)}</b></div><div class="muted">scp_score: <b>${escapeHtml(ps.scp_score ?? "—")}</b></div><div class="muted">evidence_score: <b>${escapeHtml(ps.evidence_score ?? "—")}</b></div><div class="muted">valid_sessions: <b>${escapeHtml(ps.valid_sessions_count ?? "—")}</b></div><div class="muted">certified_sessions: <b>${escapeHtml(ps.certified_sessions_count ?? "—")}</b></div></div></div><div style="margin-top:14px;font-weight:950;">${D.pubkey}</div><pre>${escapeHtml(pubUsedB64)}</pre><div style="margin-top:14px;font-weight:950;">${D.expectedDoc}</div><pre>${escapeHtml(expectedDocSha||"—")}</pre><div style="margin-top:14px;font-weight:950;">${D.verificationMethod}</div><pre>${escapeHtml(verification.verification_method||"—")}</pre><div style="margin-top:18px;padding-top:14px;border-top:1px solid rgba(232,238,252,.08);"><div style="font-weight:950;margin-bottom:8px;">Label Eligibility</div><div class="muted">visible_verdict: <b>${escapeHtml(le.visible_verdict||"—")}</b></div><div class="muted">raw_engine_verdict: <b>${escapeHtml(le.raw_engine_verdict||"—")}</b></div><div class="muted">binding_cap_reason: <b>${escapeHtml(le.binding_cap_reason||"—")}</b></div><div class="muted">caps_applied: <b>${escapeHtml(Array.isArray(le.caps_applied)?le.caps_applied.join(", ")||"aucun":"—")}</b></div><div class="muted">paste_cap_applied: <b>${escapeHtml(String(le.paste_cap_applied??false))}</b></div></div><div style="margin-top:14px;"><div style="font-weight:950;margin-bottom:8px;">Document</div><div class="muted">binding_mode: <b>${escapeHtml(leDoc.binding_mode||"—")}</b></div><div class="muted">delta_significant: <b>${escapeHtml(leDoc.delta_significant!=null?String(leDoc.delta_significant):"—")}</b></div><div class="muted">contribution_score: <b>${escapeHtml(leDoc.contribution_score!=null?String(leDoc.contribution_score):"—")}</b></div><div class="muted">contribution_coherence: <b>${escapeHtml(leDoc.contribution_coherence||"—")}</b></div><div class="muted">contribution_flags: <b>${escapeHtml(Array.isArray(leDoc.contribution_flags)?leDoc.contribution_flags.join(", ")||"aucun":"—")}</b></div></div><div style="margin-top:14px;"><div style="font-weight:950;margin-bottom:8px;">Paste Summary</div><div class="muted">total_paste_events: <b>${escapeHtml(String(ps.paste_summary?.total_paste_events??0))}</b></div><div class="muted">total_pasted_chars: <b>${escapeHtml(String(ps.paste_summary?.total_pasted_chars??0))}</b></div><div class="muted">paste_dominant_sessions: <b>${escapeHtml(String(ps.paste_summary?.paste_dominant_sessions??0))}</b></div><div class="muted">paste_heavy_sessions: <b>${escapeHtml(String(ps.paste_summary?.paste_heavy_sessions??0))}</b></div><div class="muted">paste_material_sessions: <b>${escapeHtml(String(ps.paste_summary?.paste_material_sessions??0))}</b></div></div><div style="margin-top:14px;"><div style="font-weight:950;margin-bottom:8px;">Claims Allowed</div><div class="muted">${escapeHtml(Array.isArray(le.claims_allowed)&&le.claims_allowed.length?le.claims_allowed.join(", "):"—")}</div></div><div style="margin-top:14px;"><div style="font-weight:950;margin-bottom:8px;">Claims Forbidden</div><div class="muted">${escapeHtml(Array.isArray(le.claims_forbidden)&&le.claims_forbidden.length?le.claims_forbidden.join(", "):"—")}</div></div>`+buildServerAttestationDetailsHtml(_attResult,_att,isFr)+`</details>`;return}
       const ho=doc.ho||{},subj=doc.subject||{},score=doc.score||{},m=(doc.evidence&&doc.evidence.sessions&&doc.evidence.sessions[0]&&doc.evidence.sessions[0].metrics)||{};
