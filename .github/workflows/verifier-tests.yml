@@ -1,0 +1,29 @@
+# Les deux bancs du vérificateur, à chaque proposition de changement.
+#
+# Ils protègent deux choses qu'une relecture humaine laisse passer : qu'un fichier reçu soit
+# comparé au bon artefact engagé par la preuve, et qu'aucune formulation ne dépasse ce que la
+# preuve établit. Ils tournent sur Node seul — aucune dépendance, aucun secret, aucun accès à
+# un kit réel, aucun déploiement. Ce n'est pas le workflow de publication.
+name: verifier tests
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  bancs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Contrat des artefacts engagés par la preuve
+        run: node test_artifact_binding.mjs
+      - name: Modèle de lecture destinataire
+        run: node test_verify_ux_model.mjs
