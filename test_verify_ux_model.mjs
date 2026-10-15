@@ -280,6 +280,130 @@ titre("doctrine : ce que HumanOrigin ne dit jamais");
   ck("ni « suspect » ni « atypique » comme jugement", juge.length === 0, juge.join(", "));
 }
 
+titre("H1 → H4 — la confiance ne peut pas être déclarée par le payload");
+{
+  // `key_trust` vit DANS le payload. Sur une preuve locale auto-signée, il est signé par la
+  // clé locale : la preuve se décernerait son propre niveau de confiance.
+  const spoof = (v) => preuve(d => { d.payload.issuer.key_trust = v; });
+  for (const v of ["server_countersigned", "official_server_key", "registered_humanorigin_key"]) {
+    const m = enregistre("H:" + v, modele({ doc: spoof(v), serverAttestation: null }));
+    ck(`H1/H2 · key_trust="${v}" → preuve signée localement`,
+      m.trustStatus.key === "ux.trust.local", m.trustStatus.key);
+    ck(`H1/H2 · et jamais « contre-signée »`, m.trustStatus.key !== "ux.trust.countersigned");
+    ck(`H1/H2 · ni dans ce que la preuve établit`,
+      !m.establishedFacts.some(x => x.key === "ux.est.countersigned"));
+    ck(`H1/H2 · ton jamais positif`, m.trustStatus.tone !== "positive", m.trustStatus.tone);
+  }
+  const h3 = enregistre("H3", modele({ doc: spoof("local_unregistered_key"),
+    serverAttestation: { present: true, status: "valid" } }));
+  ck("H3 · attestation serveur vérifiée → contre-signée",
+    h3.trustStatus.key === "ux.trust.countersigned" && h3.trustStatus.tone === "positive");
+  ck("H3 · et elle entre dans ce que la preuve établit",
+    h3.establishedFacts.some(x => x.key === "ux.est.countersigned"));
+  for (const st of ["invalid_signature", "hash_mismatch", "local_sig_mismatch",
+                    "local_key_mismatch", "unknown_key", "error"]) {
+    const m = enregistre("H4:" + st, modele({ doc: spoof("server_countersigned"),
+      serverAttestation: { present: true, status: st } }));
+    ck(`H4 · attestation « ${st} » → avertissement, sans repli sur key_trust`,
+      m.trustStatus.key === "ux.trust.attestationProblem" && m.trustStatus.tone === "warning",
+      m.trustStatus.key);
+    ck(`H4 · aucune contre-signature établie`,
+      !m.establishedFacts.some(x => x.key === "ux.est.countersigned"));
+  }
+}
+
+titre("H5 / H6 — le registre n'est interrogé que derrière une attestation vérifiée");
+{
+  // La condition est LUE dans la page, pas recopiée : elle ne peut donc pas diverger.
+  const ligne = /const _proofId=([^;]+);/.exec(PAGE);
+  ck("la condition de gating existe dans index.html", !!ligne);
+  if (ligne) {
+    const gate = new Function("_attResult", "_att", "return " + ligne[1] + ";");
+    const att = { proof_id: "p-123" };
+    ck("H5 · attestation invalide + proof_id → aucun lookup",
+      gate({ present: true, status: "invalid_signature" }, att) === null);
+    ck("H5 · clé serveur inconnue + proof_id → aucun lookup",
+      gate({ present: true, status: "unknown_key" }, att) === null);
+    ck("H5 · aucune attestation + proof_id → aucun lookup",
+      gate({ present: false, status: "absent" }, att) === null);
+    ck("H5 · attestation nulle → aucun lookup", gate(null, att) === null);
+    ck("H6 · attestation vérifiée + proof_id → lookup autorisé",
+      gate({ present: true, status: "valid" }, att) === "p-123");
+    ck("H6 · attestation vérifiée sans proof_id → aucun lookup",
+      gate({ present: true, status: "valid" }, {}) === null);
+  }
+}
+
+titre("H7 — preuve invalide : rien du payload, rien du registre");
+{
+  const m = enregistre("H7", modele({ proofOk: false,
+    doc: preuve(d => { d.payload.issuer.key_trust = "server_countersigned"; }),
+    serverAttestation: { present: true, status: "valid" },
+    registryStatus: { status: "active" } }));
+  ck("H7 · aucun fait observé", m.observedFacts.length === 0);
+  ck("H7 · aucun fait établi", m.establishedFacts.length === 0);
+  ck("H7 · la confiance est celle de l'intégrité, pas celle du payload",
+    m.trustStatus.key === "ux.trust.invalid", m.trustStatus.key);
+  ck("H7 · le payload n'est pas une source de faits", m.payloadTrustworthy === false);
+}
+
+titre("D1 → D5 — aucune conclusion générique ajoutée après coup");
+{
+  // La phrase « HumanOrigin atteste un travail observé relié à ce document » était vraie au
+  // plus dans un état sur cinq. Elle a été supprimée, pas déplacée.
+  for (const [nom, re] of [["fr", /atteste un travail observé relié/], ["en", /attests observed work linked/]])
+    ck(`le disclaimer générique n'existe plus dans la page (${nom})`, !re.test(PAGE));
+  ck("aucun appelant de disclaimerHtml", !/disclaimerHtml/.test(PAGE));
+  // Et la conclusion vient bien, dans chaque état, du modèle.
+  const etats = {
+    "D1 aucun fichier": modele({}),
+    "D2 NO_MATCH": modele({ artifactCheck: check("NO_MATCH") }),
+    "D3 NOT_VERIFIABLE": modele({ artifactCheck: check("NOT_VERIFIABLE") }),
+    "D4 observation limitée": modele({ doc: preuve(d => {
+      d.payload.process_summary.evidence_level = "short_observed_activity"; }) }),
+    "D5 match nominal": modele({ artifactCheck: check("MATCH_PUBLISHED") }),
+  };
+  for (const [nom, m] of Object.entries(etats))
+    ck(nom + " · la conclusion vient d'un état nommé",
+      !!m.headline.key && !!m.explanation.key && m.headline.key !== m.documentStatus.key,
+      m.headline.key);
+}
+
+titre("l'ancienne interprétation n'est plus rendue");
+{
+  ck("proofTierMeta n'a plus d'appelant", (PAGE.match(/[^n] proofTierMeta\(/g) || []).length === 0);
+  ck("buildTrustMetaHtml n'a plus d'appelant", (PAGE.match(/[^n] buildTrustMetaHtml\(/g) || []).length === 0);
+  ck("tierHtml n'est plus construit", !/const tierHtml=/.test(PAGE));
+  ck("_trustMetaHtml n'est plus construit", !/const _trustMetaHtml=/.test(PAGE));
+  // Les données restent auditables : le verdict brut et les champs de confiance sont
+  // toujours imprimés dans « Données brutes de la preuve ».
+  ck("visible_verdict reste dans les données brutes", /visible_verdict:/.test(PAGE));
+  ck("raw_engine_verdict aussi", /raw_engine_verdict:/.test(PAGE));
+  ck("key_trust aussi", /key_trust: <b>/.test(PAGE));
+  ck("proof_trust_level aussi", /proof_trust_level: <b>/.test(PAGE));
+}
+
+titre("doctrine : la page entière, replis ouverts compris");
+{
+  // On contrôle le TEXTE de la page servie, pas seulement le catalogue du modèle : les
+  // anciennes surfaces vivent encore dans le fichier et ne doivent plus rien interpréter.
+  const RENDU = PAGE.replace(/^\s*\/\/.*$/gm, "");
+  const INTERDITS = [
+    [/activité humaine/i, "activité humaine"], [/human activity/i, "human activity"],
+    [/processus humain/i, "processus humain"], [/human process/i, "human process"],
+    [/100\s*%\s*humain/i, "100 % humain"], [/100%\s*human/i, "100% human"],
+    [/probablement humain/i, "probablement humain"], [/probably human/i, "probably human"],
+    [/\bsans IA\b/i, "sans IA"], [/\bAI-free\b/i, "AI-free"],
+    [/contribution humaine/i, "contribution humaine"], [/human contribution/i, "human contribution"],
+  ];
+  const trouves = INTERDITS.filter(([re]) => re.test(RENDU)).map(([, n]) => n);
+  ck("aucune formulation interprétative interdite dans la page", trouves.length === 0,
+    trouves.join(", "));
+  // « IA » reste permis dans une LIMITE, qui dit ce que le produit ne prouve pas.
+  ck("la limite sur l'IA est bien présente",
+    /absence totale d'utilisation d'une intelligence artificielle/.test(PAGE));
+}
+
 titre("le modèle ne touche à rien d'autre");
 {
   const src = fs.readFileSync(path.join(RACINE, "verify_ux_model.js"), "utf8");

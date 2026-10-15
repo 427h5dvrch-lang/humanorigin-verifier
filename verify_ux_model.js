@@ -173,20 +173,33 @@ function limites(doc) {
   return out;
 }
 
-/** La confiance technique, dite sans jargon. `key_trust` ne sort jamais tel quel à l'écran. */
+/**
+ * La confiance technique, dite sans jargon.
+ *
+ * UNE SEULE CHOSE peut faire dire « contre-signée par HumanOrigin » : une attestation
+ * serveur dont la signature a été VÉRIFIÉE ici, contre une clé serveur connue.
+ *
+ * `payload.issuer.key_trust` ne le peut pas, et ne doit jamais le pouvoir. Ce champ vit
+ * DANS le payload ; sur une preuve locale auto-signée, il est signé par la clé locale
+ * embarquée. Une preuve purement locale peut donc déclarer `server_countersigned` sans
+ * qu'aucun serveur n'ait rien signé. S'en servir comme source de confiance revenait à
+ * laisser la preuve se décerner elle-même son propre niveau de confiance.
+ *
+ * `key_trust` reste lisible dans les données brutes : il est rapporté, jamais cru.
+ */
 function confiance(doc, attestation) {
   if (attestation && attestation.status === "valid")
     return { tone: "positive", key: "ux.trust.countersigned", detailKey: "ux.trust.countersigned.d" };
+  // Attestation présente mais non vérifiable : on le dit, et on ne se rabat sur rien.
   if (attestation && attestation.present && attestation.status !== "valid")
     return { tone: "warning", key: "ux.trust.attestationProblem", detailKey: "ux.trust.attestationProblem.d" };
   var issuer = (((doc || {}).payload) || {}).issuer || {};
   var kt = issuer.key_trust || "";
-  var OFFICIELLES = ["official_server_key", "registered_humanorigin_key", "server_countersigned"];
-  if (OFFICIELLES.indexOf(kt) >= 0)
-    return { tone: "positive", key: "ux.trust.countersigned", detailKey: "ux.trust.countersigned.d" };
   // Pas de `key_trust` du tout : ancien schéma. On ne fabrique pas « clé locale non
   // enregistrée », qui serait une information que la preuve ne porte pas.
   if (!kt) return { tone: "neutral", key: "ux.trust.unknown", detailKey: null };
+  // Toute autre valeur, y compris `server_countersigned` ou `official_server_key` :
+  // signature locale. Aucune élévation.
   return { tone: "neutral", key: "ux.trust.local", detailKey: "ux.trust.local.d" };
 }
 

@@ -212,15 +212,15 @@
         "hero.notVerifiable.p":"Cette version de la preuve ne contient pas l'empreinte nécessaire pour confirmer cette copie du fichier.",
         "hero.paste.guard":"L'origine de cette insertion n'est pas déterminée par HumanOrigin.",
         "proc.observed":"Travail observé sur ce document",
-        "proc.observed.p":"HumanOrigin a observé une partie du travail de création, puis relié cette observation à une version du fichier.",
+        "proc.observed.p":"Cette preuve enregistre une partie du travail observé, puis relie cette observation à une version du fichier.",
         "proc.linked":"Travail observé relié à ce document",
-        "proc.linked.p":"HumanOrigin a observé une partie du travail de création, et la preuve relie cette observation au fichier que vous avez présenté.",
+        "proc.linked.p":"Cette preuve enregistre une partie du travail observé, et relie cette observation au fichier que vous avez présenté.",
         "proc.short":"Observation limitée du processus",
-        "proc.short.p":"HumanOrigin a enregistré une partie du travail, mais la couverture observée reste limitée.",
+        "proc.short.p":"Cette preuve contient une observation partielle du travail : la couverture observée reste limitée.",
         "proc.insufficient":"Éléments observés insuffisants pour une conclusion forte",
         "proc.insufficient.p":"La preuve est lisible, mais ce qu'elle a enregistré ne suffit pas à relier solidement un travail observé à cette version du document.",
         "proc.paste":"Travail observé avec insertion externe importante",
-        "proc.paste.p":"HumanOrigin a observé du travail sur le document ainsi qu'une insertion externe importante.",
+        "proc.paste.p":"Cette preuve enregistre du travail sur le document ainsi qu'une insertion externe importante.",
         "proc.incomplete":"Preuve incomplète",
         "proc.incomplete.p":"Cette ancienne preuve ne contient pas suffisamment d'éléments pour une lecture complète dans Verify.",
         "proc.observedLegacy":"Travail observé sur ce document",
@@ -309,15 +309,15 @@
         "hero.notVerifiable.p":"This proof version does not contain the fingerprint needed to confirm this copy of the file.",
         "hero.paste.guard":"HumanOrigin does not determine where that insertion came from.",
         "proc.observed":"Observed work on this document",
-        "proc.observed.p":"HumanOrigin observed part of the work, then linked that observation to a version of the file.",
+        "proc.observed.p":"This proof records part of the observed work, then links that observation to a version of the file.",
         "proc.linked":"Observed work linked to this document",
-        "proc.linked.p":"HumanOrigin observed part of the work, and the proof links that observation to the file you provided.",
+        "proc.linked.p":"This proof records part of the observed work, and links that observation to the file you provided.",
         "proc.short":"Limited observation of the process",
-        "proc.short.p":"HumanOrigin recorded part of the work, but the observed coverage remains limited.",
+        "proc.short.p":"This proof contains a partial observation of the work: the observed coverage remains limited.",
         "proc.insufficient":"Observed evidence is not enough for a strong conclusion",
         "proc.insufficient.p":"The proof is readable, but what it recorded is not enough to firmly link observed work to this version of the document.",
         "proc.paste":"Observed work with significant external insertion",
-        "proc.paste.p":"HumanOrigin observed work on the document together with a significant external insertion.",
+        "proc.paste.p":"This proof records work on the document together with a significant external insertion.",
         "proc.incomplete":"Incomplete proof",
         "proc.incomplete.p":"This older proof does not carry enough information for a full reading in Verify.",
         "proc.observedLegacy":"Observed work on this document",
@@ -436,7 +436,7 @@
     function buildServerAttestationBannerHtml(attResult,att,isFr){
       if(!attResult||!attResult.present)return"";
       let bg,border,icon,title,detail;
-      if(attResult.status==="valid"){bg="rgba(34,197,94,.08)";border="rgba(34,197,94,.22)";icon="✅";title=isFr?"Contre-signature serveur HumanOrigin":"HumanOrigin server countersignature";detail=isFr?"Preuve contre-signée par HumanOrigin ✅ — registre non vérifié dans cette version":"Countersigned by HumanOrigin ✅ — registry not checked in this version"}
+      if(attResult.status==="valid"){bg="rgba(34,197,94,.08)";border="rgba(34,197,94,.22)";icon="✅";title=isFr?"Contre-signature serveur HumanOrigin":"HumanOrigin server countersignature";detail=isFr?"Contre-signature serveur HumanOrigin vérifiée.":"HumanOrigin server countersignature verified."}
       else if(attResult.status==="unknown_key"){bg="rgba(245,158,11,.07)";border="rgba(245,158,11,.22)";icon="⚠️";title=isFr?"Contre-signature serveur présente, mais clé non reconnue":"Server countersignature present, key not recognized";detail=isFr?"Cette clé serveur n'est pas reconnue par ce verifier.":"This server key is not recognized by this verifier."}
       else{bg="rgba(239,68,68,.07)";border="rgba(239,68,68,.20)";icon="❌";title=isFr?"Contre-signature serveur invalide":"Invalid server countersignature";detail=isFr?"La contre-signature ne peut pas être vérifiée.":"The countersignature cannot be verified."}
       return`<div style="margin:0 0 14px;padding:12px 14px;border-radius:12px;background:${bg};border:1px solid ${border};"><div style="font-size:11px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:rgba(232,238,252,.45);margin-bottom:6px;">${isFr?"Attestation serveur":"Server attestation"}</div><div style="font-size:13px;font-weight:700;color:rgba(232,238,252,.90);">${icon} ${escapeHtml(title)}</div><div style="margin-top:4px;font-size:12px;color:rgba(232,238,252,.60);">${escapeHtml(detail)}</div></div>`;
@@ -463,7 +463,6 @@
       if(isHoJsonV1(doc)){const sigEntry=Array.isArray(doc.signatures)?(doc.signatures[0]||{}):{},sigB64=sigEntry.signature||"",embeddedPubB64=sigEntry.public_key||sigEntry.pubkey||"",pubB64=override||embeddedPubB64;if(!sigB64)throw new Error("Champ signatures[0].signature manquant");if(!pubB64)throw new Error("Aucune pubkey (signatures[0].public_key manquante + override vide)");const canonPayloadStr=JSON.stringify(canonicalize(doc.payload||{})),digestBytes=await sha256BytesFromString(canonPayloadStr),digestHex=u8ToHex(digestBytes),payloadSha256=String(doc.payload_sha256||"").toLowerCase(),payloadMatch=payloadSha256?(payloadSha256===digestHex.toLowerCase()):null;const sig=b64ToU8(sigB64),pub=b64ToU8(pubB64),ok=nacl.sign.detached.verify(digestBytes,sig,pub);return {ok,doc,digestHex,payloadMatch,pubUsedB64:pubB64,mode:"v1"}}
       const signing=doc.signing||{},sigB64=signing.signature||"",embeddedPubB64=signing.pubkey||signing.public_key||"",pubB64=override||embeddedPubB64;if(!sigB64)throw new Error("Champ signing.signature manquant");if(!pubB64)throw new Error("Aucune pubkey (signing.pubkey manquante + override vide)");const stripped=stripForSigning(doc),canonStr=JSON.stringify(canonicalize(stripped)),digestBytes=await sha256BytesFromString(canonStr),digestHex=u8ToHex(digestBytes),payloadToSign=(signing.payload_to_sign||"").toLowerCase(),payloadMatch=payloadToSign?(payloadToSign===digestHex.toLowerCase()):null;const sig=b64ToU8(sigB64),pub=b64ToU8(pubB64),ok=nacl.sign.detached.verify(digestBytes,sig,pub);return {ok,doc,digestHex,payloadMatch,pubUsedB64:pubB64,mode:"legacy"}
     }
-    function normalizeVerdict(v){return String(v||"").trim().toUpperCase().replace("LIMITEE","LIMITÉE")}
     function buildContributionHtml(doc, isFr) {
       const d = (doc && doc.payload && doc.payload.document) || {};
       const cs = d.contribution_score;
@@ -488,7 +487,7 @@
       if (capReasons.includes('high_activity_low_delta')) add('L\'activité observée est forte, mais le changement du document est faible.', 'Observed activity is high, but the document change is limited.');
       if (capReasons.includes('contribution_too_limited') || capReasons.includes('contribution_coherence_too_low') || capReasons.includes('delta_not_significant') || capReasons.includes('large_delta_low_keystrokes') || capReasons.includes('large_delta_low_active_time')) add('La cohérence entre l\'activité observée et le changement documentaire est insuffisante pour une preuve forte.', 'The coherence between observed activity and document change is insufficient for strong proof.');
       const paste = ps.paste_summary || gates.paste_risk || {};
-      if ((paste.paste_dominant_sessions || 0) > 0 || (paste.paste_heavy_sessions || 0) > 0 || label.paste_cap_applied === true) add('Une insertion externe ou un collage important a été détecté : la contribution humaine substantielle n\'est pas pleinement attestée.', 'A significant external insertion or paste was detected: substantial human contribution is not fully attested.');
+      if ((paste.paste_dominant_sessions || 0) > 0 || (paste.paste_heavy_sessions || 0) > 0 || label.paste_cap_applied === true) add('Une insertion externe ou un collage important a été détecté : la contribution substantielle au document n\'est pas pleinement attestée.', 'A significant external insertion or paste was detected: substantial contribution to the document is not fully attested.');
       if (!reasons.length) return '';
       const uniq = [...new Set(reasons)];
       return '<div style="margin-top:12px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);">'
@@ -513,45 +512,14 @@
       if (shownF.length) h += '<div style="font-size:11px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:rgba(232,238,252,.45);margin-bottom:6px;margin-top:10px;">' + (isFr?'Limites importantes':'Important limits') + '</div>' + shownF.map(k=>'<div style="font-size:12px;color:rgba(232,238,252,.55);margin-top:4px;">⚠ ' + escapeHtml(LF[k]) + '</div>').join('');
       return h + '</div>';
     }
-    function proofTierMeta(v){
-      const k=normalizeVerdict(v);
-      if(k==="COHERENT"||k==="COHÉRENT")return{icon:"🟢",color:"#22c55e",bg:"rgba(34,197,94,.12)",border:"rgba(34,197,94,.30)",title:"Travail observé relié à ce document",titleEn:"Observed work linked to this document",msg:"Travail observé — preuve locale signée. Le document peut être lié par son empreinte.",msgEn:"Observed work — locally signed proof. The document can be linked by its fingerprint."};
-      if(k==="ATYPIQUE"||k==="ATYPICAL")return{icon:"🟡",color:"#f59e0b",bg:"rgba(245,158,11,.12)",border:"rgba(245,158,11,.32)",title:"Processus atypique observé",titleEn:"Atypical process observed",msg:"Une activité humaine a été observée, avec certains signaux inhabituels. Consultez les détails si nécessaire.",msgEn:"Human activity was observed, with some unusual signals. Check details if needed."};
-      if(k==="PREUVE LIMITÉE"||k==="PREUVE LIMITEE"||k==="LIMITED")return{icon:"⚪",color:"#94a3b8",bg:"rgba(148,163,184,.12)",border:"rgba(148,163,184,.28)",title:"Preuve partielle",titleEn:"Partial proof",msg:"Le volume ou la continuité observés sont insuffisants pour relier un travail observé à cette version du document.",msgEn:"The observed volume or continuity is insufficient to link observed work to this version of the document."};
-      if(k==="SUSPECT")return{icon:"🔴",color:"#ef4444",bg:"rgba(239,68,68,.12)",border:"rgba(239,68,68,.34)",title:"Processus non confirmé",titleEn:"Process not confirmed",msg:"HumanOrigin ne confirme pas une preuve forte de processus humain pour ce document. La preuve doit être examinée avec prudence.",msgEn:"HumanOrigin does not confirm strong proof of a human process for this document. The proof should be examined carefully."};
-      return{icon:"⚪",color:"#94a3b8",bg:"rgba(148,163,184,.10)",border:"rgba(148,163,184,.22)",title:"Niveau de preuve non déterminé",titleEn:"Proof level undetermined",msg:"Le verifier n'a pas pu interpréter clairement le niveau de preuve.",msgEn:"The verifier could not clearly interpret the proof level."};
-    }
-    function buildTrustMetaHtml(doc, isFr) {
-      const issuer = (doc && doc.payload && doc.payload.issuer) || {};
-      const issuerMode = issuer.issuer_mode || "";
-      const keyTrust = issuer.key_trust || "";
-      const OFFICIAL_KEYS = ["official_server_key","registered_humanorigin_key","server_countersigned"];
-      const isOfficial = OFFICIAL_KEYS.includes(keyTrust);
-      if (!issuerMode && !keyTrust) {
-        return '<div style="margin-top:12px;padding:8px 12px;border-radius:8px;background:rgba(148,163,184,.06);border:1px solid rgba(148,163,184,.15);font-size:12px;color:rgba(232,238,252,.50);">'
-          + (isFr?'Schéma ancien : niveau de confiance de la clé non disponible.':'Older schema: key trust level unavailable.')
-          + '</div>';
-      }
-      if (isOfficial) {
-        return '<div style="margin-top:12px;padding:10px 12px;border-radius:8px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25);font-size:12px;color:rgba(232,238,252,.80);">'
-          + '<div style="font-weight:800;color:#22c55e;margin-bottom:4px;">' + (isFr?'Preuve contre-signée par HumanOrigin':'Countersigned by HumanOrigin') + '</div>'
-          + '<div>' + (isFr?'Clé enregistrée et preuve contre-signée par HumanOrigin.':'Registered key and proof countersigned by HumanOrigin.') + '</div>'
-          + '</div>';
-      }
-      if (issuerMode === "cloud_account" && keyTrust === "local_unregistered_key") {
-        return '<div style="margin-top:12px;padding:10px 12px;border-radius:8px;background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.22);font-size:12px;color:rgba(232,238,252,.72);">'
-          + '<div style="font-weight:800;color:#f59e0b;margin-bottom:4px;">' + (isFr?'Mode de preuve : compte cloud, signature locale':'Proof mode: cloud account, local signature') + '</div>'
-          + '<div>' + (isFr?'Compte cloud détecté, mais signature encore locale.':'Cloud account detected, but signature is still local.') + '</div>'
-          + '<div style="margin-top:3px;">' + (isFr?'Identité applicative partielle : aucune contre-signature serveur.':'Partial account-bound proof: no server countersignature.') + '</div>'
-          + '</div>';
-      }
-      return '<div style="margin-top:12px;padding:10px 12px;border-radius:8px;background:rgba(148,163,184,.07);border:1px solid rgba(148,163,184,.18);font-size:12px;color:rgba(232,238,252,.72);">'
-        + '<div style="font-weight:700;color:rgba(232,238,252,.65);margin-bottom:4px;">' + (isFr?'Preuve locale auto-signée':'Local self-signed proof') + '</div>'
-        + '<div>' + (isFr?'Clé : locale non enregistrée':'Key: local unregistered key') + '</div>'
-        + '<div style="margin-top:2px;">' + (isFr?'Non attestée par un serveur HumanOrigin':'Not attested by a HumanOrigin server') + '</div>'
-        + '<div style="margin-top:6px;color:rgba(232,238,252,.45);">' + (isFr?'Cette preuve est cryptographiquement intègre, mais elle n\'est pas contre-signée par un serveur HumanOrigin. À interpréter comme une preuve locale, pas comme une attestation officielle.':'This proof is cryptographically intact, but it is not countersigned by a HumanOrigin server. Interpret it as a local proof, not an official attestation.') + '</div>'
-        + '</div>';
-    }
+    // `proofTierMeta` est retiré : il traduisait COHERENT / ATYPIQUE / SUSPECT en phrases
+    // interprétatives que la doctrine interdit, et il n'avait plus aucun appelant depuis que
+    // le modèle destinataire décide la hiérarchie. Les verdicts bruts restent imprimés tels
+    // quels dans « Données brutes de la preuve » : rien n'est perdu pour l'audit.
+    // `buildTrustMetaHtml` est retiré : il reconstruisait un niveau de confiance à partir de
+    // `issuer.key_trust`, c'est-à-dire d'un champ que le payload se décerne à lui-même. La
+    // carte « confiance technique » est désormais la seule lecture de ces informations, et
+    // elle n'accorde la contre-signature qu'à une attestation serveur vérifiée.
     // Rendu d'un verdict d'artefact. SOURCE UNIQUE pour tous les endroits qui en parlent :
     // deux mises en forme du même état donneraient deux vérités d'interface.
     function artifactLine(check,isFr){
@@ -658,22 +626,21 @@
       const _label=(doc.payload&&doc.payload.label_eligibility)||{};
       const _visibleVerdict=_label.visible_verdict||_ps.verdict||_score.verdict||"";
       const _rawEngineVerdict=_label.raw_engine_verdict||_visibleVerdict;
-      const tier=proofTierMeta(_visibleVerdict);
       const isFr=currentLang==="fr";
       const _att=doc&&doc.server_attestation||null;
       const _attResult=await verifyServerAttestation(doc);
       const _attBannerHtml=buildServerAttestationBannerHtml(_attResult,_att,isFr);
-      const _proofId=_att&&_att.proof_id||null;
+      // Un `proof_id` est une donnée du payload. Le suivre sans attestation vérifiée
+      // laisserait une preuve invalide désigner l'entrée de registre qu'on va consulter,
+      // puis afficher « enregistrée au registre HumanOrigin » à son profit.
+      const _proofId=(_attResult&&_attResult.status==="valid"&&_att&&_att.proof_id)?_att.proof_id:null;
       const _registryResult=_proofId?await checkRegistryStatus(_proofId):null;
       const _registryStatusHtml=buildRegistryStatusHtml(_registryResult,isFr);
-      const tierHtml=`<div style="margin:0 0 18px;padding:18px;border-radius:18px;background:${tier.bg};border:1px solid ${tier.border};"><div style="font-size:11px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:${tier.color};margin-bottom:8px;">${isFr?"Niveau de preuve":"Proof level"}</div><div style="font-size:22px;font-weight:900;color:#fff;line-height:1.2;margin-bottom:8px;">${tier.icon} ${isFr?tier.title:tier.titleEn}</div><div style="font-size:14px;color:rgba(255,255,255,.78);line-height:1.5;">${isFr?tier.msg:tier.msgEn}</div></div>`;
       const _capNoticeHtml=(_visibleVerdict!==_rawEngineVerdict)?`<div style="margin-bottom:12px;padding:8px 12px;border-radius:8px;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);font-size:12px;color:rgba(232,238,252,.72);">${isFr?"Le niveau visible a été limité par les règles de sécurité HumanOrigin.":"The visible level was limited by HumanOrigin security rules."}</div>`:"";
       const _contributionHtml=buildContributionHtml(doc,isFr);
       const _reasonsHtml=explainSecurityGates(doc,isFr);
       const _claimsHtml=buildClaimsHtml(doc,isFr);
       const _issuer=(doc.payload&&doc.payload.issuer)||{};
-      const _trustMetaHtml=buildTrustMetaHtml(doc,isFr);
-      const disclaimerHtml=`<div style="margin-top:14px;font-size:12px;color:rgba(232,238,252,.5);border-top:1px solid rgba(232,238,252,.10);padding-top:10px;">${isFr?"HumanOrigin atteste un travail observé relié à ce document. Ne détecte pas l'IA. Ne certifie ni l'auteur, ni l'originalité, ni la vérité du contenu.":"HumanOrigin attests observed work linked to this document. Does not detect AI. Does not certify authorship, originality, or the truth of the content."}</div>`;
       let docCheckHtml=`<span class="muted">${R.docMissing}</span>`;
       if(lastArtifactCheck){
         const L=artifactLine(lastArtifactCheck,isFr),cls=lastArtifactCheck.status.indexOf("MATCH_")===0?(lastArtifactCheck.attested?"ok":"warn"):(lastArtifactCheck.status==="NO_MATCH"?"bad":"muted");
@@ -701,11 +668,19 @@
       resultEl.innerHTML=heroHtml(_model)+fileStatusHtml(_model)+processHtml(_model)
         +trustHtml(_model)+disclosureHtml(_model)
         +`<details class="technical-details"><summary>${isFr?"Détails techniques":"Technical details"}</summary><div style="margin-top:8px;">`
-        +tierHtml+_capNoticeHtml+_simpleHtml+_attBannerHtml+_registryStatusHtml+_reasonsHtml
+        // `proofTierMeta` et `buildTrustMetaHtml` n'ont plus d'appelant : le premier
+        // reformulait le verdict moteur en « activité humaine » et « signaux inhabituels »,
+        // le second reconstruisait une confiance depuis `issuer.key_trust`. Les deux
+        // contrediraient le modèle destinataire. Leurs données brutes — visible_verdict,
+        // raw_engine_verdict, issuer_mode, proof_trust_level, key_trust — restent dans
+        // « Données brutes de la preuve ». Aucune capacité d'audit n'est perdue.
+        // Le disclaimer générique est supprimé : « HumanOrigin atteste un travail observé
+        // relié à ce document » était faux dès qu'aucun fichier n'était fourni, que le
+        // fichier ne correspondait pas, ou que l'observation était limitée.
+        +_capNoticeHtml+_simpleHtml+_attBannerHtml+_registryStatusHtml+_reasonsHtml
         +_contributionHtml+_claimsHtml
         +`<div style="margin-top:14px;padding-top:10px;border-top:1px solid rgba(232,238,252,.08);font-size:16px;font-weight:800;">${sigLabel} : <span class="${ok?"ok":"bad"}">${ok?(isFr?"valide":"valid")+" ✅":(isFr?"invalide":"invalid")+" ❌"}</span></div><div style="margin-top:8px;">${docCheckHtml}</div><div style="margin-top:8px;">${payloadHtml}</div>`
-        +_trustMetaHtml+`</div></details>`
-        +(_model.payloadTrustworthy?disclaimerHtml:"");
+        +`</div></details>`;
       // L'action du hero réutilise les entrées existantes : aucune étape intermédiaire.
       const _btn=resultEl.querySelector("[data-ho-action]");
       if(_btn) _btn.addEventListener("click",()=>{
