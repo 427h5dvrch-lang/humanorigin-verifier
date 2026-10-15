@@ -38,6 +38,85 @@
     .hint-box{padding:14px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);font-size:14px;color:rgba(232,238,252,.72);line-height:1.6}
     .footer{margin-top:32px;text-align:center;font-size:12px;color:rgba(232,238,252,.32);line-height:1.6}
     .ho-context-wrap{max-width:640px;margin:0 auto 18px;padding:0}.ho-context-card{background:linear-gradient(180deg,rgba(255,255,255,.988) 0%,rgba(248,250,252,.97) 100%);border:1px solid var(--line);border-radius:22px;padding:14px 16px 13px;box-shadow:0 12px 28px rgba(15,23,42,.10);color:var(--ink)}.ho-context-kicker{margin:0 0 6px;font-size:10px;line-height:1.1;letter-spacing:.16em;text-transform:uppercase;color:var(--muted2);font-weight:800}.ho-context-title{margin:0 0 6px;font-size:22px;line-height:1.02;letter-spacing:-.04em;color:var(--ink);font-weight:880}.ho-context-copy{margin:0;max-width:920px;color:var(--muted);font-size:13px;line-height:1.52}.ho-context-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px}.ho-context-btn{display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:0 12px;border-radius:12px;text-decoration:none;font-weight:800;font-size:13px;border:1px solid rgba(15,23,42,.10);background:#fff;color:var(--ink)}.ho-pill{display:inline-flex;align-items:center;min-height:36px;padding:0 12px;border-radius:999px;font-size:12.5px;font-weight:760;background:rgba(15,23,42,.05);border:1px solid rgba(15,23,42,.08);color:var(--ink)}.ho-pill.ok{background:#eaf6ea;border-color:rgba(22,163,74,.16);color:#166534}.ho-pill.warn{background:#fff5df;border-color:rgba(217,119,6,.16);color:#92400e}.ho-pill.bad{background:#fde9e9;border-color:rgba(220,38,38,.16);color:#991b1b}.ho-context-foot{margin-top:8px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;line-height:1.45;color:#5d6a7a;word-break:break-word}
+    /* Tant qu'aucune preuve n'est lue, la page invite à déposer un fichier. Dès qu'un
+       résultat existe, c'est LUI que le destinataire doit lire en premier : le titre
+       d'accueil et la grande zone de dépôt cèdent la place, sans disparaître de la page. */
+    .main-card.ho-has-result{display:flex;flex-direction:column}
+    .main-card.ho-has-result #result{order:-2;margin-top:0}
+    .main-card.ho-has-result #details{order:-1}
+    .main-card.ho-has-result .main-title,.main-card.ho-has-result .main-intro{display:none}
+    .main-card.ho-has-result .drop-main{order:1;margin-top:18px;padding:16px 18px}
+    .main-card.ho-has-result .drop-icon{display:none}
+    .main-card.ho-has-result .drop-title{font-size:14px;margin-bottom:4px}
+    .main-card.ho-has-result .drop-sub{font-size:12px;margin-bottom:10px}
+    .main-card.ho-has-result .advanced-options{order:2}
+
+    /* ================= surface destinataire =================
+       Une colonne, de l'air, une hiérarchie typographique nette. Le ton n'est jamais porté
+       par la seule couleur : glyphe, graisse et place dans la page le disent aussi, pour
+       qu'un écran en niveaux de gris reste lisible. */
+    .ho-hero{margin:0 0 18px;padding:24px 22px;border-radius:18px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.09);border-left:3px solid rgba(148,163,184,.55)}
+    .ho-kicker{font-size:10.5px;font-weight:800;letter-spacing:.15em;text-transform:uppercase;color:rgba(232,238,252,.42);margin-bottom:12px}
+    .ho-headline{margin:0;font-size:clamp(22px,4.4vw,29px);line-height:1.18;letter-spacing:-.025em;font-weight:800;color:#f4f8ff;display:flex;gap:11px;align-items:baseline}
+    .ho-glyph{flex:0 0 auto;font-weight:900;opacity:.9}
+    .ho-lead{margin:12px 0 0;font-size:15px;line-height:1.6;color:rgba(232,238,252,.76);max-width:58ch}
+    .ho-guard{margin:12px 0 0;padding:11px 13px;border-radius:10px;background:rgba(0,0,0,.18);font-size:13.5px;line-height:1.55;color:rgba(232,238,252,.66);max-width:58ch}
+    .ho-cta{display:inline-flex;align-items:center;justify-content:center;margin-top:18px;min-height:46px;padding:0 22px;border-radius:12px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.95);color:#0f172a;font:800 15px inherit;cursor:pointer}
+    .ho-cta:hover{background:#fff}
+    .sev-positive{border-left-color:#22c55e}
+    .sev-positive .ho-glyph{color:#22c55e}
+    .sev-warning{border-left-color:#f59e0b}
+    .sev-warning .ho-glyph{color:#f59e0b}
+    .sev-critical{border-left-color:#ef4444;background:rgba(239,68,68,.07)}
+    .sev-critical .ho-glyph{color:#ef4444}
+    .sev-neutral .ho-glyph{color:rgba(232,238,252,.5)}
+
+    /* Le fichier : un axe distinct du processus, sur sa propre ligne. */
+    .ho-file{margin:0 0 16px;padding:15px 18px;border-radius:14px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08)}
+    .ho-file-line{display:flex;gap:10px;align-items:baseline;font-size:16px;font-weight:700;color:#eef3ff}
+    .ho-file-sub{margin:7px 0 0 25px;font-size:13.5px;line-height:1.55;color:rgba(232,238,252,.62);max-width:58ch}
+    .ho-file.tone-positive .ho-glyph{color:#22c55e}
+    .ho-file.tone-critical{border-color:rgba(239,68,68,.28);background:rgba(239,68,68,.06)}
+    .ho-file.tone-critical .ho-glyph{color:#ef4444}
+    .ho-file.tone-neutral .ho-glyph,.ho-file.tone-none .ho-glyph{color:rgba(232,238,252,.45)}
+    .ho-file.tone-warning .ho-glyph{color:#f59e0b}
+
+    .ho-block{margin:0 0 16px}
+    .ho-h3{margin:0 0 9px;font-size:10.5px;font-weight:800;letter-spacing:.15em;text-transform:uppercase;color:rgba(232,238,252,.42)}
+    .ho-facts{margin:0;padding-left:19px;color:rgba(232,238,252,.82);font-size:14.5px;line-height:1.62}
+    .ho-facts li{margin:5px 0}
+
+    .ho-trust{margin:0 0 16px;padding:13px 18px;border-radius:14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07)}
+    .ho-trust-main{font-size:14px;font-weight:700;color:rgba(232,238,252,.86)}
+    .ho-trust-sub{margin:5px 0 0;font-size:13px;line-height:1.55;color:rgba(232,238,252,.58);max-width:58ch}
+    .ho-trust.tone-positive .ho-trust-main{color:#22c55e}
+    .ho-trust.tone-critical .ho-trust-main{color:#ef4444}
+    .ho-trust.tone-warning .ho-trust-main{color:#f59e0b}
+
+    /* Divulgation progressive : replis natifs, cibles confortables au doigt. */
+    .ho-fold{margin:0 0 9px;border:1px solid rgba(255,255,255,.08);border-radius:12px;background:rgba(255,255,255,.025)}
+    .ho-fold>summary{cursor:pointer;list-style:none;outline:none;padding:14px 18px;min-height:46px;display:flex;align-items:center;font-size:13.5px;font-weight:700;color:rgba(232,238,252,.78)}
+    .ho-fold>summary::-webkit-details-marker{display:none}
+    .ho-fold>summary{flex-wrap:wrap}
+    .ho-fold-t{flex:0 1 auto}
+    .ho-fold-x{flex:1 1 100%;order:2;margin-top:5px;font-weight:400;font-size:12.5px;line-height:1.5;color:rgba(232,238,252,.52)}
+    .ho-fold>summary::after{content:"+";margin-left:auto;font-weight:800;color:rgba(232,238,252,.40)}
+    .ho-fold[open]>summary::after{content:"–"}
+    .ho-fold .ho-facts{padding:0 18px 16px 37px}
+    /* Le technique reste disponible, mais il descend : il n'est plus la première lecture. */
+    .technical-details{margin-top:18px}
+
+    @media(max-width:640px){
+      .ho-hero{padding:19px 16px;border-radius:15px}
+      .ho-headline{font-size:22px;gap:9px}
+      .ho-lead{font-size:14.5px}
+      .ho-cta{width:100%;margin-top:16px}
+      .ho-file{padding:13px 15px}
+      .ho-file-line{font-size:15px}
+      .ho-file-sub{margin-left:0}
+      .ho-fold>summary{padding:13px 15px}
+      .ho-fold .ho-facts{padding:0 15px 14px 33px}
+    }
     @media(max-width:640px){.page{padding:18px 14px 40px}.main-card{padding:20px 16px}.drop-main{padding:24px 16px}}
   </style>
 </head>
@@ -91,6 +170,9 @@
   <!-- Contrat des artefacts engagés par la preuve. Première partie, aucune dépendance,
        aucune sortie réseau : une seule logique de comparaison pour toute la page. -->
   <script src="artifact_binding.js"></script>
+  <!-- Modèle de présentation destinataire : transforme des faits établis en
+       hiérarchie d'affichage. Aucun DOM, aucun calcul, aucune sortie réseau. -->
+  <script src="verify_ux_model.js"></script>
   <script src="vendor/nacl.min.js" integrity="sha384-LMUiUHpaYNGZFzWFRjsADnCSqae1Mk5llcUOHOLDhCxkyF2cdsWAueTZAzV+swW/" crossorigin="anonymous"></script>
   <script>
     const $=(id)=>document.getElementById(id),search=new URLSearchParams(window.location.search),recordId=(search.get("rid")||search.get("id")||"").trim();
@@ -113,6 +195,89 @@
         artRolePublished:"copie publiée de circulation",
         artRoleLegacy:"document enregistré"},
         details:{summary:"Résumé",processSummary:"Résumé du processus",pubkey:"Clé publique utilisée",expectedDoc:"Document attendu (sha256)",verificationMethod:"Méthode de vérification",format:"Format",version:"Version",certId:"Cert ID",issuer:"Émetteur",project:"Projet",verdict:"Verdict"},
+      ux:{
+        kicker:"HumanOrigin · Vérification",
+        "h.process":"Processus observé",
+        "h.raw":"Données brutes de la preuve",
+        "h.establishes":"Ce que cette preuve établit",
+        "h.cannot":"Ce qu'elle ne permet pas d'établir",
+        "h.cannot.teaser":"Identité, absence d'IA, vérité du contenu, origine de ce qui n'a pas été observé.",
+        "hero.invalid":"Cette preuve ne peut pas être vérifiée",
+        "hero.invalid.p":"Son intégrité cryptographique n'est pas valide. Les informations qu'elle contient ne doivent pas être interprétées comme des faits attestés.",
+        "hero.revoked":"Cette preuve a été révoquée",
+        "hero.revoked.p":"Sa signature reste lisible, mais le registre HumanOrigin l'a révoquée. Elle ne doit plus être présentée comme valide.",
+        "hero.noMatch":"Ce fichier ne correspond pas à cette preuve",
+        "hero.noMatch.p":"La preuve est lisible, mais le fichier fourni ne correspond à aucun artefact qu'elle engage.",
+        "hero.notVerifiable":"Ce fichier ne peut pas être confirmé avec cette preuve",
+        "hero.notVerifiable.p":"Cette version de la preuve ne contient pas l'empreinte nécessaire pour confirmer cette copie du fichier.",
+        "hero.paste.guard":"L'origine de cette insertion n'est pas déterminée par HumanOrigin.",
+        "proc.observed":"Travail observé sur ce document",
+        "proc.observed.p":"HumanOrigin a observé une partie du travail de création, puis relié cette observation à une version du fichier.",
+        "proc.linked":"Travail observé relié à ce document",
+        "proc.linked.p":"HumanOrigin a observé une partie du travail de création, et la preuve relie cette observation au fichier que vous avez présenté.",
+        "proc.short":"Observation limitée du processus",
+        "proc.short.p":"HumanOrigin a enregistré une partie du travail, mais la couverture observée reste limitée.",
+        "proc.insufficient":"Éléments observés insuffisants pour une conclusion forte",
+        "proc.insufficient.p":"La preuve est lisible, mais ce qu'elle a enregistré ne suffit pas à relier solidement un travail observé à cette version du document.",
+        "proc.paste":"Travail observé avec insertion externe importante",
+        "proc.paste.p":"HumanOrigin a observé du travail sur le document ainsi qu'une insertion externe importante.",
+        "proc.incomplete":"Preuve incomplète",
+        "proc.incomplete.p":"Cette ancienne preuve ne contient pas suffisamment d'éléments pour une lecture complète dans Verify.",
+        "proc.observedLegacy":"Travail observé sur ce document",
+        "proc.observedLegacy.p":"Cette preuve provient d'une version antérieure de HumanOrigin. Elle enregistre une observation du travail, avec moins de détails que les preuves récentes.",
+        "doc.none":"Fichier non vérifié",
+        "doc.none.d":"Ajoutez le document reçu pour confirmer qu'il correspond à cette preuve.",
+        "doc.published":"Copie publiée vérifiée",
+        "doc.published.d":"Ce PDF correspond exactement à la copie de circulation engagée par la preuve.",
+        "doc.source":"Document source vérifié",
+        "doc.source.d":"Ce fichier correspond exactement au document source engagé par la preuve.",
+        "doc.legacy":"Empreinte du fichier vérifiée",
+        "doc.legacy.d":"Ce fichier correspond à l'empreinte enregistrée dans cette preuve.",
+        "doc.noMatch":"Le fichier fourni ne correspond pas",
+        "doc.noMatch.d":"Il ne correspond à aucun artefact engagé par cette preuve.",
+        "doc.notVerifiable":"Cette copie ne peut pas être vérifiée avec cette preuve",
+        "doc.notVerifiable.d":"L'empreinte nécessaire n'existe pas dans cette version de la preuve.",
+        "doc.notAssessed":"Statut du fichier non évalué",
+        "doc.notAssessed.d":"L'intégrité de la preuve n'étant pas vérifiée, aucune comparaison de fichier n'aurait de valeur ici.",
+        "fact.activeMin":"Activité enregistrée pendant {n} min",
+        "fact.activeSec":"Activité enregistrée pendant {n} s",
+        "fact.sessions":"{n} sessions de travail valides enregistrées",
+        "fact.session1":"1 session de travail valide enregistrée",
+        "fact.changed":"Le document a changé pendant la période observée",
+        "fact.unchanged":"Le document n'a pas changé pendant la période observée",
+        "fact.paste":"Une insertion externe importante a été signalée",
+        "fact.pasteLegacy":"Des insertions externes ont été enregistrées",
+        "fact.short":"Observation courte",
+        "fact.contribLimited":"Contribution au document limitée",
+        "est.integrity":"Que la preuve n'a pas été modifiée depuis sa signature.",
+        "est.published":"Que le PDF présenté est la copie de circulation engagée.",
+        "est.source":"Que le fichier présenté est le document source engagé.",
+        "est.legacy":"Que le fichier présenté correspond à l'empreinte enregistrée.",
+        "est.countersigned":"Que HumanOrigin a contre-signé cette preuve.",
+        "est.registered":"Que la preuve est enregistrée au registre HumanOrigin.",
+        "lim.identity":"L'identité réelle de la personne qui a travaillé.",
+        "lim.ai":"L'absence totale d'utilisation d'une intelligence artificielle.",
+        "lim.unobserved":"L'origine de ce qui n'a pas été observé.",
+        "lim.truth":"La vérité, la qualité ou l'originalité du contenu.",
+        "lim.noScreen":"Le contenu affiché à l'écran n'a pas été capturé.",
+        "lim.noText":"Le texte du document n'est pas conservé dans la preuve.",
+        "lim.documentOnly":"Cette preuve ne couvre qu'un document, pas d'autres médias.",
+        "trust.countersigned":"Preuve contre-signée par HumanOrigin",
+        "trust.countersigned.d":"Un serveur HumanOrigin a contre-signé cette preuve.",
+        "trust.local":"Preuve signée localement",
+        "trust.local.d":"Son intégrité peut être contrôlée, mais elle n'a pas été contre-signée par un serveur HumanOrigin.",
+        "trust.unknown":"Niveau de confiance supplémentaire non disponible pour cette ancienne preuve",
+        "trust.attestationProblem":"Contre-signature présente, mais non vérifiable",
+        "trust.attestationProblem.d":"Une contre-signature accompagne cette preuve, mais ce vérificateur n'a pas pu la contrôler.",
+        "trust.invalid":"Intégrité de la preuve non vérifiée",
+        "reg.active":"Preuve enregistrée au registre HumanOrigin",
+        "reg.revoked":"Preuve révoquée au registre HumanOrigin",
+        "reg.notFound":"Preuve inconnue du registre HumanOrigin",
+        "reg.offline":"Registre inaccessible — révocation non vérifiée",
+        "reg.unknown":"Statut du registre inconnu",
+        "act.checkDocument":"Vérifier le document",
+        "act.otherFile":"Choisir un autre fichier",
+        "act.otherProof":"Choisir une autre preuve"},
         context:{kicker:"HumanOrigin · vérification",title:"Vérifier ce document",copy:"Vous êtes arrivé depuis un lien HumanOrigin. Déposez le kit ou la preuve pour confirmer le lien avec ce document.",expected:"ID attendu",wait:"En attente",match:"Preuve correspondante",mismatch:"Preuve non correspondante",unknown:"Preuve lue, dossier incertain",back:"Retour",found:"Trouvé dans la preuve",none:"Aucun ID trouvé"}},
       en:{title:"Verify a HumanOrigin document",intro:"Drop the HumanOrigin kit received with the document. HumanOrigin verifies the proof and the link to the PDF.",dropTitle:"Drop the HumanOrigin kit here",dropSub:"Drop HumanOrigin_SEND.zip, a HumanOrigin proof, or a PDF.",fileBtn:"Choose a file",loading:"Reading HumanOrigin file…",pdfHint:"This PDF may contain a HumanOrigin mark. To fully verify it, also drop the HumanOrigin kit or associated proof.",unknownFile:"I don't recognize this file. Drop the HumanOrigin kit received with the document, or choose the file from Finder.",receiving:"File received. Reading…",advanced:"Other options",proofOnly:"Import proof only",docOnly:"Import document only",proofBtn:"Choose proof (.ho.json)",docBtn:"Choose document",pubKeyLabel:"Override public key",pubKeyPlaceholder:"Ed25519 public key in Base64 (only if necessary)",footer:"HumanOrigin verifies an observed creation process. It does not certify the content, truth, or quality of the document.",error:"Error",
         result:{signature:"Signature",valid:"VALID",invalid:"INVALID",docMissing:"Document: not provided",docMatch:"Document hash: MATCH",docNoMatch:"Document hash: NO MATCH",expected:"expected",got:"got",payloadOk:"payload_sha256: OK",payloadDifferent:"payload_sha256: different",payloadToSignOk:"payload_to_sign: OK",payloadToSignDifferent:"payload_to_sign: different (non blocking)",digest:"digest (sha256 hex of canonical)",
@@ -127,6 +292,89 @@
         artRolePublished:"published circulation copy",
         artRoleLegacy:"recorded document"},
         details:{summary:"Summary",processSummary:"Process summary",pubkey:"Public key used",expectedDoc:"Expected document (sha256)",verificationMethod:"Verification method",format:"Format",version:"Version",certId:"Cert ID",issuer:"Issuer",project:"Project",verdict:"Verdict"},
+      ux:{
+        kicker:"HumanOrigin · Verification",
+        "h.process":"Observed process",
+        "h.raw":"Raw proof fields",
+        "h.establishes":"What this proof establishes",
+        "h.cannot":"What it cannot establish",
+        "h.cannot.teaser":"Identity, absence of AI, truth of the content, origin of whatever was not observed.",
+        "hero.invalid":"This proof cannot be verified",
+        "hero.invalid.p":"Its cryptographic integrity is not valid. Nothing it contains should be read as an attested fact.",
+        "hero.revoked":"This proof has been revoked",
+        "hero.revoked.p":"Its signature is still readable, but the HumanOrigin registry has revoked it. It should no longer be presented as valid.",
+        "hero.noMatch":"This file does not match this proof",
+        "hero.noMatch.p":"The proof is readable, but the file provided does not match any artifact it commits to.",
+        "hero.notVerifiable":"This file cannot be confirmed with this proof",
+        "hero.notVerifiable.p":"This proof version does not contain the fingerprint needed to confirm this copy of the file.",
+        "hero.paste.guard":"HumanOrigin does not determine where that insertion came from.",
+        "proc.observed":"Observed work on this document",
+        "proc.observed.p":"HumanOrigin observed part of the work, then linked that observation to a version of the file.",
+        "proc.linked":"Observed work linked to this document",
+        "proc.linked.p":"HumanOrigin observed part of the work, and the proof links that observation to the file you provided.",
+        "proc.short":"Limited observation of the process",
+        "proc.short.p":"HumanOrigin recorded part of the work, but the observed coverage remains limited.",
+        "proc.insufficient":"Observed evidence is not enough for a strong conclusion",
+        "proc.insufficient.p":"The proof is readable, but what it recorded is not enough to firmly link observed work to this version of the document.",
+        "proc.paste":"Observed work with significant external insertion",
+        "proc.paste.p":"HumanOrigin observed work on the document together with a significant external insertion.",
+        "proc.incomplete":"Incomplete proof",
+        "proc.incomplete.p":"This older proof does not carry enough information for a full reading in Verify.",
+        "proc.observedLegacy":"Observed work on this document",
+        "proc.observedLegacy.p":"This proof comes from an earlier version of HumanOrigin. It records an observation of the work, with less detail than recent proofs.",
+        "doc.none":"File not checked",
+        "doc.none.d":"Add the document you received to confirm that it matches this proof.",
+        "doc.published":"Published copy verified",
+        "doc.published.d":"This PDF matches exactly the circulation copy committed by the proof.",
+        "doc.source":"Source document verified",
+        "doc.source.d":"This file matches exactly the source document committed by the proof.",
+        "doc.legacy":"File fingerprint verified",
+        "doc.legacy.d":"This file matches the fingerprint recorded in this proof.",
+        "doc.noMatch":"The file provided does not match",
+        "doc.noMatch.d":"It matches no artifact committed by this proof.",
+        "doc.notVerifiable":"This copy cannot be verified with this proof",
+        "doc.notVerifiable.d":"The fingerprint needed does not exist in this version of the proof.",
+        "doc.notAssessed":"File status not assessed",
+        "doc.notAssessed.d":"Since the proof's integrity is not verified, comparing a file would mean nothing here.",
+        "fact.activeMin":"Activity recorded for {n} min",
+        "fact.activeSec":"Activity recorded for {n} s",
+        "fact.sessions":"{n} valid work sessions recorded",
+        "fact.session1":"1 valid work session recorded",
+        "fact.changed":"The document changed during the observed period",
+        "fact.unchanged":"The document did not change during the observed period",
+        "fact.paste":"A significant external insertion was flagged",
+        "fact.pasteLegacy":"External insertions were recorded",
+        "fact.short":"Short observation",
+        "fact.contribLimited":"Limited contribution to the document",
+        "est.integrity":"That the proof has not been modified since it was signed.",
+        "est.published":"That the PDF provided is the committed circulation copy.",
+        "est.source":"That the file provided is the committed source document.",
+        "est.legacy":"That the file provided matches the recorded fingerprint.",
+        "est.countersigned":"That HumanOrigin countersigned this proof.",
+        "est.registered":"That the proof is recorded in the HumanOrigin registry.",
+        "lim.identity":"The real-world identity of the person who did the work.",
+        "lim.ai":"That no artificial intelligence was used at any point.",
+        "lim.unobserved":"Where anything that was not observed came from.",
+        "lim.truth":"The truth, quality or originality of the content.",
+        "lim.noScreen":"What was on screen was not captured.",
+        "lim.noText":"The document's text is not kept in the proof.",
+        "lim.documentOnly":"This proof covers a document only, no other media.",
+        "trust.countersigned":"Proof countersigned by HumanOrigin",
+        "trust.countersigned.d":"A HumanOrigin server countersigned this proof.",
+        "trust.local":"Proof signed locally",
+        "trust.local.d":"Its integrity can be checked, but it was not countersigned by a HumanOrigin server.",
+        "trust.unknown":"No additional trust level available for this older proof",
+        "trust.attestationProblem":"Countersignature present, but not verifiable",
+        "trust.attestationProblem.d":"A countersignature accompanies this proof, but this verifier could not check it.",
+        "trust.invalid":"Proof integrity not verified",
+        "reg.active":"Proof recorded in the HumanOrigin registry",
+        "reg.revoked":"Proof revoked in the HumanOrigin registry",
+        "reg.notFound":"Proof not found in the HumanOrigin registry",
+        "reg.offline":"Registry unreachable — revocation not checked",
+        "reg.unknown":"Unknown registry status",
+        "act.checkDocument":"Check the document",
+        "act.otherFile":"Choose another file",
+        "act.otherProof":"Choose another proof"},
         context:{kicker:"HumanOrigin · verification",title:"Verify this document",copy:"You arrived from a HumanOrigin link. Drop the kit or proof to confirm the link with this document.",expected:"Expected ID",wait:"Awaiting file",match:"Proof matches",mismatch:"Proof mismatch",unknown:"Proof read, record unclear",back:"Back",found:"Found in proof",none:"No ID found yet"}}};
 
     function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
@@ -334,8 +582,68 @@
       const row=l=>`<div style="display:flex;align-items:baseline;gap:8px;margin-top:7px;font-size:13px;"><span style="min-width:20px;">${l.icon}</span><span style="color:${l.color};">${escapeHtml(l.text)}</span></div>`;
       return `<div style="margin:0 0 14px;padding:14px;border-radius:14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);"><div style="font-size:10px;font-weight:900;letter-spacing:.13em;text-transform:uppercase;color:rgba(232,238,252,.38);margin-bottom:8px;">${isFr?"Résumé":"Summary"}</div>${row(docLine)}${row(sigLine)}${row(trustLine)}</div>`;
     }
+    // ---------------------------------------------------------------- surface destinataire
+    // Une seule traduction : le modèle rend des clés, le catalogue rend les phrases.
+    function UX(cle,args){
+      const t=(COPY[currentLang].ux||{})[String(cle||"").replace(/^ux\./,"")];
+      if(t==null) return "";
+      let out=String(t);
+      if(args) for(const k in args) out=out.split("{"+k+"}").join(String(args[k]));
+      return out;
+    }
+    const SEV_GLYPHE={critical:"✕",warning:"!",neutral:"—",positive:"✓"};
+    function heroHtml(m){
+      const g=SEV_GLYPHE[m.severity]||"—";
+      return `<section class="ho-hero sev-${m.severity}">`
+        +`<div class="ho-kicker">${escapeHtml(UX("kicker"))}</div>`
+        +`<h2 class="ho-headline"><span class="ho-glyph" aria-hidden="true">${g}</span>${escapeHtml(UX(m.headline.key))}</h2>`
+        +`<p class="ho-lead">${escapeHtml(UX(m.explanation.key))}</p>`
+        +(m.guard?`<p class="ho-guard">${escapeHtml(UX(m.guard.key))}</p>`:"")
+        +(m.primaryAction?`<button type="button" class="ho-cta" data-ho-action="${escapeHtml(m.primaryAction.action)}">${escapeHtml(UX(m.primaryAction.key))}</button>`:"")
+        +`</section>`;
+    }
+    // Le statut du fichier est un AXE DISTINCT du processus : il a sa propre ligne, toujours
+    // présente, et il ne se fond jamais dans le titre.
+    function fileStatusHtml(m){
+      const d=m.documentStatus,g={positive:"✓",critical:"✕",neutral:"ℹ",none:"—",warning:"!"}[d.tone]||"—";
+      return `<section class="ho-file tone-${d.tone}">`
+        +`<div class="ho-file-line"><span class="ho-glyph" aria-hidden="true">${g}</span>`
+        +`<span class="ho-file-main">${escapeHtml(UX(d.key))}</span></div>`
+        +(d.detailKey?`<p class="ho-file-sub">${escapeHtml(UX(d.detailKey))}</p>`:"")
+        +`</section>`;
+    }
+    function processHtml(m){
+      if(!m.payloadTrustworthy||!m.observedFacts.length) return "";
+      return `<section class="ho-block"><h3 class="ho-h3">${escapeHtml(UX("h.process"))}</h3>`
+        +`<ul class="ho-facts">`
+        +m.observedFacts.map(f=>`<li>${escapeHtml(UX(f.key,f.args))}</li>`).join("")
+        +`</ul></section>`;
+    }
+    function trustHtml(m){
+      const t=m.trustStatus;
+      return `<section class="ho-trust tone-${t.tone}">`
+        +`<div class="ho-trust-main">${escapeHtml(UX(t.key))}</div>`
+        +(t.detailKey?`<p class="ho-trust-sub">${escapeHtml(UX(t.detailKey))}</p>`:"")
+        +(m.registry&&m.registry.tone!=="critical"?`<p class="ho-trust-sub">${escapeHtml(UX(m.registry.key))}</p>`:"")
+        +`</section>`;
+    }
+    // Divulgation progressive : deux replis natifs, pas de modal, pas de navigation.
+    function disclosureHtml(m){
+      const liste=(xs)=>`<ul class="ho-facts">`+xs.map(x=>`<li>${escapeHtml(UX(x.key,x.args))}</li>`).join("")+`</ul>`;
+      let h="";
+      if(m.establishedFacts.length)
+        h+=`<details class="ho-fold"><summary><span class="ho-fold-t">${escapeHtml(UX("h.establishes"))}</span></summary>${liste(m.establishedFacts)}</details>`;
+      // La quatrième question du destinataire — « que ne sait-on pas ? » — reçoit une réponse
+      // AVANT tout clic. Le repli ne sert qu'à la détailler, il ne la cache pas.
+      h+=`<details class="ho-fold"><summary><span class="ho-fold-t">${escapeHtml(UX("h.cannot"))}</span>`
+        +`<span class="ho-fold-x">${escapeHtml(UX("h.cannot.teaser"))}</span></summary>${liste(m.limitations)}</details>`;
+      return h;
+    }
     async function renderVerification(){
-      const resultEl=$("result"),detailsEl=$("details");if(!resultEl||!detailsEl)return;if(!lastHo){resultEl.style.display="none";detailsEl.style.display="none";resultEl.innerHTML="";detailsEl.innerHTML="";return}
+      const resultEl=$("result"),detailsEl=$("details");if(!resultEl||!detailsEl)return;
+      const carte=document.querySelector(".main-card");
+      if(!lastHo){resultEl.style.display="none";detailsEl.style.display="none";resultEl.innerHTML="";detailsEl.innerHTML="";if(carte)carte.classList.remove("ho-has-result");return}
+      if(carte)carte.classList.add("ho-has-result");
       const R=COPY[currentLang].result,D=COPY[currentLang].details;resultEl.style.display="block";detailsEl.style.display="block";
       const {ok,doc,digestHex,payloadMatch,pubUsedB64,mode}=lastHo,expectedDocSha=getExpectedDocumentSha(doc);
       // LE verdict documentaire. Calculé une fois, ici, par la logique d'`artifact_binding.js`.
@@ -381,11 +689,34 @@
       let payloadHtml="";if(mode==="v1"){if(payloadMatch===true)payloadHtml=`<span class="ok">${isFr?"Intégrité de la preuve : OK":"Proof integrity: OK"} ✅</span>`;else if(payloadMatch===false)payloadHtml=`<span class="warn">${R.payloadDifferent} ⚠️</span>`}else{if(payloadMatch===true)payloadHtml=`<span class="ok">${R.payloadToSignOk} ✅</span>`;else if(payloadMatch===false)payloadHtml=`<span class="warn">${R.payloadToSignDifferent} ⚠️</span>`}
       const sigLabel=isFr?"Signature cryptographique":"Cryptographic signature";
       const _simpleHtml=buildSimpleSummaryHtml(doc,ok,lastArtifactCheck,isFr);
-      resultEl.innerHTML=tierHtml+_capNoticeHtml+_simpleHtml+_attBannerHtml+_registryStatusHtml+_reasonsHtml+`<details class="technical-details"><summary>${isFr?"Détails techniques":"Technical details"}</summary><div style="margin-top:8px;">`+_contributionHtml+_claimsHtml+`<div style="margin-top:14px;padding-top:10px;border-top:1px solid rgba(232,238,252,.08);font-size:16px;font-weight:800;">${sigLabel} : <span class="${ok?"ok":"bad"}">${ok?(isFr?"valide":"valid")+" ✅":(isFr?"invalide":"invalid")+" ❌"}</span></div><div style="margin-top:8px;">${docCheckHtml}</div><div style="margin-top:8px;">${payloadHtml}</div>`+_trustMetaHtml+`</div></details>`+disclaimerHtml;
+      // LE modèle destinataire. Il ne reçoit que des faits déjà établis — signature vérifiée,
+      // artefact comparé, attestation contrôlée, registre interrogé — et décide de la
+      // hiérarchie. Les verdicts moteur ne commandent plus le haut de page.
+      const _model=window.HO_UX_MODEL.buildRecipientModel({
+        proofOk:ok,doc:doc,artifactCheck:lastArtifactCheck,
+        serverAttestation:_attResult,registryStatus:_registryResult});
+      // Hiérarchie : ce que le destinataire doit comprendre d'abord, puis le reste.
+      // RIEN n'est supprimé — l'ancienne surface entière passe sous « Détails techniques »,
+      // repliée. On change l'ordre de lecture, pas la capacité d'audit.
+      resultEl.innerHTML=heroHtml(_model)+fileStatusHtml(_model)+processHtml(_model)
+        +trustHtml(_model)+disclosureHtml(_model)
+        +`<details class="technical-details"><summary>${isFr?"Détails techniques":"Technical details"}</summary><div style="margin-top:8px;">`
+        +tierHtml+_capNoticeHtml+_simpleHtml+_attBannerHtml+_registryStatusHtml+_reasonsHtml
+        +_contributionHtml+_claimsHtml
+        +`<div style="margin-top:14px;padding-top:10px;border-top:1px solid rgba(232,238,252,.08);font-size:16px;font-weight:800;">${sigLabel} : <span class="${ok?"ok":"bad"}">${ok?(isFr?"valide":"valid")+" ✅":(isFr?"invalide":"invalid")+" ❌"}</span></div><div style="margin-top:8px;">${docCheckHtml}</div><div style="margin-top:8px;">${payloadHtml}</div>`
+        +_trustMetaHtml+`</div></details>`
+        +(_model.payloadTrustworthy?disclaimerHtml:"");
+      // L'action du hero réutilise les entrées existantes : aucune étape intermédiaire.
+      const _btn=resultEl.querySelector("[data-ho-action]");
+      if(_btn) _btn.addEventListener("click",()=>{
+        const quoi=_btn.getAttribute("data-ho-action");
+        const cible=quoi==="pick-proof"?$("fileHo"):$("fileMain");
+        if(cible) cible.click();
+      });
       resultEl.scrollIntoView({behavior:"smooth",block:"nearest"});
-      if(mode==="v1"){const payload=doc.payload||{},issuer=payload.issuer||{},project=payload.project||{},ps=payload.process_summary||{},verification=payload.verification||{},leDoc=payload.document||{},le=payload.label_eligibility||{},activeSeconds=(ps.active_ms!=null)?Math.round(Number(ps.active_ms)/1000):"—";detailsEl.innerHTML=`<details class="technical-details"><summary>${isFr?"Détails techniques":"Technical details"}</summary><div class="muted" style="margin-top:10px;font-size:11px;">${R.digest}: <b>${escapeHtml(digestHex)}</b></div><div style="display:flex;gap:18px;flex-wrap:wrap;margin-top:12px;"><div style="flex:1;min-width:260px;"><div style="font-weight:950;margin-bottom:6px;">${D.summary}</div><div class="muted">${D.format}: <b>${escapeHtml(doc.format||"?")}</b></div><div class="muted">${D.version}: <b>${escapeHtml(doc.version||"?")}</b></div><div class="muted">${D.certId}: <b>${escapeHtml(payload.certificate_id||"?")}</b></div><div class="muted">${D.issuer}: <b>${escapeHtml(issuer.product||"?")}</b></div><div class="muted">issuer_mode: <b>${escapeHtml(issuer.issuer_mode||"—")}</b></div><div class="muted">app_version: <b>${escapeHtml(issuer.app_version||"—")}</b></div><div class="muted">security_schema_version: <b>${escapeHtml(issuer.security_schema_version||"—")}</b></div><div class="muted">proof_trust_level: <b>${escapeHtml(issuer.proof_trust_level||"—")}</b></div><div class="muted">key_trust: <b>${escapeHtml(issuer.key_trust||"—")}</b></div><div class="muted">${D.project}: <b>${escapeHtml(project.name||"?")}</b></div><div class="muted">${D.verdict}: <b>${escapeHtml(ps.verdict||"?")}</b></div></div><div style="flex:1;min-width:260px;"><div style="font-weight:950;margin-bottom:6px;">${D.processSummary}</div><div class="muted">active_seconds: <b>${escapeHtml(activeSeconds)}</b></div><div class="muted">scp_score: <b>${escapeHtml(ps.scp_score ?? "—")}</b></div><div class="muted">evidence_score: <b>${escapeHtml(ps.evidence_score ?? "—")}</b></div><div class="muted">valid_sessions: <b>${escapeHtml(ps.valid_sessions_count ?? "—")}</b></div><div class="muted">certified_sessions: <b>${escapeHtml(ps.certified_sessions_count ?? "—")}</b></div></div></div><div style="margin-top:14px;font-weight:950;">${D.pubkey}</div><pre>${escapeHtml(pubUsedB64)}</pre><div style="margin-top:14px;font-weight:950;">${D.expectedDoc}</div><pre>${escapeHtml(expectedDocSha||"—")}</pre><div style="margin-top:14px;font-weight:950;">${D.verificationMethod}</div><pre>${escapeHtml(verification.verification_method||"—")}</pre><div style="margin-top:18px;padding-top:14px;border-top:1px solid rgba(232,238,252,.08);"><div style="font-weight:950;margin-bottom:8px;">Label Eligibility</div><div class="muted">visible_verdict: <b>${escapeHtml(le.visible_verdict||"—")}</b></div><div class="muted">raw_engine_verdict: <b>${escapeHtml(le.raw_engine_verdict||"—")}</b></div><div class="muted">binding_cap_reason: <b>${escapeHtml(le.binding_cap_reason||"—")}</b></div><div class="muted">caps_applied: <b>${escapeHtml(Array.isArray(le.caps_applied)?le.caps_applied.join(", ")||"aucun":"—")}</b></div><div class="muted">paste_cap_applied: <b>${escapeHtml(String(le.paste_cap_applied??false))}</b></div></div><div style="margin-top:14px;"><div style="font-weight:950;margin-bottom:8px;">Document</div><div class="muted">binding_mode: <b>${escapeHtml(leDoc.binding_mode||"—")}</b></div><div class="muted">delta_significant: <b>${escapeHtml(leDoc.delta_significant!=null?String(leDoc.delta_significant):"—")}</b></div><div class="muted">contribution_score: <b>${escapeHtml(leDoc.contribution_score!=null?String(leDoc.contribution_score):"—")}</b></div><div class="muted">contribution_coherence: <b>${escapeHtml(leDoc.contribution_coherence||"—")}</b></div><div class="muted">contribution_flags: <b>${escapeHtml(Array.isArray(leDoc.contribution_flags)?leDoc.contribution_flags.join(", ")||"aucun":"—")}</b></div></div><div style="margin-top:14px;"><div style="font-weight:950;margin-bottom:8px;">Paste Summary</div><div class="muted">total_paste_events: <b>${escapeHtml(String(ps.paste_summary?.total_paste_events??0))}</b></div><div class="muted">total_pasted_chars: <b>${escapeHtml(String(ps.paste_summary?.total_pasted_chars??0))}</b></div><div class="muted">paste_dominant_sessions: <b>${escapeHtml(String(ps.paste_summary?.paste_dominant_sessions??0))}</b></div><div class="muted">paste_heavy_sessions: <b>${escapeHtml(String(ps.paste_summary?.paste_heavy_sessions??0))}</b></div><div class="muted">paste_material_sessions: <b>${escapeHtml(String(ps.paste_summary?.paste_material_sessions??0))}</b></div></div><div style="margin-top:14px;"><div style="font-weight:950;margin-bottom:8px;">Claims Allowed</div><div class="muted">${escapeHtml(Array.isArray(le.claims_allowed)&&le.claims_allowed.length?le.claims_allowed.join(", "):"—")}</div></div><div style="margin-top:14px;"><div style="font-weight:950;margin-bottom:8px;">Claims Forbidden</div><div class="muted">${escapeHtml(Array.isArray(le.claims_forbidden)&&le.claims_forbidden.length?le.claims_forbidden.join(", "):"—")}</div></div>`+buildServerAttestationDetailsHtml(_attResult,_att,isFr)+`</details>`;return}
+      if(mode==="v1"){const payload=doc.payload||{},issuer=payload.issuer||{},project=payload.project||{},ps=payload.process_summary||{},verification=payload.verification||{},leDoc=payload.document||{},le=payload.label_eligibility||{},activeSeconds=(ps.active_ms!=null)?Math.round(Number(ps.active_ms)/1000):"—";detailsEl.innerHTML=`<details class="technical-details"><summary>${escapeHtml(UX("h.raw"))}</summary><div class="muted" style="margin-top:10px;font-size:11px;">${R.digest}: <b>${escapeHtml(digestHex)}</b></div><div style="display:flex;gap:18px;flex-wrap:wrap;margin-top:12px;"><div style="flex:1;min-width:260px;"><div style="font-weight:950;margin-bottom:6px;">${D.summary}</div><div class="muted">${D.format}: <b>${escapeHtml(doc.format||"?")}</b></div><div class="muted">${D.version}: <b>${escapeHtml(doc.version||"?")}</b></div><div class="muted">${D.certId}: <b>${escapeHtml(payload.certificate_id||"?")}</b></div><div class="muted">${D.issuer}: <b>${escapeHtml(issuer.product||"?")}</b></div><div class="muted">issuer_mode: <b>${escapeHtml(issuer.issuer_mode||"—")}</b></div><div class="muted">app_version: <b>${escapeHtml(issuer.app_version||"—")}</b></div><div class="muted">security_schema_version: <b>${escapeHtml(issuer.security_schema_version||"—")}</b></div><div class="muted">proof_trust_level: <b>${escapeHtml(issuer.proof_trust_level||"—")}</b></div><div class="muted">key_trust: <b>${escapeHtml(issuer.key_trust||"—")}</b></div><div class="muted">${D.project}: <b>${escapeHtml(project.name||"?")}</b></div><div class="muted">${D.verdict}: <b>${escapeHtml(ps.verdict||"?")}</b></div></div><div style="flex:1;min-width:260px;"><div style="font-weight:950;margin-bottom:6px;">${D.processSummary}</div><div class="muted">active_seconds: <b>${escapeHtml(activeSeconds)}</b></div><div class="muted">scp_score: <b>${escapeHtml(ps.scp_score ?? "—")}</b></div><div class="muted">evidence_score: <b>${escapeHtml(ps.evidence_score ?? "—")}</b></div><div class="muted">valid_sessions: <b>${escapeHtml(ps.valid_sessions_count ?? "—")}</b></div><div class="muted">certified_sessions: <b>${escapeHtml(ps.certified_sessions_count ?? "—")}</b></div></div></div><div style="margin-top:14px;font-weight:950;">${D.pubkey}</div><pre>${escapeHtml(pubUsedB64)}</pre><div style="margin-top:14px;font-weight:950;">${D.expectedDoc}</div><pre>${escapeHtml(expectedDocSha||"—")}</pre><div style="margin-top:14px;font-weight:950;">${D.verificationMethod}</div><pre>${escapeHtml(verification.verification_method||"—")}</pre><div style="margin-top:18px;padding-top:14px;border-top:1px solid rgba(232,238,252,.08);"><div style="font-weight:950;margin-bottom:8px;">Label Eligibility</div><div class="muted">visible_verdict: <b>${escapeHtml(le.visible_verdict||"—")}</b></div><div class="muted">raw_engine_verdict: <b>${escapeHtml(le.raw_engine_verdict||"—")}</b></div><div class="muted">binding_cap_reason: <b>${escapeHtml(le.binding_cap_reason||"—")}</b></div><div class="muted">caps_applied: <b>${escapeHtml(Array.isArray(le.caps_applied)?le.caps_applied.join(", ")||"aucun":"—")}</b></div><div class="muted">paste_cap_applied: <b>${escapeHtml(String(le.paste_cap_applied??false))}</b></div></div><div style="margin-top:14px;"><div style="font-weight:950;margin-bottom:8px;">Document</div><div class="muted">binding_mode: <b>${escapeHtml(leDoc.binding_mode||"—")}</b></div><div class="muted">delta_significant: <b>${escapeHtml(leDoc.delta_significant!=null?String(leDoc.delta_significant):"—")}</b></div><div class="muted">contribution_score: <b>${escapeHtml(leDoc.contribution_score!=null?String(leDoc.contribution_score):"—")}</b></div><div class="muted">contribution_coherence: <b>${escapeHtml(leDoc.contribution_coherence||"—")}</b></div><div class="muted">contribution_flags: <b>${escapeHtml(Array.isArray(leDoc.contribution_flags)?leDoc.contribution_flags.join(", ")||"aucun":"—")}</b></div></div><div style="margin-top:14px;"><div style="font-weight:950;margin-bottom:8px;">Paste Summary</div><div class="muted">total_paste_events: <b>${escapeHtml(String(ps.paste_summary?.total_paste_events??0))}</b></div><div class="muted">total_pasted_chars: <b>${escapeHtml(String(ps.paste_summary?.total_pasted_chars??0))}</b></div><div class="muted">paste_dominant_sessions: <b>${escapeHtml(String(ps.paste_summary?.paste_dominant_sessions??0))}</b></div><div class="muted">paste_heavy_sessions: <b>${escapeHtml(String(ps.paste_summary?.paste_heavy_sessions??0))}</b></div><div class="muted">paste_material_sessions: <b>${escapeHtml(String(ps.paste_summary?.paste_material_sessions??0))}</b></div></div><div style="margin-top:14px;"><div style="font-weight:950;margin-bottom:8px;">Claims Allowed</div><div class="muted">${escapeHtml(Array.isArray(le.claims_allowed)&&le.claims_allowed.length?le.claims_allowed.join(", "):"—")}</div></div><div style="margin-top:14px;"><div style="font-weight:950;margin-bottom:8px;">Claims Forbidden</div><div class="muted">${escapeHtml(Array.isArray(le.claims_forbidden)&&le.claims_forbidden.length?le.claims_forbidden.join(", "):"—")}</div></div>`+buildServerAttestationDetailsHtml(_attResult,_att,isFr)+`</details>`;return}
       const ho=doc.ho||{},subj=doc.subject||{},score=doc.score||{},m=(doc.evidence&&doc.evidence.sessions&&doc.evidence.sessions[0]&&doc.evidence.sessions[0].metrics)||{};
-      detailsEl.innerHTML=`<details class="technical-details"><summary>${isFr?"Détails techniques":"Technical details"}</summary><div class="muted" style="margin-top:10px;font-size:11px;">${R.digest}: <b>${escapeHtml(digestHex)}</b></div><div style="display:flex;gap:18px;flex-wrap:wrap;margin-top:12px;"><div style="flex:1;min-width:260px;"><div style="font-weight:950;margin-bottom:6px;">${D.summary}</div><div class="muted">HO v: <b>${escapeHtml(ho.version||"?")}</b></div><div class="muted">${D.certId}: <b>${escapeHtml(ho.certificate_id||"?")}</b></div><div class="muted">App: <b>${escapeHtml((ho.app&&ho.app.name)||"?")}</b> ${(ho.app&&ho.app.version)?("v"+escapeHtml(ho.app.version)):""}</div><div class="muted">Titre: <b>${escapeHtml(subj.title||"?")}</b></div><div class="muted">${D.verdict}: <b>${escapeHtml(score.verdict||"?")}</b></div></div><div style="flex:1;min-width:260px;"><div style="font-weight:950;margin-bottom:6px;">${D.processSummary}</div><div class="muted">active_seconds: <b>${escapeHtml(m.active_seconds ?? "?")}</b></div><div class="muted">keystrokes: <b>${escapeHtml(m.keystrokes ?? "?")}</b></div><div class="muted">mouse_moves: <b>${escapeHtml(m.mouse_moves ?? "?")}</b></div><div class="muted">pastes: <b>${escapeHtml(m.pastes ?? "?")}</b></div></div></div><div style="margin-top:14px;font-weight:950;">${D.pubkey}</div><pre>${escapeHtml(pubUsedB64)}</pre><div style="margin-top:14px;font-weight:950;">${D.expectedDoc}</div><pre>${escapeHtml(expectedDocSha||"—")}</pre></details>`;
+      detailsEl.innerHTML=`<details class="technical-details"><summary>${escapeHtml(UX("h.raw"))}</summary><div class="muted" style="margin-top:10px;font-size:11px;">${R.digest}: <b>${escapeHtml(digestHex)}</b></div><div style="display:flex;gap:18px;flex-wrap:wrap;margin-top:12px;"><div style="flex:1;min-width:260px;"><div style="font-weight:950;margin-bottom:6px;">${D.summary}</div><div class="muted">HO v: <b>${escapeHtml(ho.version||"?")}</b></div><div class="muted">${D.certId}: <b>${escapeHtml(ho.certificate_id||"?")}</b></div><div class="muted">App: <b>${escapeHtml((ho.app&&ho.app.name)||"?")}</b> ${(ho.app&&ho.app.version)?("v"+escapeHtml(ho.app.version)):""}</div><div class="muted">Titre: <b>${escapeHtml(subj.title||"?")}</b></div><div class="muted">${D.verdict}: <b>${escapeHtml(score.verdict||"?")}</b></div></div><div style="flex:1;min-width:260px;"><div style="font-weight:950;margin-bottom:6px;">${D.processSummary}</div><div class="muted">active_seconds: <b>${escapeHtml(m.active_seconds ?? "?")}</b></div><div class="muted">keystrokes: <b>${escapeHtml(m.keystrokes ?? "?")}</b></div><div class="muted">mouse_moves: <b>${escapeHtml(m.mouse_moves ?? "?")}</b></div><div class="muted">pastes: <b>${escapeHtml(m.pastes ?? "?")}</b></div></div></div><div style="margin-top:14px;font-weight:950;">${D.pubkey}</div><pre>${escapeHtml(pubUsedB64)}</pre><div style="margin-top:14px;font-weight:950;">${D.expectedDoc}</div><pre>${escapeHtml(expectedDocSha||"—")}</pre></details>`;
     }
     async function handleHoText(text){try{lastHo=await verifyHoJson(text);updateContextFromProofDoc(lastHo.doc);renderVerification()}catch(e){contextualProofState={found:"",verdict:"unknown"};renderContextualVerify();const resultEl=$("result"),detailsEl=$("details");if(resultEl){resultEl.style.display="block";resultEl.innerHTML=`<div style="font-size:18px;font-weight:950;">${COPY[currentLang].error}: <span class="bad">${escapeHtml(e.message||String(e))}</span></div>`}if(detailsEl){detailsEl.style.display="none";detailsEl.innerHTML=""}}}
     // `roleHint` dit d'où vient le fichier, jamais ce qu'il est. Il ne crée aucune preuve :
